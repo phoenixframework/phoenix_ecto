@@ -16,6 +16,11 @@ defmodule PhoenixEctoTest do
     assert html_escape(Decimal.new("1.0")) == {:safe, "1.0"}
   end
 
+  test "converts time to safe" do
+    t = %Ecto.Time{hour: 0, min: 0, sec: 0}
+    assert html_escape(t) == {:safe, "00:00:00"}
+  end
+
   test "form_for/4 with new changeset" do
     changeset = Ecto.Changeset.cast(%User{}, nil, ~w(), ~w())
 
