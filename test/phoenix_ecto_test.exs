@@ -16,9 +16,15 @@ defmodule PhoenixEctoTest do
     assert html_escape(Decimal.new("1.0")) == {:safe, "1.0"}
   end
 
-  test "converts time to safe" do
+  test "converts datetime to safe" do
     t = %Ecto.Time{hour: 0, min: 0, sec: 0}
     assert html_escape(t) == {:safe, "00:00:00"}
+
+    d = %Ecto.Date{year: 2010, month: 4, day: 17}
+    assert html_escape(d) == {:safe, "2010-04-17"}
+
+    dt = %Ecto.DateTime{year: 2010, month: 4, day: 17, hour: 0, min: 0, sec: 0}
+    assert html_escape(dt) == {:safe, "2010-04-17T00:00:00Z"}
   end
 
   test "form_for/4 with new changeset" do

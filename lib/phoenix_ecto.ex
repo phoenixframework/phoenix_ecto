@@ -35,9 +35,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
   end
 
-  defimpl Phoenix.HTML.Safe, for: Ecto.Time do
+  defimpl Phoenix.HTML.Safe, for: [Ecto.Time, Ecto.Date, Ecto.DateTime] do
+    @impl Module.concat(String.Chars, @for)
+
     def to_iodata(t) do
-      "#{t}" 
+      @impl.to_string(t)
     end
   end
 end
