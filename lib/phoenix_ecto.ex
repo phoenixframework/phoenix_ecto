@@ -34,4 +34,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       Decimal.to_string(dec)
     end
   end
+
+  defimpl Phoenix.HTML.Safe, for: Ecto.Time do
+    def to_iodata(t) do
+      "#{t}" 
+    end
+  end
 end
