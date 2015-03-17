@@ -15,7 +15,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_name(%{__struct__: module}),
       do: Phoenix.Naming.resource_name(module)
 
-    defp form_for_method(%{__state__: :loaded}), do: "put"
+    defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
     defp form_for_method(_), do: "post"
   end
 

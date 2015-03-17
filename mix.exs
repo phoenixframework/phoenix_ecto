@@ -34,6 +34,6 @@ defmodule PhoenixEcto.Mixfile do
     # primary key functions are changing in the
     # next release.
     [{:phoenix, "~> 0.10-dev"},
-     {:ecto, "~> 0.9.0"}]
+     {:ecto, github: "elixir-lang/ecto"}]
   end
 end
