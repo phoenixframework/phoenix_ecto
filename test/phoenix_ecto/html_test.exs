@@ -1,4 +1,4 @@
-defmodule PhoenixEctoTest do
+defmodule PhoenixEcto.HTMLTest do
   use ExUnit.Case, async: true
 
   defmodule User do
