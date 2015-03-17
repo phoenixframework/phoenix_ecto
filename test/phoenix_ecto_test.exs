@@ -34,7 +34,6 @@ defmodule PhoenixEctoTest do
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{}
-      assert f.hidden == []
       ""
     end)
 
@@ -49,7 +48,6 @@ defmodule PhoenixEctoTest do
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{"foo" => "bar"}
-      assert f.hidden == [id: 13]
       ""
     end)
 

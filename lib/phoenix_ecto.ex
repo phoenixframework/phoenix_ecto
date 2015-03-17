@@ -7,7 +7,6 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         source: changeset,
         name: to_string(name || form_for_name(model)),
         model: model,
-        hidden: form_for_hidden(model),
         params: params || %{},
         options: Keyword.put_new(opts, :method, form_for_method(model))
       }
@@ -18,28 +17,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp form_for_method(%{__state__: :loaded}), do: "put"
     defp form_for_method(_), do: "post"
-
-    defp form_for_hidden(%{__state__: :loaded} = model) do
-      if pk = Ecto.Model.primary_key(model) do
-        [{model.__struct__.__schema__(:primary_key), pk}]
-      else
-        []
-      end
-    end
-    defp form_for_hidden(_), do: []
   end
 
-  defimpl Phoenix.HTML.Safe, for: Decimal do
-    def to_iodata(dec) do
-      Decimal.to_string(dec)
-    end
-  end
-
-  defimpl Phoenix.HTML.Safe, for: [Ecto.Time, Ecto.Date, Ecto.DateTime] do
-    @impl Module.concat(String.Chars, @for)
-
+  defimpl Phoenix.HTML.Safe, for: [Decimal, Ecto.Time, Ecto.Date, Ecto.DateTime] do
     def to_iodata(t) do
-      @impl.to_string(t)
+      @for.to_string(t)
     end
   end
 end
