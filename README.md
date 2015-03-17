@@ -24,8 +24,10 @@ You can use `phoenix_ecto` in your projects in two steps:
 
 This project:
 
-  * Implements the Phoenix.HTML.FormData protocol for Ecto.Changeset
-  * Implements the Phoenix.HTML.Safe protocol for Decimal
+  * Implements the `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+  * Implements the `Phoenix.HTML.Safe` protocol for `Decimal`
+  * Implements the `Poison.Encoder` protocol for `Ecto.Date`, `Time` and
+    `DateTime`
 
 ## License
 
