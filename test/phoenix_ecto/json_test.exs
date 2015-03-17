@@ -1,7 +1,7 @@
 defmodule PhoenixEcto.JSONTest do
   use ExUnit.Case, async: true
 
-  test "encodes Ecto time structs" do
+  test "encodes Ecto datetime structs" do
     time = %Ecto.Time{hour: 0, min: 0, sec: 0}
     assert Poison.encode!(time) == Ecto.Time.to_iso8601(time)
 
