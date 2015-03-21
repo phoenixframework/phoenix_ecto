@@ -30,9 +30,9 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp deps do
-    # Once Phoenix.HTML is extracted out of Phoenix,
-    # we should rather depend on Phoenix.HTML and
-    # Poison directly, but as optional dependencies.
+    # Once Phoenix.HTML is extracted from Phoenix,
+    # we should depend on Phoenix.HTML and Poison
+    # directly, but as optional dependencies.
     [{:phoenix, "~> 0.10"},
      {:ecto, "~> 0.10"}]
   end
