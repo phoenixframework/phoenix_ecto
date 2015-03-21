@@ -26,7 +26,7 @@ This project:
 
   * Implements the `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
   * Implements the `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * Implements the `Poison.Encoder` protocol for `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+  * Implements the `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
 
 ## License
 

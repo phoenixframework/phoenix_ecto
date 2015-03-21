@@ -30,9 +30,9 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp deps do
-    # We are strict on Ecto requirement because
-    # primary key functions are changing in the
-    # next release.
+    # Once Phoenix.HTML is extracted out of Phoenix,
+    # we should rather depend on Phoenix.HTML and
+    # Poison directly, but as optional dependencies.
     [{:phoenix, "~> 0.10-dev"},
      {:ecto, github: "elixir-lang/ecto"}]
   end
