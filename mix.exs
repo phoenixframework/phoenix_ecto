@@ -1,7 +1,7 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [app: :phoenix_ecto,
@@ -33,7 +33,7 @@ defmodule PhoenixEcto.Mixfile do
     # Once Phoenix.HTML is extracted out of Phoenix,
     # we should rather depend on Phoenix.HTML and
     # Poison directly, but as optional dependencies.
-    [{:phoenix, "~> 0.10-dev"},
-     {:ecto, github: "elixir-lang/ecto"}]
+    [{:phoenix, "~> 0.10"},
+     {:ecto, "~> 0.10"}]
   end
 end

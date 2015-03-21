@@ -12,6 +12,14 @@ defmodule PhoenixEcto.JSONTest do
     assert Poison.encode!(dt) == ~s("2010-04-17T00:00:00Z")
   end
 
+  test "encodes Ecto changeset errors" do
+    changeset = %Ecto.Changeset{
+      errors: [name: "can't be blank", age: "is invalid", name: "is taken"]
+    }
+    assert Poison.encode!(changeset) ==
+           ~s({"name":["can't be blank","is taken"],"age":["is invalid"]})
+  end
+
   test "encodes decimal" do
     decimal = Decimal.new("1.0")
     assert Poison.encode!(decimal) == ~s("1.0")

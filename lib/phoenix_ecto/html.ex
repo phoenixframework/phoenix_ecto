@@ -3,6 +3,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     def to_form(%Ecto.Changeset{model: model, params: params} = changeset, opts) do
       {name, opts} = Keyword.pop(opts, :name)
 
+      # TODO: Add :errors key once Phoenix v0.11 is out
       %Phoenix.HTML.Form{
         source: changeset,
         name: to_string(name || form_for_name(model)),

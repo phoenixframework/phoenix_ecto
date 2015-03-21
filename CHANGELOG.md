@@ -4,7 +4,7 @@
 
 * Enhancements
   * Implement `Phoenix.HTML.Safe` for `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * Implement `Poison.Encoder` for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+  * Implement `Poison.Encoder` for `Ecto.Changeset`, `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
 
 ## v0.1.0
 

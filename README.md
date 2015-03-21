@@ -8,7 +8,7 @@ You can use `phoenix_ecto` in your projects in two steps:
 
     ```elixir
     def deps do
-      [{:phoenix_ecto, "~> 0.1.0"}]
+      [{:phoenix_ecto, "~> 0.2.0"}]
     end
     ```
 
@@ -26,7 +26,7 @@ This project:
 
   * Implements the `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
   * Implements the `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * Implements the `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+  * Implements the `Poison.Encoder` protocol for `Ecto.Changeset` (it renders its errors as JSON), `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
 
 ## License
 
