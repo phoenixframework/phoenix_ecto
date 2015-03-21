@@ -11,8 +11,14 @@ if Code.ensure_loaded?(Poison) do
     def encode(%{errors: errors}, opts) do
       errors
       |> Enum.reverse()
-      |> Enum.reduce(%{}, fn {k, v}, acc -> Map.update(acc, k, [v], &[v|&1]) end)
+      |> merge_error_keys()
       |> Poison.Encoder.encode(opts)
+    end
+
+    defp merge_error_keys(errors) do
+      Enum.reduce(errors, %{}, fn({k, v}, acc ) ->
+         Map.update(acc, k, [v], &[v|&1])
+       end)
     end
   end
 end
