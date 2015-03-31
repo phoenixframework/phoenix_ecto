@@ -3,10 +3,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     def to_form(%Ecto.Changeset{model: model, params: params} = changeset, opts) do
       {name, opts} = Keyword.pop(opts, :name)
 
-      # TODO: Add :errors key once Phoenix v0.11 is out
       %Phoenix.HTML.Form{
         source: changeset,
         name: to_string(name || form_for_name(model)),
+        errors: form_for_errors(changeset.errors),
         model: model,
         params: params || %{},
         options: Keyword.put_new(opts, :method, form_for_method(model))
@@ -18,6 +18,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
     defp form_for_method(_), do: "post"
+
+    defp form_for_errors(errors) do
+      for {attr, message} <- errors do
+        {attr, form_for_error(message)}
+      end
+    end
+
+    defp form_for_error(msg) when is_binary(msg), do: msg
+    defp form_for_error({msg, count}) when is_binary(msg) do
+      String.replace(msg, "%{count}", Integer.to_string(count))
+    end
   end
 
   defimpl Phoenix.HTML.Safe, for: [Decimal, Ecto.Time, Ecto.Date, Ecto.DateTime] do

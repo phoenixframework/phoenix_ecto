@@ -34,10 +34,11 @@ defmodule PhoenixEcto.HTMLTest do
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{}
-      ""
+      "FROM FORM"
     end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
+    assert form =~ "FROM FORM"
   end
 
   test "form_for/4 with loaded changeset" do
@@ -48,11 +49,12 @@ defmodule PhoenixEcto.HTMLTest do
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{"foo" => "bar"}
-      ""
+      "FROM FORM"
     end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
     assert form =~ ~s(<input name="_method" type="hidden" value="put">)
+    assert form =~ "FROM FORM"
     refute form =~ ~s(<input id="user_id" name="user[id]" type="hidden" value="13">)
   end
 
@@ -62,9 +64,25 @@ defmodule PhoenixEcto.HTMLTest do
     {:safe, form} = form_for(changeset, "/", [name: "another", multipart: true], fn f ->
       assert f.name == "another"
       assert f.source == changeset
-      ""
+      "FROM FORM"
     end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+    assert form =~ "FROM FORM"
+  end
+
+  test "form_for/4 with errors" do
+    changeset =
+      %User{}
+      |> Ecto.Changeset.cast(%{"name" => "JV"}, ~w(name), ~w())
+      |> Ecto.Changeset.validate_length(:name, min: 3)
+
+    {:safe, form} = form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+      assert f.errors == [name: "should be at least 3 characters"]
+      "FROM FORM"
+    end)
+
+    assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+    assert form =~ "FROM FORM"
   end
 end
