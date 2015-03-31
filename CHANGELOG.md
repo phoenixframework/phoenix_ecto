@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.0
+
+* Enhancements
+  * Support Phoenix v0.11.0 errors entry in FormData
+
 ## v0.2.0
 
 * Enhancements
