@@ -1,9 +1,14 @@
 # Changelog
 
+## v0.3.1
+
+* Enhancements
+  * Implement Plug.Exception for Ecto exceptions
+
 ## v0.3.0
 
 * Enhancements
-  * Support Phoenix v0.11.0 errors entry in FormData
+  * Support Phoenix v0.11.0 errors entry in form data
 
 ## v0.2.0
 
