@@ -17,8 +17,14 @@ if Code.ensure_loaded?(Poison) do
 
     defp merge_error_keys(errors) do
       Enum.reduce(errors, %{}, fn({k, v}, acc ) ->
-         Map.update(acc, k, [v], &[v|&1])
-       end)
+        v = json_error(v)
+        Map.update(acc, k, [v], &[v|&1])
+      end)
+    end
+
+    defp json_error(msg) when is_binary(msg), do: msg
+    defp json_error({msg, count}) when is_binary(msg) do
+      String.replace(msg, "%{count}", Integer.to_string(count))
     end
   end
 end

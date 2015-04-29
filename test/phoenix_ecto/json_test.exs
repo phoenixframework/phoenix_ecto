@@ -14,10 +14,12 @@ defmodule PhoenixEcto.JSONTest do
 
   test "encodes Ecto changeset errors" do
     changeset = %Ecto.Changeset{
-      errors: [name: "can't be blank", age: "is invalid", name: "is taken"]
+      errors: [name: "can't be blank", age: "is invalid",
+               name: "is taken", title: {"too long %{count}", 3}]
     }
+
     assert Poison.encode!(changeset) ==
-           ~s({"name":["can't be blank","is taken"],"age":["is invalid"]})
+           ~s({"title":["too long 3"],"name":["can't be blank","is taken"],"age":["is invalid"]})
   end
 
   test "encodes decimal" do
