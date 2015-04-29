@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2
+
+* Bug fix
+  * Ensure we interpolate `%{count}` in JSON encoding
+
 ## v0.3.1
 
 * Enhancements
