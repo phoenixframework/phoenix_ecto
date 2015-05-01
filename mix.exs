@@ -33,7 +33,7 @@ defmodule PhoenixEcto.Mixfile do
     # Once Phoenix.HTML is extracted from Phoenix,
     # we should depend on Phoenix.HTML and Poison
     # directly, but as optional dependencies.
-    [{:phoenix, "~> 0.12-dev"},
+    [{:phoenix, "~> 0.12.0"},
      {:ecto, "~> 0.10"}]
   end
 end
