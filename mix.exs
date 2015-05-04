@@ -1,7 +1,7 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
-  @version "0.3.2"
+  @version "0.4.0"
 
   def project do
     [app: :phoenix_ecto,
@@ -20,7 +20,7 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :ecto, :phoenix]]
+    [applications: [:logger, :ecto]]
   end
 
   defp package do
@@ -30,10 +30,8 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp deps do
-    # Once Phoenix.HTML is extracted from Phoenix,
-    # we should depend on Phoenix.HTML and Poison
-    # directly, but as optional dependencies.
-    [{:phoenix, "~> 0.12.0"},
-     {:ecto, "~> 0.10"}]
+    [{:phoenix_html, "~> 1.0", optional: true},
+     {:poison, "~> 1.3", optional: true},
+     {:ecto, "~> 0.11"}]
   end
 end

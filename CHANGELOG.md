@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.0
+
+* Enhancements
+  * Depend on phoenix_html as optional dependency instead of Phoenix
+  * Depend on poison as optional dependency instead of Phoenix
+
 ## v0.3.2
 
 * Bug fix

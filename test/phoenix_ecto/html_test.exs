@@ -28,7 +28,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with new changeset" do
-    changeset = Ecto.Changeset.cast(%User{}, nil, ~w(), ~w())
+    changeset = Ecto.Changeset.cast(%User{}, :empty, ~w(), ~w())
 
     {:safe, form} = form_for(changeset, "/", fn f ->
       assert f.name == "user"
@@ -61,7 +61,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with custom options" do
-    changeset = Ecto.Changeset.cast(%User{}, nil, ~w(), ~w())
+    changeset = Ecto.Changeset.cast(%User{}, :empty, ~w(), ~w())
 
     {:safe, form} = form_for(changeset, "/", [name: "another", multipart: true], fn f ->
       assert f.name == "another"
