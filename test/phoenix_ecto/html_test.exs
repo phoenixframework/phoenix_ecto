@@ -30,13 +30,13 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with new changeset" do
     changeset = Ecto.Changeset.cast(%User{}, :empty, ~w(), ~w())
 
-    {:safe, form} = form_for(changeset, "/", fn f ->
+    form = safe_to_string(form_for(changeset, "/", fn f ->
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{}
       assert f.hidden == []
       "FROM FORM"
-    end)
+    end))
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
     assert form =~ "FROM FORM"
@@ -46,13 +46,13 @@ defmodule PhoenixEcto.HTMLTest do
     changeset = Ecto.Changeset.cast(%User{__meta__: %{state: :loaded}, id: 13},
                                     %{"foo" => "bar"}, ~w(), ~w())
 
-    {:safe, form} = form_for(changeset, "/", fn f ->
+    form = safe_to_string(form_for(changeset, "/", fn f ->
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{"foo" => "bar"}
       assert f.hidden == [id: 13]
       "FROM FORM"
-    end)
+    end))
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
     assert form =~ ~s(<input name="_method" type="hidden" value="put">)
@@ -63,11 +63,11 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with custom options" do
     changeset = Ecto.Changeset.cast(%User{}, :empty, ~w(), ~w())
 
-    {:safe, form} = form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+    form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
       assert f.name == "another"
       assert f.source == changeset
       "FROM FORM"
-    end)
+    end))
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
     assert form =~ "FROM FORM"
@@ -79,10 +79,10 @@ defmodule PhoenixEcto.HTMLTest do
       |> Ecto.Changeset.cast(%{"name" => "JV"}, ~w(name), ~w())
       |> Ecto.Changeset.validate_length(:name, min: 3)
 
-    {:safe, form} = form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+    form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
       assert f.errors == [name: "should be at least 3 characters"]
       "FROM FORM"
-    end)
+    end))
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
     assert form =~ "FROM FORM"
