@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.0
+
+* Enhancements
+  * Require latest Ecto (0.12.0)
+
 ## v0.4.0
 
 * Enhancements
