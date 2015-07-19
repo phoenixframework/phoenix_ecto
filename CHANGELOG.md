@@ -1,9 +1,14 @@
 # Changelog
 
+## v0.6.0
+
+* Enhancements
+  * Depend on Ecto ~> 0.14
+
 ## v0.5.0
 
 * Enhancements
-  * Require latest Ecto (0.12.0)
+  * Depend on Ecto ~> 0.12
 
 ## v0.4.0
 

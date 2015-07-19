@@ -1,7 +1,20 @@
 defmodule PhoenixEcto.JSONTest do
   use ExUnit.Case, async: true
 
-  test "encodes Ecto datetimes" do
+  import Ecto.Changeset
+
+  defmodule User do
+    use Ecto.Model
+
+    schema "users" do
+      field :name
+      field :title
+      field :age, :integer
+      has_many :comments, Comment
+    end
+  end
+
+  test "encodes datetimes" do
     time = %Ecto.Time{hour: 1, min: 2, sec: 3}
     assert Poison.encode!(time) == ~s("01:02:03")
 
@@ -12,18 +25,25 @@ defmodule PhoenixEcto.JSONTest do
     assert Poison.encode!(dt) == ~s("2010-04-17T00:00:00Z")
   end
 
-  test "encodes Ecto changeset errors" do
-    changeset = %Ecto.Changeset{
-      errors: [name: "can't be blank", age: "is invalid",
-               name: "is taken", title: {"too long %{count}", 3}]
-    }
-
-    assert Poison.encode!(changeset) ==
-           ~s({"title":["too long 3"],"name":["can't be blank","is taken"],"age":["is invalid"]})
-  end
-
   test "encodes decimal" do
     decimal = Decimal.new("1.0")
     assert Poison.encode!(decimal) == ~s("1.0")
+  end
+
+  test "encodes changeset errors" do
+    changeset =
+      cast(%User{}, %{age: "hi", title: "hi"}, ~w(name age title), ~w())
+      |> validate_length(:title, min: 3)
+      |> add_error(:name, "is taken")
+
+    assert Poison.encode!(changeset) ==
+           ~s({"title":["should be at least 3 characters"],"name":["is taken","can't be blank"],"age":["is invalid"]})
+  end
+
+  test "fails on association not loaded" do
+    assert_raise RuntimeError,
+                 ~r/cannot encode association :comments from PhoenixEcto.JSONTest.User to JSON/, fn ->
+      Poison.encode!(%User{}.comments)
+    end
   end
 end
