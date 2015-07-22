@@ -36,7 +36,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp form_for_error(msg) when is_binary(msg), do: msg
-    defp form_for_error({msg, count}) when is_binary(msg) do
+    defp form_for_error({msg, count: count}) when is_binary(msg) do
       String.replace(msg, "%{count}", Integer.to_string(count))
     end
 

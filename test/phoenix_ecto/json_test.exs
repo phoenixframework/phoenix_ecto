@@ -15,7 +15,7 @@ defmodule PhoenixEcto.JSONTest do
   test "encodes Ecto changeset errors" do
     changeset = %Ecto.Changeset{
       errors: [name: "can't be blank", age: "is invalid",
-               name: "is taken", title: {"too long %{count}", 3}]
+               name: "is taken", title: {"too long %{count}", count: 3}]
     }
 
     assert Poison.encode!(changeset) ==
