@@ -23,7 +23,7 @@ if Code.ensure_loaded?(Poison) do
     end
 
     defp json_error(msg) when is_binary(msg), do: msg
-    defp json_error({msg, count}) when is_binary(msg) do
+    defp json_error({msg, count: count}) when is_binary(msg) do
       String.replace(msg, "%{count}", Integer.to_string(count))
     end
   end
