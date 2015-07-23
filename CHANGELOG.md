@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.0
+
+* Enhancements
+  * Depend on Phoenix.HTML ~> 1.3 (includes `inputs_for` support)
+
 ## v0.6.0
 
 * Enhancements
