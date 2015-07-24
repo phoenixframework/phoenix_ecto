@@ -2,31 +2,6 @@ defmodule PhoenixEcto.HTMLTest do
   use ExUnit.Case, async: true
 
   import Ecto.Changeset
-
-  defmodule Permalink do
-    use Ecto.Schema
-
-    embedded_schema do
-      field :url
-    end
-
-    def changeset(model, params) do
-      model
-      |> cast(params, ~w(url), ~w())
-      |> validate_length(:url, min: 3)
-    end
-  end
-
-  defmodule User do
-    use Ecto.Schema
-
-    schema "users" do
-      field :name
-      embeds_one :permalink, Permalink
-      embeds_many :permalinks, Permalink
-    end
-  end
-
   import Phoenix.HTML
   import Phoenix.HTML.Form
 

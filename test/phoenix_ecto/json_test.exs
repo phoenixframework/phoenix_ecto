@@ -3,17 +3,6 @@ defmodule PhoenixEcto.JSONTest do
 
   import Ecto.Changeset
 
-  defmodule User do
-    use Ecto.Model
-
-    schema "users" do
-      field :name
-      field :title
-      field :age, :integer
-      has_many :comments, Comment
-    end
-  end
-
   test "encodes datetimes" do
     time = %Ecto.Time{hour: 1, min: 2, sec: 3}
     assert Poison.encode!(time) == ~s("01:02:03")
@@ -40,9 +29,25 @@ defmodule PhoenixEcto.JSONTest do
            ~s({"title":["should be at least 3 characters"],"name":["is taken","can't be blank"],"age":["is invalid"]})
   end
 
+  test "encodes changeset errors with embeds one error" do
+    changeset =
+      cast(%User{}, %{age: "hi", permalink: %{url: "hi"}}, ~w(age permalink), ~w())
+
+    assert Poison.encode!(changeset) ==
+           ~s({\"permalink\":{\"url\":[\"should be at least 3 characters\"]},\"age\":[\"is invalid\"]})
+  end
+
+  test "encodes changeset errors with embeds many errors" do
+    changeset =
+      cast(%User{}, %{age: "hi", permalinks: [%{url: "hi"}, %{url: "valid"}]}, ~w(age permalinks), ~w())
+
+    assert Poison.encode!(changeset) ==
+           ~s({\"permalinks\":[{\"url\":[\"should be at least 3 characters\"]},{}],\"age\":[\"is invalid\"]})
+  end
+
   test "fails on association not loaded" do
     assert_raise RuntimeError,
-                 ~r/cannot encode association :comments from PhoenixEcto.JSONTest.User to JSON/, fn ->
+                 ~r/cannot encode association :comments from User to JSON/, fn ->
       Poison.encode!(%User{}.comments)
     end
   end
