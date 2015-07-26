@@ -6,13 +6,13 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
       %Phoenix.HTML.Form{
         source: changeset,
+        impl: __MODULE__,
         id: name,
         name: name,
         errors: form_for_errors(changeset.errors),
         model: model,
         params: params || %{},
         hidden: form_for_hidden(model),
-        validations: changeset.validations,
         options: Keyword.put_new(opts, :method, form_for_method(model))
       }
     end
@@ -38,13 +38,13 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
           [%Phoenix.HTML.Form{
             source: changeset,
+            impl: __MODULE__,
             id: id,
             name: name,
             errors: form_for_errors(changeset.errors),
             model: model,
             params: changeset.params || %{},
             hidden: form_for_hidden(model),
-            validations: changeset.validations,
             options: opts
           }]
 
@@ -67,16 +67,92 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
             %Phoenix.HTML.Form{
               source: changeset,
+              impl: __MODULE__,
               id: id <> "_" <> index,
               name: name <> "[" <> index <> "]",
               errors: form_for_errors(changeset.errors),
               model: model,
               params: changeset.params || %{},
               hidden: form_for_hidden(model),
-              validations: changeset.validations,
               options: opts
             }
           end
+      end
+    end
+
+    def input_type(changeset, field) do
+      type = Map.get(changeset.types, field, :string)
+      type = if Ecto.Type.primitive?(type), do: type, else: type.type
+
+      case type do
+        :integer  -> :number_input
+        :float    -> :number_input
+        :decimal  -> :number_input
+        :boolean  -> :checkbox
+        :date     -> :date_select
+        :time     -> :time_select
+        :datetime -> :datetime_select
+        _         -> :text_input
+      end
+    end
+
+    def input_validations(changeset, field) do
+      [required: field in changeset.required] ++
+        for({key, validation} <- changeset.validations,
+            key == field,
+            attr <- validation_to_attrs(validation, field, changeset),
+            do: attr)
+    end
+
+    defp validation_to_attrs({:length, opts}, _field, _changeset) do
+      max =
+        if val = Keyword.get(opts, :max) do
+          [maxlength: val]
+        else
+          []
+        end
+
+      min =
+        if val = Keyword.get(opts, :min) do
+          [minlength: val]
+        else
+          []
+        end
+
+      max ++ min
+    end
+
+    defp validation_to_attrs({:number, opts}, field, changeset) do
+      type = Map.get(changeset.types, field, :integer)
+      step_for(type) ++ min_for(type, opts) ++ max_for(type, opts)
+    end
+
+    defp validation_to_attrs(_validation, _field, _changeset) do
+      []
+    end
+
+    defp step_for(:integer), do: [step: 1]
+    defp step_for(_other),   do: [step: "any"]
+
+    defp max_for(type, opts) do
+      cond do
+        (type == :integer) && (max = Keyword.get(opts, :less_than)) ->
+          [max: max - 1]
+        max = Keyword.get(opts, :less_than_or_equal_to) ->
+          [max: max]
+        true ->
+          []
+      end
+    end
+
+    defp min_for(type, opts) do
+      cond do
+        (type == :integer) && (min = Keyword.get(opts, :greater_than)) ->
+          [min: min + 1]
+        min = Keyword.get(opts, :greater_than_or_equal_to) ->
+          [min: min]
+        true ->
+          []
       end
     end
 

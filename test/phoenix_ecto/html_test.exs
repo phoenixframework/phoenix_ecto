@@ -27,10 +27,10 @@ defmodule PhoenixEcto.HTMLTest do
     form = safe_to_string(form_for(changeset, "/", fn f ->
       assert f.id == "user"
       assert f.name == "user"
+      assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
       assert f.source == changeset
       assert f.params == %{}
       assert f.hidden == []
-      assert f.validations == [name: {:length, min: 3}]
       "FROM FORM"
     end))
 
@@ -93,8 +93,9 @@ defmodule PhoenixEcto.HTMLTest do
 
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
+        assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -108,7 +109,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -123,7 +124,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -138,7 +139,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -153,7 +154,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
         assert f.errors == [url: "should be at least 3 characters"]
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -168,7 +169,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
         assert f.errors == [url: "should be at least 3 characters"]
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -196,8 +197,9 @@ defmodule PhoenixEcto.HTMLTest do
 
     contents =
       safe_inputs_for(changeset, :permalinks, fn f ->
+        assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -210,7 +212,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalinks, [default: [%Permalink{url: "default"}]], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -225,7 +227,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalinks, fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -241,7 +243,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalinks, [default: [%Permalink{url: "default"}]], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -259,7 +261,7 @@ defmodule PhoenixEcto.HTMLTest do
                         prepend: [%Permalink{url: "prepend"}],
                         append: [%Permalink{url: "append"}]], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -279,7 +281,7 @@ defmodule PhoenixEcto.HTMLTest do
                       [prepend: [%Permalink{url: "prepend"}],
                        append: [%Permalink{url: "append"}]], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -304,7 +306,7 @@ defmodule PhoenixEcto.HTMLTest do
                       [prepend: [%Permalink{url: "prepend"}],
                        append: [%Permalink{url: "append"}]], fn f ->
         assert f.errors == [url: "should be at least 3 characters"]
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -322,7 +324,7 @@ defmodule PhoenixEcto.HTMLTest do
     contents =
       safe_inputs_for(changeset, :permalinks, [name: "foo", id: "bar"], fn f ->
         assert f.errors == []
-        assert f.validations == [url: {:length, min: 3}]
+        assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
 
@@ -341,5 +343,54 @@ defmodule PhoenixEcto.HTMLTest do
 
     [_, inner, _] = String.split(contents, mark)
     inner
+  end
+
+  ## input type
+
+  defmodule Custom do
+    use Ecto.Schema
+
+    schema "customs" do
+      field :integer, :integer
+      field :float, :float
+      field :decimal, :decimal
+      field :string,  :string
+      field :boolean, :boolean
+      field :date, Ecto.Date
+      field :time, Ecto.Time
+      field :datetime, Ecto.DateTime
+    end
+  end
+
+  test "input types" do
+    changeset = cast(%Custom{}, :empty, [], [])
+
+    form_for(changeset, "/", fn f ->
+      assert input_type(f, :integer) == :number_input
+      assert input_type(f, :float) == :number_input
+      assert input_type(f, :decimal) == :number_input
+      assert input_type(f, :string) == :text_input
+      assert input_type(f, :boolean) == :checkbox
+      assert input_type(f, :date) == :date_select
+      assert input_type(f, :time) == :time_select
+      assert input_type(f, :datetime) == :datetime_select
+      ""
+    end)
+  end
+
+  test "input validations" do
+    changeset =
+      cast(%Custom{}, :empty, ~w(integer string), ~w())
+      |> validate_number(:integer, greater_than: 0, less_than: 100)
+      |> validate_number(:float, greater_than_or_equal_to: 0)
+      |> validate_length(:string, min: 0, max: 100)
+
+    form_for(changeset, "/", fn f ->
+      assert input_validations(f, :integer) == [required: true, step: 1, min: 1, max: 99]
+      assert input_validations(f, :float)   == [required: false, step: "any", min: 0]
+      assert input_validations(f, :decimal) == [required: false]
+      assert input_validations(f, :string)  == [required: true, maxlength: 100, minlength: 0]
+      ""
+    end)
   end
 end
