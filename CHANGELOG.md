@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.0
+
+* Enhancements
+  * Depend on Phoenix.HTML ~> 1.4 (includes `input_type` and `input_validation` support)
+  * Include embeds errors during JSON generation
+
 ## v0.7.0
 
 * Enhancements
