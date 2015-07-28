@@ -161,9 +161,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         {:ok, {:embed, %{cardinality: cardinality, on_cast: cast, embed: module}}} ->
           {cardinality, cast, module}
         {:ok, type} ->
-          raise ArgumentError, "cannot generate inputs_for for type #{inspect type}"
+          raise ArgumentError,
+            "cannot generate inputs_for for field #{inspect field} with type #{inspect type}"
         :error ->
-          raise ArgumentError, "unknown field #{inspect field}"
+          raise ArgumentError,
+            "unknown inputs for #{inspect field}. Only fields and embeds are supported in inputs_for/4."
       end
     end
 
