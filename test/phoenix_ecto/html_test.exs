@@ -76,9 +76,11 @@ defmodule PhoenixEcto.HTMLTest do
       %User{}
       |> cast(%{"name" => "JV"}, ~w(name), ~w())
       |> validate_length(:name, min: 3)
+      |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
 
     form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
-      assert f.errors == [name: "should be at least 3 characters"]
+      assert f.errors == [score: "must be greater than 18",
+                          name: "should be at least 3 characters"]
       "FROM FORM"
     end))
 

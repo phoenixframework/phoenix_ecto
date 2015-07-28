@@ -40,12 +40,8 @@ if Code.ensure_loaded?(Poison) do
 
     defp json_error(msg) when is_binary(msg), do: msg
     defp json_error({msg, count: count}) when is_binary(msg) do
-      String.replace(msg, "%{count}", count_to_string(count))
+      String.replace(msg, "%{count}", to_string(count))
     end
-
-    defp count_to_string(count) when is_integer(count), do: Integer.to_string(count)
-    defp count_to_string(count) when is_float(count), do: Float.to_string(count)
-    defp count_to_string(%Decimal{} = count), do: Decimal.to_string(count, :normal)
   end
 
   defimpl Poison.Encoder, for: Ecto.Association.NotLoaded do
