@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.1
+
+* Bug fix
+  * Ensure we can encode decimals and floats from errors messages
+
 ## v0.8.0
 
 * Enhancements
