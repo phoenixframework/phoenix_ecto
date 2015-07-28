@@ -20,6 +20,7 @@ defmodule User do
     field :name
     field :title
     field :age, :integer
+    field :score, :decimal
     embeds_one :permalink, Permalink
     embeds_many :permalinks, Permalink
     has_many :comments, Comment
