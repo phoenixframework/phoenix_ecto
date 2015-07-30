@@ -1,7 +1,7 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
-  @version "0.8.1"
+  @version "0.9.0"
 
   def project do
     [app: :phoenix_ecto,
@@ -30,7 +30,7 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp deps do
-    [{:phoenix_html, "~> 1.4", optional: true},
+    [{:phoenix_html, "~> 2.0", optional: true},
      {:poison, "~> 1.3", optional: true},
      {:ecto, "~> 0.15 or ~> 0.14.3"}]
   end

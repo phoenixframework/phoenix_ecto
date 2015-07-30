@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.0
+
+* Enhancements
+  * Depend on Phoenix.HTML ~> 2.0
+
 ## v0.8.1
 
 * Bug fix
