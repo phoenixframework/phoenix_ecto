@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0-dev
+## v1.0.0
 
 * Enhancements
   * Depend on Phoenix.HTML ~> 2.1
