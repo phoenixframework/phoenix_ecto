@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.0-dev
+
+* Enhancements
+  * Depend on Phoenix.HTML ~> 2.1
+  * Depend on Ecto ~> 0.15
+  * Support associations on changesets
+
 ## v0.9.0
 
 * Enhancements
