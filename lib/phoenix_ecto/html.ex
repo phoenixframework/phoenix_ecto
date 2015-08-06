@@ -63,13 +63,14 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           for {changeset, index} <- Enum.with_index(changesets) do
             changeset = to_changeset(changeset, module, cast)
             model = changeset.model
-            index = Integer.to_string(index)
+            index_string = Integer.to_string(index)
 
             %Phoenix.HTML.Form{
               source: changeset,
               impl: __MODULE__,
-              id: id <> "_" <> index,
-              name: name <> "[" <> index <> "]",
+              id: id <> "_" <> index_string,
+              name: name <> "[" <> index_string <> "]",
+              index: index,
               errors: form_for_errors(changeset.errors),
               model: model,
               params: changeset.params || %{},
@@ -158,14 +159,12 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp find_inputs_for_type!(changeset, field) do
       case Map.fetch(changeset.types, field) do
-        {:ok, {:embed, %{cardinality: cardinality, on_cast: cast, embed: module}}} ->
+        {:ok, {tag, %{cardinality: cardinality, on_cast: cast, related: module}}} when tag in [:embed, :assoc] ->
           {cardinality, cast, module}
-        {:ok, type} ->
+        _ ->
           raise ArgumentError,
-            "cannot generate inputs_for for field #{inspect field} with type #{inspect type}"
-        :error ->
-          raise ArgumentError,
-            "unknown inputs for #{inspect field}. Only fields and embeds are supported in inputs_for/4."
+            "could not generate inputs for #{inspect field}. " <>
+            "Check the field exists and it is one of embeds_* or has_*"
       end
     end
 

@@ -9,7 +9,7 @@ if Code.ensure_loaded?(Poison) do
       errors
       |> Enum.reverse()
       |> merge_error_keys()
-      |> merge_embed_keys(changes, types)
+      |> merge_related_keys(changes, types)
     end
 
     defp merge_error_keys(errors) do
@@ -19,15 +19,15 @@ if Code.ensure_loaded?(Poison) do
       end)
     end
 
-    defp merge_embed_keys(map, changes, types) do
+    defp merge_related_keys(map, changes, types) do
       Enum.reduce types, map, fn
-        {field, {:embed, %{cardinality: :many}}}, acc ->
+        {field, {tag, %{cardinality: :many}}}, acc when tag in [:embed, :assoc] ->
           if changesets = Map.get(changes, field) do
             Map.put(acc, field, Enum.map(changesets, &encode_changeset/1))
           else
             acc
           end
-        {field, {:embed, %{cardinality: :one}}}, acc ->
+        {field, {tag, %{cardinality: :one}}}, acc when tag in [:embed, :assoc] ->
           if changeset = Map.get(changes, field) do
             Map.put(acc, field, encode_changeset(changeset))
           else
