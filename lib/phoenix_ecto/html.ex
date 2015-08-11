@@ -9,7 +9,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         impl: __MODULE__,
         id: name,
         name: name,
-        errors: form_for_errors(changeset.errors),
+        errors: form_for_errors(changeset),
         model: model,
         params: params || %{},
         hidden: form_for_hidden(model),
@@ -41,7 +41,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             impl: __MODULE__,
             id: id,
             name: name,
-            errors: form_for_errors(changeset.errors),
+            errors: form_for_errors(changeset),
             model: model,
             params: changeset.params || %{},
             hidden: form_for_hidden(model),
@@ -71,7 +71,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
               id: id <> "_" <> index_string,
               name: name <> "[" <> index_string <> "]",
               index: index,
-              errors: form_for_errors(changeset.errors),
+              errors: form_for_errors(changeset),
               model: model,
               params: changeset.params || %{},
               hidden: form_for_hidden(model),
@@ -196,9 +196,20 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
     defp form_for_method(_), do: "post"
 
-    defp form_for_errors(errors) do
-      for {attr, message} <- errors do
+    defp form_for_errors(%Ecto.Changeset{errors: errors} = changeset) do
+      top_level_errors = for {attr, message} <- errors do
         {attr, form_for_error(message)}
+      end
+
+      top_level_errors ++ List.flatten(relation_errors(changeset.changes))
+    end
+
+    defp relation_errors(changes) do
+      for {relation, changeset} <- changes, match?(%Ecto.Changeset{}, changeset),
+                                            length(changeset.errors) > 0 do
+        for {field, message} <- changeset.errors do
+          {:"#{relation}_#{field}", form_for_error(message)}
+        end
       end
     end
 

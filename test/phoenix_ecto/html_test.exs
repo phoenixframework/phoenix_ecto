@@ -74,13 +74,14 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with errors" do
     changeset =
       %User{}
-      |> cast(%{"name" => "JV"}, ~w(name), ~w())
+      |> cast(%{"name" => "JV", "comment" => %{"body" => "Yo"}}, ~w(name comment), ~w())
       |> validate_length(:name, min: 3)
       |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
 
     form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
       assert f.errors == [score: "must be greater than 18",
-                          name: "should be at least 3 characters"]
+                          name: "should be at least 3 characters",
+                          comment_body: "should be at least 3 characters"]
       "FROM FORM"
     end))
 
