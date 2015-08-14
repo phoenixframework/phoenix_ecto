@@ -19,6 +19,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     def to_form(source, form, field, opts) do
       {default, opts} = Keyword.pop(opts, :default)
+      {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, false)
       {prepend, opts} = Keyword.pop(opts, :prepend, [])
       {append, opts} = Keyword.pop(opts, :append, [])
       {name, opts} = Keyword.pop(opts, :name)
@@ -29,24 +30,30 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
       case find_inputs_for_type!(source, field) do
         {:one, cast, module} ->
-          changeset =
-            validate_map!(Map.get(source.changes, field), field) ||
-            validate_map!(default, "default") || module.__struct__
+          changesets =
+            case Map.fetch(source.changes, field) do
+              {:ok, nil} when skip_deleted -> []
+              {:ok, nil} -> [validate_map!(default, "default") || module.__struct__]
+              {:ok, map} -> [validate_map!(map, field)]
+              :error     -> [validate_map!(default, "default") || module.__struct__]
+            end
 
-          changeset = to_changeset(changeset, module, cast)
-          model = changeset.model
+          for changeset <- skip_deleted(changesets, skip_deleted) do
+            changeset = to_changeset(changeset, module, cast)
+            model = changeset.model
 
-          [%Phoenix.HTML.Form{
-            source: changeset,
-            impl: __MODULE__,
-            id: id,
-            name: name,
-            errors: form_for_errors(changeset.errors),
-            model: model,
-            params: changeset.params || %{},
-            hidden: form_for_hidden(model),
-            options: opts
-          }]
+            %Phoenix.HTML.Form{
+              source: changeset,
+              impl: __MODULE__,
+              id: id,
+              name: name,
+              errors: form_for_errors(changeset.errors),
+              model: model,
+              params: changeset.params || %{},
+              hidden: form_for_hidden(model),
+              options: opts
+            }
+          end
 
         {:many, cast, module} ->
           changesets =
@@ -59,6 +66,8 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             else
               prepend ++ changesets ++ append
             end
+
+          changesets = skip_deleted(changesets, skip_deleted)
 
           for {changeset, index} <- Enum.with_index(changesets) do
             changeset = to_changeset(changeset, module, cast)
@@ -103,6 +112,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             key == field,
             attr <- validation_to_attrs(validation, field, changeset),
             do: attr)
+    end
+
+    defp skip_deleted(changesets, true) do
+      Enum.reject(changesets, fn
+        %Ecto.Changeset{action: :delete} -> true
+        _ -> false
+      end)
+    end
+
+    defp skip_deleted(changesets, false) do
+      changesets
     end
 
     defp validation_to_attrs({:length, opts}, _field, _changeset) do

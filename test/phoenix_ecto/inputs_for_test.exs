@@ -109,6 +109,21 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="bar_body" name="foo[body]" type="text" value="given">)
   end
 
+  test "has one: inputs_for/4 and deleted changesets" do
+    changeset = cast(%User{comment: %Comment{id: 1, body: "model"}},
+                     %{"comment" => nil}, ~w(), ~w(comment))
+
+    input = ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
+
+    assert safe_inputs_for(changeset, :comment, [], fn f ->
+      text_input f, :body
+    end) =~ input
+
+    refute safe_inputs_for(changeset, :comment, [skip_deleted: true], fn f ->
+      text_input f, :body
+    end) =~ input
+  end
+
   ## inputs_for has_many
 
   test "has many: inputs_for/4 without default" do
@@ -253,6 +268,21 @@ defmodule PhoenixEcto.InputsForTest do
       ~s(<input id="bar_1_body" name="foo[1][body]" type="text" value="model2">)
   end
 
+  test "has many: inputs_for/4 with deleted changesets" do
+    changeset = cast(%User{comments: [%Comment{id: 1, body: "model1"}, %Comment{id: 2, body: "model2"}]},
+                     %{"comments" => []}, ~w(comments), ~w())
+
+    input = ~r(<input id="user_comments_0_body".*<input id="user_comments_1_body")
+
+    assert safe_inputs_for(changeset, :comments, [], fn f ->
+      text_input f, :body
+    end) =~ input
+
+   refute safe_inputs_for(changeset, :comments, [skip_deleted: true], fn f ->
+      text_input f, :body
+    end) =~ input
+  end
+
   ## inputs_for embeds one
 
   test "embeds one: inputs_for/4 without default" do
@@ -355,6 +385,21 @@ defmodule PhoenixEcto.InputsForTest do
 
     assert contents ==
            ~s(<input id="bar_url" name="foo[url]" type="text" value="given">)
+  end
+
+  test "embeds one: inputs_for/4 and deleted changesets" do
+    changeset = cast(%User{permalink: %Permalink{id: 1, url: "model"}},
+                     %{"permalink" => nil}, ~w(), ~w(permalink))
+
+    input = ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
+
+    assert safe_inputs_for(changeset, :permalink, [], fn f ->
+      text_input f, :url
+    end) =~ input
+
+    refute safe_inputs_for(changeset, :permalink, [skip_deleted: true], fn f ->
+      text_input f, :url
+    end) =~ input
   end
 
   ## inputs_for embeds many
@@ -499,6 +544,21 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents ==
       ~s(<input id="bar_0_url" name="foo[0][url]" type="text" value="model1">) <>
       ~s(<input id="bar_1_url" name="foo[1][url]" type="text" value="model2">)
+  end
+
+  test "embeds many: inputs_for/4 with deleted changesets" do
+    changeset = cast(%User{permalinks: [%Permalink{id: 1, url: "model1"}, %Permalink{id: 2, url: "model2"}]},
+                     %{"permalinks" => []}, ~w(permalinks), ~w())
+
+    input = ~r(<input id="user_permalinks_0_url".*<input id="user_permalinks_1_url")
+
+    assert safe_inputs_for(changeset, :permalinks, [], fn f ->
+      text_input f, :url
+    end) =~ input
+
+   refute safe_inputs_for(changeset, :permalinks, [skip_deleted: true], fn f ->
+      text_input f, :url
+    end) =~ input
   end
 
   defp safe_inputs_for(changeset, field, opts \\ [], fun) do
