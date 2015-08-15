@@ -7,7 +7,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   ## inputs_for has_one
 
-  test "has one: inputs_for/4 without default" do
+  test "has one: inputs_for/4" do
     changeset = cast(%User{}, :empty, ~w(), ~w())
 
     contents =
@@ -22,21 +22,8 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
   end
 
-  test "has one: inputs_for/4 with default" do
-    changeset = cast(%User{}, :empty, ~w(), ~w())
 
-    contents =
-      safe_inputs_for(changeset, :comment, [default: %Comment{body: "default"}], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
-
-    assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="default">)
-  end
-
-  test "has one: inputs_for/4 without default and model is present" do
+  test "has one: inputs_for/4 with model data" do
     changeset = cast(%User{comment: %Comment{body: "model"}},
                      :empty, ~w(comment), ~w())
 
@@ -51,42 +38,12 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="model">)
   end
 
-  test "has one: inputs_for/4 with default and model is present" do
-    changeset = cast(%User{comment: %Comment{body: "model"}},
-                     :empty, ~w(comment), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :comment, [default: %Comment{body: "default"}], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
-
-    assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="model">)
-  end
-
-  test "has one: inputs_for/4 without default and params is present" do
+  test "has one: inputs_for/4 with params" do
     changeset = cast(%User{comment: %Comment{body: "model"}},
                      %{"comment" => %{"body" => "ht"}}, ~w(comment), ~w())
 
     contents =
       safe_inputs_for(changeset, :comment, fn f ->
-        assert f.errors == [body: "should be at least 3 characters"]
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
-
-    assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
-  end
-
-  test "has one: inputs_for/4 with default and params is present" do
-    changeset = cast(%User{comment: %Comment{body: "model"}},
-                     %{"comment" => %{"body" => "ht"}}, ~w(comment), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :comment, [default: %Comment{body: "default"}], fn f ->
         assert f.errors == [body: "should be at least 3 characters"]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
@@ -110,7 +67,7 @@ defmodule PhoenixEcto.InputsForTest do
   end
 
   test "has one: inputs_for/4 and deleted changesets" do
-    changeset = cast(%User{comment: %Comment{id: 1, body: "model"}},
+    changeset = cast(%User{comment: %Comment{id: 1}},
                      %{"comment" => nil}, ~w(), ~w(comment))
 
     input = ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
@@ -126,7 +83,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   ## inputs_for has_many
 
-  test "has many: inputs_for/4 without default" do
+  test "has many: inputs_for/4" do
     changeset = cast(%User{}, :empty, ~w(comments), ~w())
 
     contents =
@@ -137,23 +94,7 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents == ""
   end
 
-  test "has many: inputs_for/4 with default" do
-    changeset = cast(%User{}, :empty, ~w(comments), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :comments, [default: [%Comment{body: "default"}]], fn f ->
-        assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
-        assert f.index == 0
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
-
-    assert contents ==
-           ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="default">)
-  end
-
-  test "has many: inputs_for/4 without default and model is present" do
+  test "has many: inputs_for/4 with model data" do
     changeset = cast(%User{comments: [%Comment{body: "model1"}, %Comment{body: "model2"}]},
                      :empty, ~w(comments), ~w())
 
@@ -171,28 +112,12 @@ defmodule PhoenixEcto.InputsForTest do
       ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="model2">)
   end
 
-  test "has many: inputs_for/4 with default and model is present" do
-    changeset = cast(%User{comments: [%Comment{body: "model1"}, %Comment{body: "model2"}]},
+  test "has many: inputs_for/4 with prepend and append" do
+    changeset = cast(%User{comments: [%Comment{body: "def1"}, %Comment{body: "def2"}]},
                      :empty, ~w(comments), ~w())
 
     contents =
-      safe_inputs_for(changeset, :comments, [default: [%Comment{body: "default"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
-
-    assert contents ==
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="model1">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="model2">)
-  end
-
-  test "has many: inputs_for/4 with prepend, append and default" do
-    default   = [%Comment{body: "def1"}, %Comment{body: "def2"}]
-    changeset = cast(%User{}, :empty, ~w(comments), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :comments, [default: default,
+      safe_inputs_for(changeset, :comments, [
                         prepend: [%Comment{body: "prepend"}],
                         append: [%Comment{body: "append"}]], fn f ->
         assert f.errors == []
@@ -285,7 +210,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   ## inputs_for embeds one
 
-  test "embeds one: inputs_for/4 without default" do
+  test "embeds one: inputs_for/4" do
     changeset = cast(%User{}, :empty, ~w(), ~w())
 
     contents =
@@ -300,21 +225,7 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
   end
 
-  test "embeds one: inputs_for/4 with default" do
-    changeset = cast(%User{}, :empty, ~w(), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
-
-    assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="default">)
-  end
-
-  test "embeds one: inputs_for/4 without default and model is present" do
+  test "embeds one: inputs_for/4 with model data" do
     changeset = cast(%User{permalink: %Permalink{url: "model"}},
                      :empty, ~w(permalink), ~w())
 
@@ -329,42 +240,12 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="model">)
   end
 
-  test "embeds one: inputs_for/4 with default and model is present" do
-    changeset = cast(%User{permalink: %Permalink{url: "model"}},
-                     :empty, ~w(permalink), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
-
-    assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="model">)
-  end
-
-  test "embeds one: inputs_for/4 without default and params is present" do
+  test "embeds one: inputs_for/4 with params" do
     changeset = cast(%User{permalink: %Permalink{url: "model"}},
                      %{"permalink" => %{"url" => "ht"}}, ~w(permalink), ~w())
 
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
-        assert f.errors == [url: "should be at least 3 characters"]
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
-
-    assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
-  end
-
-  test "embeds one: inputs_for/4 with default and params is present" do
-    changeset = cast(%User{permalink: %Permalink{url: "model"}},
-                     %{"permalink" => %{"url" => "ht"}}, ~w(permalink), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :permalink, [default: %Permalink{url: "default"}], fn f ->
         assert f.errors == [url: "should be at least 3 characters"]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
@@ -388,7 +269,7 @@ defmodule PhoenixEcto.InputsForTest do
   end
 
   test "embeds one: inputs_for/4 and deleted changesets" do
-    changeset = cast(%User{permalink: %Permalink{id: 1, url: "model"}},
+    changeset = cast(%User{permalink: %Permalink{id: 1}},
                      %{"permalink" => nil}, ~w(), ~w(permalink))
 
     input = ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
@@ -404,7 +285,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   ## inputs_for embeds many
 
-  test "embeds many: inputs_for/4 without default" do
+  test "embeds many: inputs_for/4" do
     changeset = cast(%User{}, :empty, ~w(permalinks), ~w())
 
     contents =
@@ -415,23 +296,7 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents == ""
   end
 
-  test "embeds many: inputs_for/4 with default" do
-    changeset = cast(%User{}, :empty, ~w(permalinks), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :permalinks, [default: [%Permalink{url: "default"}]], fn f ->
-        assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
-        assert f.index == 0
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
-
-    assert contents ==
-           ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="default">)
-  end
-
-  test "embeds many: inputs_for/4 without default and model is present" do
+  test "embeds many: inputs_for/4 with model data" do
     changeset = cast(%User{permalinks: [%Permalink{url: "model1"}, %Permalink{url: "model2"}]},
                      :empty, ~w(permalinks), ~w())
 
@@ -449,28 +314,12 @@ defmodule PhoenixEcto.InputsForTest do
       ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="model2">)
   end
 
-  test "embeds many: inputs_for/4 with default and model is present" do
-    changeset = cast(%User{permalinks: [%Permalink{url: "model1"}, %Permalink{url: "model2"}]},
+  test "embeds many: inputs_for/4 with prepend and append" do
+    changeset = cast(%User{permalinks: [%Permalink{url: "def1"}, %Permalink{url: "def2"}]},
                      :empty, ~w(permalinks), ~w())
 
     contents =
-      safe_inputs_for(changeset, :permalinks, [default: [%Permalink{url: "default"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
-
-    assert contents ==
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="model1">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="model2">)
-  end
-
-  test "embeds many: inputs_for/4 with prepend, append and default" do
-    default   = [%Permalink{url: "def1"}, %Permalink{url: "def2"}]
-    changeset = cast(%User{}, :empty, ~w(permalinks), ~w())
-
-    contents =
-      safe_inputs_for(changeset, :permalinks, [default: default,
+      safe_inputs_for(changeset, :permalinks, [
                         prepend: [%Permalink{url: "prepend"}],
                         append: [%Permalink{url: "append"}]], fn f ->
         assert f.errors == []

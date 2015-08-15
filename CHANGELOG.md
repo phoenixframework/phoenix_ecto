@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0
+
+* Enhancements
+  * Depend on Ecto ~> 0.15
+  * Support `skip_deleted` in inputs_for
+  * Support default values from model rather from `:default` option
+
 ## v1.0.0
 
 * Enhancements

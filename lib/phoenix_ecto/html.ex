@@ -18,7 +18,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     def to_form(source, form, field, opts) do
-      {default, opts} = Keyword.pop(opts, :default)
+      if Keyword.has_key?(opts, :default) do
+        raise ArgumentError, ":default is not supported on inputs_for with changesets. " <>
+                             "The default value must be set in the model"
+      end
+
       {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, false)
       {prepend, opts} = Keyword.pop(opts, :prepend, [])
       {append, opts} = Keyword.pop(opts, :append, [])
@@ -33,9 +37,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           changesets =
             case Map.fetch(source.changes, field) do
               {:ok, nil} when skip_deleted -> []
-              {:ok, nil} -> [validate_map!(default, "default") || module.__struct__]
-              {:ok, map} -> [validate_map!(map, field)]
-              :error     -> [validate_map!(default, "default") || module.__struct__]
+              {:ok, map} when not is_nil(map) -> [validate_map!(map, field)]
+              _  ->
+                [validate_map!(assoc_from_model(source.model, field), field) || module.__struct__]
             end
 
           for changeset <- skip_deleted(changesets, skip_deleted) do
@@ -58,7 +62,8 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         {:many, cast, module} ->
           changesets =
             validate_list!(Map.get(source.changes, field), field) ||
-            validate_list!(default, "default") || []
+            validate_list!(assoc_from_model(source.model, field), field) ||
+            []
 
           changesets =
             if form.params[Atom.to_string(field)] do
@@ -112,6 +117,22 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             key == field,
             attr <- validation_to_attrs(validation, field, changeset),
             do: attr)
+    end
+
+    defp assoc_from_model(model, field) do
+      assoc_from_model(model, Map.fetch!(model, field), field)
+    end
+
+    defp assoc_from_model(%{__meta__: %{state: :built}}, %Ecto.Association.NotLoaded{}, _field), do: nil
+
+    defp assoc_from_model(%{__struct__: struct}, %Ecto.Association.NotLoaded{}, field) do
+      raise ArgumentError, "using inputs_for for association `#{field}` " <>
+        "from `#{inspect struct}` but it was not loaded. Please preload your " <>
+        "associations before using them with loaded models in inputs_for"
+    end
+
+    defp assoc_from_model(_model, value, _field) do
+      value
     end
 
     defp skip_deleted(changesets, true) do
