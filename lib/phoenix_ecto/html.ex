@@ -204,7 +204,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           {cardinality, cast, module}
         _ ->
           raise ArgumentError,
-            "could not generate inputs for #{inspect field}. " <>
+            "could not generate inputs for #{inspect field} from #{inspect changeset.model.__struct__}. " <>
             "Check the field exists and it is one of embeds_* or has_*"
       end
     end
