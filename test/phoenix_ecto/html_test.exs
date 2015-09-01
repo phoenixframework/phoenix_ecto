@@ -60,7 +60,7 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with custom options" do
     changeset = cast(%User{}, :empty, ~w(), ~w())
 
-    form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
       assert f.id == "another"
       assert f.name == "another"
       assert f.source == changeset
@@ -78,7 +78,7 @@ defmodule PhoenixEcto.HTMLTest do
       |> validate_length(:name, min: 3)
       |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
 
-    form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
       assert f.errors == [score: "must be greater than 18",
                           name: "should be at least 3 characters"]
       "FROM FORM"
@@ -91,7 +91,7 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with inputs" do
     changeset = cast(%User{}, %{"name" => "JV"}, ~w(name), ~w())
 
-    form = safe_to_string(form_for(changeset, "/", [name: "another", multipart: true], fn f ->
+    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
       [text_input(f, :name), text_input(f, :other)]
     end))
 

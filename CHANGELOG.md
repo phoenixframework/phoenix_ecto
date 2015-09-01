@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.0
+
+* Enhancements
+  * Depend on Ecto ~> 1.0
+  * Depend on Phoenix.HTML ~> 2.2
+  * Use the new `:as` option for naming inputs fields instead of `:name`
+
 ## v1.1.0
 
 * Enhancements

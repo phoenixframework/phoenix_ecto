@@ -58,7 +58,7 @@ defmodule PhoenixEcto.InputsForTest do
                      %{"comment" => %{"body" => "given"}}, ~w(comment), ~w())
 
     contents =
-      safe_inputs_for(changeset, :comment, [name: "foo", id: "bar"], fn f ->
+      safe_inputs_for(changeset, :comment, [as: "foo", id: "bar"], fn f ->
         text_input f, :body
       end)
 
@@ -182,7 +182,7 @@ defmodule PhoenixEcto.InputsForTest do
                      :empty, ~w(comments), ~w())
 
     contents =
-      safe_inputs_for(changeset, :comments, [name: "foo", id: "bar"], fn f ->
+      safe_inputs_for(changeset, :comments, [as: "foo", id: "bar"], fn f ->
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
@@ -260,7 +260,7 @@ defmodule PhoenixEcto.InputsForTest do
                      %{"permalink" => %{"url" => "given"}}, ~w(permalink), ~w())
 
     contents =
-      safe_inputs_for(changeset, :permalink, [name: "foo", id: "bar"], fn f ->
+      safe_inputs_for(changeset, :permalink, [as: "foo", id: "bar"], fn f ->
         text_input f, :url
       end)
 
@@ -384,7 +384,7 @@ defmodule PhoenixEcto.InputsForTest do
                      :empty, ~w(permalinks), ~w())
 
     contents =
-      safe_inputs_for(changeset, :permalinks, [name: "foo", id: "bar"], fn f ->
+      safe_inputs_for(changeset, :permalinks, [as: "foo", id: "bar"], fn f ->
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url

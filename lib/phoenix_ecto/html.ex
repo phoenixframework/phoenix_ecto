@@ -1,8 +1,8 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
   defimpl Phoenix.HTML.FormData, for: Ecto.Changeset do
     def to_form(%Ecto.Changeset{model: model, params: params} = changeset, opts) do
-      {name, opts} = Keyword.pop(opts, :name)
-      name = to_string(name || form_for_name(model))
+      {name, opts} = Keyword.pop(opts, :as)
+      name = to_string(name || warn_name(opts) || form_for_name(model))
 
       %Phoenix.HTML.Form{
         source: changeset,
@@ -26,11 +26,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, false)
       {prepend, opts} = Keyword.pop(opts, :prepend, [])
       {append, opts} = Keyword.pop(opts, :append, [])
-      {name, opts} = Keyword.pop(opts, :name)
+      {name, opts} = Keyword.pop(opts, :as)
       {id, opts} = Keyword.pop(opts, :id)
 
       id    = to_string(id || form.id <> "_#{field}")
-      name  = to_string(name || form.name <> "[#{field}]")
+      name  = to_string(name || warn_name(opts) || form.name <> "[#{field}]")
 
       case find_inputs_for_type!(source, field) do
         {:one, cast, module} ->
@@ -246,6 +246,14 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_error(msg) when is_binary(msg), do: msg
     defp form_for_error({msg, count: count}) when is_binary(msg) do
       String.replace(msg, "%{count}", to_string(count))
+    end
+
+    defp warn_name(opts) do
+      if name = Keyword.get(opts, :name) do
+        IO.write :stderr, "the :name option in form_for/inputs_for is deprecated, " <>
+                          "please use :as instead\n" <> Exception.format_stacktrace()
+        name
+      end
     end
 
     defp underscore(<<>>), do: ""
