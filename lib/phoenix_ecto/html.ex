@@ -199,27 +199,14 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp find_inputs_for_type!(changeset, field) do
-      model = changeset.model.__struct__
-
-      %{cardinality: cardinality, on_cast: cast, related: related} =
-        has_from_model(model, field) ||
-        embed_from_model(model, field) ||
-        raise(ArgumentError,
-              "could not generate inputs for #{inspect field} from #{inspect model}. " <>
-              "Check the field exists and it is one of embeds_* or has_*")
-
-      {cardinality, cast, related}
-    end
-
-    defp has_from_model(model, field) do
-      case model.__schema__(:association, field) do
-        %Ecto.Association.Has{} = refl -> refl
-        _ -> nil
+      case Map.fetch(changeset.types, field) do
+        {:ok, {tag, %{cardinality: cardinality, on_cast: cast, related: module}}} when tag in [:embed, :assoc] ->
+          {cardinality, cast, module}
+        _ ->
+          raise ArgumentError,
+            "could not generate inputs for #{inspect field} from #{inspect changeset.model.__struct__}. " <>
+            "Check the field exists and it is one of embeds_* or has_*"
       end
-    end
-
-    defp embed_from_model(model, field) do
-      model.__schema__(:embed, field)
     end
 
     defp to_changeset(%Ecto.Changeset{} = changeset, _module, _cast), do: changeset
@@ -269,7 +256,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    # TODO: Use Macro.underscore
+    # TODO: Use Macro.underscore in Elixir 1.2
     defp underscore(<<>>), do: ""
 
     defp underscore(<<h, t :: binary>>) do
