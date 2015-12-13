@@ -36,10 +36,10 @@ defmodule User do
     field :title
     field :age, :integer
     field :score, :decimal
-    embeds_one :permalink, Permalink
-    embeds_many :permalinks, Permalink
-    has_one :comment, Comment
-    has_many :comments, Comment
+    embeds_one :permalink, Permalink, on_replace: :delete
+    embeds_many :permalinks, Permalink, on_replace: :delete
+    has_one :comment, Comment, on_replace: :delete
+    has_many :comments, Comment, on_replace: :delete
   end
 end
 
