@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.0
+
+* Enhancements
+  * Depend on Ecto ~> 1.1
+
+* Backwords incompatible changes
+  * `f.errors` now returns a raw list of changeset.errors for the form's changeset
+
 ## v1.2.0
 
 * Enhancements

@@ -79,8 +79,8 @@ defmodule PhoenixEcto.HTMLTest do
       |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
 
     form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
-      assert f.errors == [score: "must be greater than 18",
-                          name: "should be at least 3 character(s)"]
+      assert f.errors == [score: {"must be greater than %{count}", count: Decimal.new(18)},
+                          name: {"should be at least %{count} character(s)", count: 3}]
       "FROM FORM"
     end))
 

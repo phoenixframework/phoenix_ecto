@@ -48,7 +48,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :comment, fn f ->
-        assert f.errors == [body: "should be at least 3 character(s)"]
+        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3}]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
       end)
@@ -177,7 +177,7 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :comments,
                       [prepend: [%Comment{body: "prepend"}],
                        append: [%Comment{body: "append"}]], fn f ->
-        assert f.errors == [body: "should be at least 3 character(s)"]
+        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3}]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
       end)
@@ -262,7 +262,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
-        assert f.errors == [url: "should be at least 3 character(s)"]
+        assert f.errors == [url: {"should be at least %{count} character(s)", count: 3}]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
@@ -391,7 +391,7 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :permalinks,
                       [prepend: [%Permalink{url: "prepend"}],
                        append: [%Permalink{url: "append"}]], fn f ->
-        assert f.errors == [url: "should be at least 3 character(s)"]
+        assert f.errors == [url: {"should be at least %{count} character(s)", [count: 3]}]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
