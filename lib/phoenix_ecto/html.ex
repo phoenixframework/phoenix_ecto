@@ -224,7 +224,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp form_for_hidden(model) do
       # Since they are primary keys, we should ignore nil values.
-      for {k, v} <- Ecto.Model.primary_key(model), v != nil, do: {k, v}
+      for {k, v} <- Ecto.primary_key(model), v != nil, do: {k, v}
     end
 
     defp form_for_name(%{__struct__: module}) do
