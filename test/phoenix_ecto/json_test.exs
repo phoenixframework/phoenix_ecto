@@ -1,8 +1,6 @@
 defmodule PhoenixEcto.JSONTest do
   use ExUnit.Case, async: true
 
-  import Ecto.Changeset
-
   test "encodes datetimes" do
     time = %Ecto.Time{hour: 1, min: 2, sec: 3}
     assert Poison.encode!(time) == ~s("01:02:03")
@@ -17,44 +15,6 @@ defmodule PhoenixEcto.JSONTest do
   test "encodes decimal" do
     decimal = Decimal.new("1.0")
     assert Poison.encode!(decimal) == ~s("1.0")
-  end
-
-  test "encodes changeset errors" do
-    changeset =
-      cast(%User{}, %{age: "hi", title: "hi"}, ~w(name age title), ~w())
-      |> validate_length(:title, min: 3)
-      |> add_error(:name, "is taken")
-
-    assert Poison.encode!(changeset) ==
-           ~s({"title":["should be at least 3 character\(s\)"],"name":["is taken","can't be blank"],"age":["is invalid"]})
-  end
-
-  test "encodes changeset errors with embeds one error" do
-    changeset =
-      %User{}
-      |> cast(%{age: "hi", permalink: %{url: "hi"}}, ~w(age), ~w())
-      |> cast_embed(:permalink)
-
-    assert Poison.encode!(changeset) ==
-           ~s({\"permalink\":{\"url\":[\"should be at least 3 character\(s\)\"]},\"age\":[\"is invalid\"]})
-  end
-
-  test "encodes changeset errors with embeds many errors" do
-    changeset =
-      %User{}
-      |> cast(%{age: "hi", permalinks: [%{url: "hi"}, %{url: "valid"}]}, ~w(age), ~w())
-      |> cast_embed(:permalinks)
-
-    assert Poison.encode!(changeset) ==
-           ~s({\"permalinks\":[{\"url\":[\"should be at least 3 character\(s\)\"]},{}],\"age\":[\"is invalid\"]})
-  end
-
-  test "encodes changeset errors with decimal error" do
-    changeset =
-      change(%User{})
-      |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
-
-    assert Poison.encode!(changeset) == ~s({"score":["must be greater than 18"]})
   end
 
   test "fails on association not loaded" do
