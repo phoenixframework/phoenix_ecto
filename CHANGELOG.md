@@ -1,12 +1,13 @@
 # Changelog
 
-## v1.3.0
+## v2.0.0
 
 * Enhancements
   * Depend on Ecto ~> 1.1
 
 * Backwords incompatible changes
-  * `f.errors` now returns a raw list of changeset.errors for the form's changeset
+  * `f.errors` now returns a raw list of `changeset.errors` for the form's changeset which can be further translated with Phoenix' new Gettext support
+  * No longer implement Poison protocol for `Ecto.Changeset`
 
 ## v1.2.0
 
