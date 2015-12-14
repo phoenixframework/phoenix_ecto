@@ -26,23 +26,27 @@ defmodule PhoenixEcto.JSONTest do
       |> add_error(:name, "is taken")
 
     assert Poison.encode!(changeset) ==
-           ~s({"title":["should be at least 3 characters"],"name":["is taken","can't be blank"],"age":["is invalid"]})
+           ~s({"title":["should be at least 3 character\(s\)"],"name":["is taken","can't be blank"],"age":["is invalid"]})
   end
 
   test "encodes changeset errors with embeds one error" do
     changeset =
-      cast(%User{}, %{age: "hi", permalink: %{url: "hi"}}, ~w(age permalink), ~w())
+      %User{}
+      |> cast(%{age: "hi", permalink: %{url: "hi"}}, ~w(age), ~w())
+      |> cast_embed(:permalink)
 
     assert Poison.encode!(changeset) ==
-           ~s({\"permalink\":{\"url\":[\"should be at least 3 characters\"]},\"age\":[\"is invalid\"]})
+           ~s({\"permalink\":{\"url\":[\"should be at least 3 character\(s\)\"]},\"age\":[\"is invalid\"]})
   end
 
   test "encodes changeset errors with embeds many errors" do
     changeset =
-      cast(%User{}, %{age: "hi", permalinks: [%{url: "hi"}, %{url: "valid"}]}, ~w(age permalinks), ~w())
+      %User{}
+      |> cast(%{age: "hi", permalinks: [%{url: "hi"}, %{url: "valid"}]}, ~w(age), ~w())
+      |> cast_embed(:permalinks)
 
     assert Poison.encode!(changeset) ==
-           ~s({\"permalinks\":[{\"url\":[\"should be at least 3 characters\"]},{}],\"age\":[\"is invalid\"]})
+           ~s({\"permalinks\":[{\"url\":[\"should be at least 3 character\(s\)\"]},{}],\"age\":[\"is invalid\"]})
   end
 
   test "encodes changeset errors with decimal error" do

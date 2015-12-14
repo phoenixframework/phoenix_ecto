@@ -80,7 +80,7 @@ defmodule PhoenixEcto.HTMLTest do
 
     form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
       assert f.errors == [score: "must be greater than 18",
-                          name: "should be at least 3 characters"]
+                          name: "should be at least 3 character(s)"]
       "FROM FORM"
     end))
 
