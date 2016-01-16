@@ -23,7 +23,12 @@ if Code.ensure_loaded?(Phoenix.HTML) do
                              "The default value must be set in the model"
       end
 
-      {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, false)
+      if Keyword.has_key?(opts, :skip_deleted) do
+        IO.write :stderr, "warning: :skip_deleted in inputs_for is deprecated\n" <>
+                          Exception.format_stacktrace
+      end
+
+      {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, nil)
       {prepend, opts} = Keyword.pop(opts, :prepend, [])
       {append, opts} = Keyword.pop(opts, :append, [])
       {name, opts} = Keyword.pop(opts, :as)
@@ -36,7 +41,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         {:one, cast, module} ->
           changesets =
             case Map.fetch(source.changes, field) do
-              {:ok, nil} when skip_deleted -> []
+              {:ok, nil} when skip_deleted in [false, nil] -> []
               {:ok, map} when not is_nil(map) -> [validate_map!(map, field)]
               _  ->
                 [validate_map!(assoc_from_model(source.model, field), field) || module.__struct__]
@@ -135,15 +140,13 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       value
     end
 
-    defp skip_deleted(changesets, true) do
+    # TODO: Make me skip only replaced
+    defp skip_deleted(changesets, skip_deleted) do
       Enum.reject(changesets, fn
-        %Ecto.Changeset{action: :delete} -> true
+        %Ecto.Changeset{action: :replace} -> true
+        %Ecto.Changeset{action: :delete} when skip_deleted == true -> true
         _ -> false
       end)
-    end
-
-    defp skip_deleted(changesets, false) do
-      changesets
     end
 
     defp validation_to_attrs({:length, opts}, _field, _changeset) do
@@ -199,17 +202,23 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp find_inputs_for_type!(changeset, field) do
+      # TODO: Remove on_cast once we support only Ecto 2.0
       case Map.fetch(changeset.types, field) do
         {:ok, {tag, %{cardinality: cardinality, on_cast: cast, related: module}}} when tag in [:embed, :assoc] ->
           {cardinality, cast, module}
+        {:ok, {tag, %{cardinality: cardinality, related: module}}} when tag in [:embed, :assoc] ->
+          {cardinality, nil, module}
         _ ->
           raise ArgumentError,
             "could not generate inputs for #{inspect field} from #{inspect changeset.model.__struct__}. " <>
-            "Check the field exists and it is one of embeds_* or has_*"
+            "Check the field exists and it is one of embeds_one, embeds_many, has_one, " <>
+            "has_many, belongs_to or many_to_many"
       end
     end
 
+    # TODO: Remove on_cast once we support only Ecto 2.0
     defp to_changeset(%Ecto.Changeset{} = changeset, _module, _cast), do: changeset
+    defp to_changeset(%{} = model, _module, nil), do: Ecto.Changeset.change(model)
     defp to_changeset(%{} = model, module, cast), do: apply(module, cast, [model, :empty])
 
     defp validate_list!(value, _what) when is_list(value) or is_nil(value), do: value
