@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.1
+
+* Enhancements
+  * Depend on Ecto ~> 1.1.2
+
 ## v2.0.0
 
 * Enhancements
