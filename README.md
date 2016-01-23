@@ -8,7 +8,7 @@ You can use `phoenix_ecto` in your projects in two steps:
 
     ```elixir
     def deps do
-      [{:phoenix_ecto, "~> 1.2"}]
+      [{:phoenix_ecto, "~> 2.0"}]
     end
     ```
 
