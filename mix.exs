@@ -31,7 +31,7 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [{:phoenix_html, "~> 2.2", optional: true},
-     {:poison, "~> 1.3", optional: true},
+     {:poison, "~> 1.5 or ~> 2.0", optional: true},
      {:ecto, "~> 1.1.2 or ~> 2.0-dev"}]
   end
 end
