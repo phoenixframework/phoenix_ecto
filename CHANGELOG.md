@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.1.0-dev
+
+* Enhancements
+  * Depend on Phoenix.HTML ~> 2.5
+
 ## v2.0.0
 
 * Enhancements
@@ -21,7 +26,7 @@
 * Enhancements
   * Depend on Ecto ~> 0.15
   * Support `skip_deleted` in inputs_for
-  * Support default values from model rather from `:default` option
+  * Support default values from data rather from `:default` option
 
 ## v1.0.0
 

@@ -23,9 +23,9 @@ defmodule PhoenixEcto.InputsForTest do
   end
 
 
-  test "has one: inputs_for/4 with model data" do
+  test "has one: inputs_for/4 with data" do
     changeset =
-      %User{comment: %Comment{body: "model"}}
+      %User{comment: %Comment{body: "data"}}
       |> cast(:empty, [], [])
       |> cast_assoc(:comment)
 
@@ -37,12 +37,12 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="model">)
+           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="data">)
   end
 
   test "has one: inputs_for/4 with params" do
     changeset =
-      %User{comment: %Comment{body: "model"}}
+      %User{comment: %Comment{body: "data"}}
       |> cast(%{"comment" => %{"body" => "ht"}}, [], [])
       |> cast_assoc(:comment)
 
@@ -59,7 +59,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   test "has one: inputs_for/4 with custom id and name" do
     changeset =
-      %User{comment: %Comment{body: "model"}}
+      %User{comment: %Comment{body: "data"}}
       |> cast(%{"comment" => %{"body" => "given"}}, [], [])
       |> cast_assoc(:comment)
 
@@ -101,8 +101,8 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents == ""
   end
 
-  test "has many: inputs_for/4 with model data" do
-    changeset = cast(%User{comments: [%Comment{body: "model1"}, %Comment{body: "model2"}]},
+  test "has many: inputs_for/4 with data" do
+    changeset = cast(%User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]},
                      :empty, ~w(comments), ~w())
 
     contents =
@@ -115,8 +115,8 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="model1">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="model2">)
+      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="data1">) <>
+      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data2">)
   end
 
   test "has many: inputs_for/4 with prepend and append" do
@@ -139,8 +139,8 @@ defmodule PhoenixEcto.InputsForTest do
       ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
   end
 
-  test "has many: inputs_for/4 with prepend and append with model" do
-    comments = [%Comment{id: "a", body: "model1"}, %Comment{id: "b", body: "model2"}]
+  test "has many: inputs_for/4 with prepend and append with data" do
+    comments = [%Comment{id: "a", body: "data1"}, %Comment{id: "b", body: "data2"}]
     changeset = cast(%User{comments: comments}, :empty, ~w(comments), ~w())
 
     contents =
@@ -155,14 +155,14 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents ==
       ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="prepend">) <>
       ~s(<input id="user_comments_1_id" name="user[comments][1][id]" type="hidden" value="a">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="model1">) <>
+      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data1">) <>
       ~s(<input id="user_comments_2_id" name="user[comments][2][id]" type="hidden" value="b">) <>
-      ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="model2">) <>
+      ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="data2">) <>
       ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
   end
 
   test "has many: inputs_for/4 with prepend and append with params" do
-    comments = [%Comment{id: 1, body: "model1"}, %Comment{id: 2, body: "model2"}]
+    comments = [%Comment{id: 1, body: "data1"}, %Comment{id: 2, body: "data2"}]
     changeset =
       %User{comments: comments}
       |> cast(%{"comments" => [%{"id" => "1", "body" => "h1"},
@@ -186,7 +186,7 @@ defmodule PhoenixEcto.InputsForTest do
   end
 
   test "has many: inputs_for/4 with custom id and name" do
-    changeset = cast(%User{comments: [%Comment{body: "model1"}, %Comment{body: "model2"}]},
+    changeset = cast(%User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]},
                      :empty, ~w(comments), ~w())
 
     contents =
@@ -197,13 +197,13 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-      ~s(<input id="bar_0_body" name="foo[0][body]" type="text" value="model1">) <>
-      ~s(<input id="bar_1_body" name="foo[1][body]" type="text" value="model2">)
+      ~s(<input id="bar_0_body" name="foo[0][body]" type="text" value="data1">) <>
+      ~s(<input id="bar_1_body" name="foo[1][body]" type="text" value="data2">)
   end
 
   test "has many: inputs_for/4 with replaced changesets" do
     changeset =
-      %User{comments: [%Comment{id: 1, body: "model1"}, %Comment{id: 2, body: "model2"}]}
+      %User{comments: [%Comment{id: 1, body: "data1"}, %Comment{id: 2, body: "data2"}]}
       |> cast(%{"comments" => []}, [], [])
       |> cast_assoc(:comments)
 
@@ -235,8 +235,8 @@ defmodule PhoenixEcto.InputsForTest do
            ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
   end
 
-  test "embeds one: inputs_for/4 with model data" do
-    changeset = cast(%User{permalink: %Permalink{url: "model"}},
+  test "embeds one: inputs_for/4 with data" do
+    changeset = cast(%User{permalink: %Permalink{url: "data"}},
                      :empty, ~w(permalink), ~w())
 
     contents =
@@ -247,12 +247,12 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="model">)
+           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="data">)
   end
 
   test "embeds one: inputs_for/4 with params" do
     changeset =
-      %User{permalink: %Permalink{url: "model"}}
+      %User{permalink: %Permalink{url: "data"}}
       |> cast(%{"permalink" => %{"url" => "ht"}}, [], [])
       |> cast_embed(:permalink)
 
@@ -269,7 +269,7 @@ defmodule PhoenixEcto.InputsForTest do
 
   test "embeds one: inputs_for/4 with custom id and name" do
     changeset =
-      %User{permalink: %Permalink{url: "model"}}
+      %User{permalink: %Permalink{url: "data"}}
       |> cast(%{"permalink" => %{"url" => "given"}}, [], [])
       |> cast_embed(:permalink)
 
@@ -311,8 +311,8 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents == ""
   end
 
-  test "embeds many: inputs_for/4 with model data" do
-    changeset = cast(%User{permalinks: [%Permalink{url: "model1"}, %Permalink{url: "model2"}]},
+  test "embeds many: inputs_for/4 with data" do
+    changeset = cast(%User{permalinks: [%Permalink{url: "data1"}, %Permalink{url: "data2"}]},
                      :empty, ~w(permalinks), ~w())
 
     contents =
@@ -325,8 +325,8 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="model1">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="model2">)
+      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="data1">) <>
+      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data2">)
   end
 
   test "embeds many: inputs_for/4 with prepend and append" do
@@ -349,8 +349,8 @@ defmodule PhoenixEcto.InputsForTest do
       ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
   end
 
-  test "embeds many: inputs_for/4 with prepend and append with model" do
-    permalinks = [%Permalink{id: "a", url: "model1"}, %Permalink{id: "b", url: "model2"}]
+  test "embeds many: inputs_for/4 with prepend and append with data" do
+    permalinks = [%Permalink{id: "a", url: "data1"}, %Permalink{id: "b", url: "data2"}]
     changeset  = cast(%User{permalinks: permalinks}, :empty, ~w(permalinks), ~w())
 
     contents =
@@ -365,14 +365,14 @@ defmodule PhoenixEcto.InputsForTest do
     assert contents ==
       ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="prepend">) <>
       ~s(<input id="user_permalinks_1_id" name="user[permalinks][1][id]" type="hidden" value="a">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="model1">) <>
+      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data1">) <>
       ~s(<input id="user_permalinks_2_id" name="user[permalinks][2][id]" type="hidden" value="b">) <>
-      ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="model2">) <>
+      ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="data2">) <>
       ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
   end
 
   test "embeds many: inputs_for/4 with prepend and append with params" do
-    permalinks = [%Permalink{id: "a", url: "model1"}, %Permalink{id: "b", url: "model2"}]
+    permalinks = [%Permalink{id: "a", url: "data1"}, %Permalink{id: "b", url: "data2"}]
     changeset  =
       %User{permalinks: permalinks}
       |> cast(%{"permalinks" => [%{"id" => "a", "url" => "h1"},
@@ -396,7 +396,7 @@ defmodule PhoenixEcto.InputsForTest do
   end
 
   test "embeds many: inputs_for/4 with custom id and name" do
-    changeset = cast(%User{permalinks: [%Permalink{url: "model1"}, %Permalink{url: "model2"}]},
+    changeset = cast(%User{permalinks: [%Permalink{url: "data1"}, %Permalink{url: "data2"}]},
                      :empty, ~w(permalinks), ~w())
 
     contents =
@@ -407,13 +407,13 @@ defmodule PhoenixEcto.InputsForTest do
       end)
 
     assert contents ==
-      ~s(<input id="bar_0_url" name="foo[0][url]" type="text" value="model1">) <>
-      ~s(<input id="bar_1_url" name="foo[1][url]" type="text" value="model2">)
+      ~s(<input id="bar_0_url" name="foo[0][url]" type="text" value="data1">) <>
+      ~s(<input id="bar_1_url" name="foo[1][url]" type="text" value="data2">)
   end
 
   test "embeds many: inputs_for/4 with replaced changesets" do
     changeset =
-      %User{permalinks: [%Permalink{id: 1, url: "model1"}, %Permalink{id: 2, url: "model2"}]}
+      %User{permalinks: [%Permalink{id: 1, url: "data1"}, %Permalink{id: 2, url: "data2"}]}
       |> cast(%{"permalinks" => []}, [], [])
       |> cast_embed(:permalinks)
 
