@@ -182,7 +182,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp max_for(type, opts) do
       cond do
-        (type == :integer) && (max = Keyword.get(opts, :less_than)) ->
+        max = type == :integer && Keyword.get(opts, :less_than) ->
           [max: max - 1]
         max = Keyword.get(opts, :less_than_or_equal_to) ->
           [max: max]
@@ -193,7 +193,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp min_for(type, opts) do
       cond do
-        (type == :integer) && (min = Keyword.get(opts, :greater_than)) ->
+        min = type == :integer && Keyword.get(opts, :greater_than) ->
           [min: min + 1]
         min = Keyword.get(opts, :greater_than_or_equal_to) ->
           [min: min]
