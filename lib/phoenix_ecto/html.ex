@@ -1,9 +1,8 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
   defimpl Phoenix.HTML.FormData, for: Ecto.Changeset do
-    def to_form(%Ecto.Changeset{params: params} = changeset, opts) do
+    def to_form(%Ecto.Changeset{params: params, data: data} = changeset, opts) do
       {name, opts} = Keyword.pop(opts, :as)
-      data = get_data(changeset)
-      name = to_string(name || warn_name(opts) || form_for_name(data))
+      name = to_string(name || form_for_name(data))
 
       %Phoenix.HTML.Form{
         source: changeset,
@@ -24,33 +23,25 @@ if Code.ensure_loaded?(Phoenix.HTML) do
                              "The default value must be set in the changeset data"
       end
 
-      if Keyword.has_key?(opts, :skip_deleted) do
-        IO.write :stderr, "warning: :skip_deleted in inputs_for is deprecated\n" <>
-                          Exception.format_stacktrace
-      end
-
-      {skip_deleted, opts} = Keyword.pop(opts, :skip_deleted, nil)
       {prepend, opts} = Keyword.pop(opts, :prepend, [])
       {append, opts} = Keyword.pop(opts, :append, [])
       {name, opts} = Keyword.pop(opts, :as)
       {id, opts} = Keyword.pop(opts, :id)
 
       id    = to_string(id || form.id <> "_#{field}")
-      name  = to_string(name || warn_name(opts) || form.name <> "[#{field}]")
+      name  = to_string(name || form.name <> "[#{field}]")
 
       case find_inputs_for_type!(source, field) do
         {:one, cast, module} ->
           changesets =
             case Map.fetch(source.changes, field) do
-              {:ok, nil} when skip_deleted in [false, nil] -> []
+              {:ok, nil} -> []
               {:ok, map} when not is_nil(map) -> [validate_map!(map, field)]
-              _  ->
-                [validate_map!(assoc_from_data(get_data(source), field), field) || module.__struct__]
+              _  -> [validate_map!(assoc_from_data(source.data, field), field) || module.__struct__]
             end
 
-          for changeset <- skip_deleted(changesets, skip_deleted) do
-            changeset = to_changeset(changeset, module, cast)
-            data = get_data(changeset)
+          for changeset <- skip_replaced(changesets) do
+            %{data: data} = changeset = to_changeset(changeset, module, cast)
 
             %Phoenix.HTML.Form{
               source: changeset,
@@ -68,7 +59,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         {:many, cast, module} ->
           changesets =
             validate_list!(Map.get(source.changes, field), field) ||
-            validate_list!(assoc_from_data(get_data(source), field), field) ||
+            validate_list!(assoc_from_data(source.data, field), field) ||
             []
 
           changesets =
@@ -78,11 +69,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
               prepend ++ changesets ++ append
             end
 
-          changesets = skip_deleted(changesets, skip_deleted)
+          changesets = skip_replaced(changesets)
 
           for {changeset, index} <- Enum.with_index(changesets) do
-            changeset = to_changeset(changeset, module, cast)
-            data = get_data(changeset)
+            %{data: data} = changeset = to_changeset(changeset, module, cast)
             index_string = Integer.to_string(index)
 
             %Phoenix.HTML.Form{
@@ -141,11 +131,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       value
     end
 
-    # TODO: Make me skip only replaced
-    defp skip_deleted(changesets, skip_deleted) do
+    defp skip_replaced(changesets) do
       Enum.reject(changesets, fn
         %Ecto.Changeset{action: :replace} -> true
-        %Ecto.Changeset{action: :delete} when skip_deleted == true -> true
         _ -> false
       end)
     end
@@ -203,12 +191,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp find_inputs_for_type!(changeset, field) do
-      # TODO: Remove on_cast once we support only Ecto 2.0
       case Map.fetch(changeset.types, field) do
         {:ok, {tag, %{cardinality: cardinality, on_cast: cast, related: module}}} when tag in [:embed, :assoc] ->
           {cardinality, cast, module}
-        {:ok, {tag, %{cardinality: cardinality, related: module}}} when tag in [:embed, :assoc] ->
-          {cardinality, nil, module}
         _ ->
           raise ArgumentError,
             "could not generate inputs for #{inspect field} from #{inspect changeset.data.__struct__}. " <>
@@ -217,10 +202,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    # TODO: Remove on_cast once we support only Ecto 2.0
     defp to_changeset(%Ecto.Changeset{} = changeset, _module, _cast), do: changeset
-    defp to_changeset(%{} = data, _module, nil), do: Ecto.Changeset.change(data)
-    defp to_changeset(%{} = data, module, cast), do: apply(module, cast, [data, :empty])
+    defp to_changeset(%{} = data, _module, cast) when is_function(cast, 2),
+      do: cast.(data, :invalid)
+    defp to_changeset(%{} = data, _module, nil),
+      do: Ecto.Changeset.change(data)
 
     defp validate_list!(value, _what) when is_list(value) or is_nil(value), do: value
     defp validate_list!(value, what) do
@@ -241,49 +227,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       module
       |> Module.split()
       |> List.last()
-      |> underscore()
+      |> Macro.underscore()
     end
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
     defp form_for_method(_), do: "post"
-
-    defp warn_name(opts) do
-      if name = Keyword.get(opts, :name) do
-        IO.write :stderr, "the :name option in form_for/inputs_for is deprecated, " <>
-                          "please use :as instead\n" <> Exception.format_stacktrace()
-        name
-      end
-    end
-
-    # TODO: Remove model once we support only Ecto 2.0 (Elixir 1.2 only)
-    defp get_data(%{model: model}), do: model
-    defp get_data(%{data: data}), do: data
-
-    # TODO: Remove underscore once we support only Ecto 2.0 (Elixir 1.2 only)
-    defp underscore(<<>>), do: ""
-
-    defp underscore(<<h, t :: binary>>) do
-      <<to_lower_char(h)>> <> do_underscore(t, h)
-    end
-
-    defp do_underscore(<<h, t, rest :: binary>>, _) when h in ?A..?Z and not t in ?A..?Z do
-      <<?_, to_lower_char(h), t>> <> do_underscore(rest, t)
-    end
-
-    defp do_underscore(<<h, t :: binary>>, prev) when h in ?A..?Z and not prev in ?A..?Z do
-      <<?_, to_lower_char(h)>> <> do_underscore(t, h)
-    end
-
-    defp do_underscore(<<h, t :: binary>>, _) do
-      <<to_lower_char(h)>> <> do_underscore(t, h)
-    end
-
-    defp do_underscore(<<>>, _) do
-      <<>>
-    end
-
-    defp to_lower_char(char) when char in ?A..?Z, do: char + 32
-    defp to_lower_char(char), do: char
   end
 
   defimpl Phoenix.HTML.Safe, for: [Decimal, Ecto.Time, Ecto.Date, Ecto.DateTime] do

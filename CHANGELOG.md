@@ -1,9 +1,10 @@
 # Changelog
 
-## v2.1.0-dev
+## v3.0.0-beta.0
 
 * Enhancements
   * Depend on Phoenix.HTML ~> 2.5
+  * Depend on Ecto ~> 2.0
 
 ## v2.0.0
 
