@@ -5,6 +5,10 @@ defmodule PhoenixEcto.HTMLTest do
   import Phoenix.HTML
   import Phoenix.HTML.Form
 
+  defp safe_form_for(changeset, opts \\ [], function) do
+    safe_to_string(form_for(changeset, "/", opts, function))
+  end
+
   test "converts decimal to safe" do
     assert html_escape(Decimal.new("1.0")) == {:safe, "1.0"}
   end
@@ -21,10 +25,10 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with new changeset" do
-    changeset = cast(%User{}, :invalid, ~w(), ~w())
+    changeset = cast(%User{}, :invalid, ~w())
                 |> validate_length(:name, min: 3)
 
-    form = safe_to_string(form_for(changeset, "/", fn f ->
+    form = safe_form_for(changeset, fn f ->
       assert f.id == "user"
       assert f.name == "user"
       assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
@@ -32,7 +36,7 @@ defmodule PhoenixEcto.HTMLTest do
       assert f.params == %{}
       assert f.hidden == []
       "FROM FORM"
-    end))
+    end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
     assert form =~ "FROM FORM"
@@ -40,16 +44,16 @@ defmodule PhoenixEcto.HTMLTest do
 
   test "form_for/4 with loaded changeset" do
     changeset = cast(%User{__meta__: %{state: :loaded}, id: 13},
-                     %{"foo" => "bar"}, ~w(), ~w())
+                     %{"foo" => "bar"}, ~w())
 
-    form = safe_to_string(form_for(changeset, "/", fn f ->
+    form = safe_form_for(changeset, fn f ->
       assert f.id == "user"
       assert f.name == "user"
       assert f.source == changeset
       assert f.params == %{"foo" => "bar"}
       assert f.hidden == [id: 13]
       "FROM FORM"
-    end))
+    end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
     assert form =~ ~s(<input name="_method" type="hidden" value="put">)
@@ -58,14 +62,14 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with custom options" do
-    changeset = cast(%User{}, :invalid, ~w(), ~w())
+    changeset = cast(%User{}, :invalid, ~w())
 
-    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
+    form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.id == "another"
       assert f.name == "another"
       assert f.source == changeset
       "FROM FORM"
-    end))
+    end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
     assert form =~ "FROM FORM"
@@ -74,26 +78,33 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with errors" do
     changeset =
       %User{}
-      |> cast(%{"name" => "JV"}, ~w(name), ~w())
+      |> cast(%{"name" => "JV"}, ~w(name))
       |> validate_length(:name, min: 3)
       |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
 
-    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
+    safe_form_for(changeset, [as: "another", multipart: true], fn f ->
+      assert f.errors == []
+      "FROM FORM"
+    end)
+
+    changeset = %{changeset | action: :insert}
+
+    form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.errors == [score: {"must be greater than %{count}", count: Decimal.new(18)},
                           name: {"should be at least %{count} character(s)", count: 3}]
       "FROM FORM"
-    end))
+    end)
 
     assert form =~ ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
     assert form =~ "FROM FORM"
   end
 
   test "form_for/4 with inputs" do
-    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name), ~w())
+    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name))
 
-    form = safe_to_string(form_for(changeset, "/", [as: "another", multipart: true], fn f ->
+    form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       [text_input(f, :name), text_input(f, :other)]
-    end))
+    end)
 
     assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
     assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
@@ -115,9 +126,9 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "input types" do
-    changeset = cast(%Custom{}, :invalid, [], [])
+    changeset = cast(%Custom{}, :invalid, ~w())
 
-    form_for(changeset, "/", fn f ->
+    safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
       assert input_type(f, :float) == :number_input
       assert input_type(f, :decimal) == :number_input
@@ -132,12 +143,13 @@ defmodule PhoenixEcto.HTMLTest do
 
   test "input validations" do
     changeset =
-      cast(%Custom{}, :invalid, ~w(integer string), ~w())
+      cast(%Custom{}, :invalid, ~w(), ~w(integer string))
+      |> validate_required([:integer, :string])
       |> validate_number(:integer, greater_than: 0, less_than: 100)
       |> validate_number(:float, greater_than_or_equal_to: 0)
       |> validate_length(:string, min: 0, max: 100)
 
-    form_for(changeset, "/", fn f ->
+    safe_form_for(changeset, fn f ->
       assert input_validations(f, :integer) == [required: true, step: 1, min: 1, max: 99]
       assert input_validations(f, :float)   == [required: false, step: "any", min: 0]
       assert input_validations(f, :decimal) == [required: false]

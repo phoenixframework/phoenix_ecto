@@ -1,6 +1,7 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
   defimpl Phoenix.HTML.FormData, for: Ecto.Changeset do
-    def to_form(%Ecto.Changeset{params: params, data: data} = changeset, opts) do
+    def to_form(changeset, opts) do
+      %{params: params, data: data} = changeset
       {name, opts} = Keyword.pop(opts, :as)
       name = to_string(name || form_for_name(data))
 
@@ -9,7 +10,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         impl: __MODULE__,
         id: name,
         name: name,
-        errors: changeset.errors,
+        errors: form_for_errors(changeset),
         data: data,
         params: params || %{},
         hidden: form_for_hidden(data),
@@ -17,7 +18,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       }
     end
 
-    def to_form(source, form, field, opts) do
+    def to_form(%{action: parent_action} = source, form, field, opts) do
       if Keyword.has_key?(opts, :default) do
         raise ArgumentError, ":default is not supported on inputs_for with changesets. " <>
                              "The default value must be set in the changeset data"
@@ -41,16 +42,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             end
 
           for changeset <- skip_replaced(changesets) do
-            %{data: data} = changeset = to_changeset(changeset, module, cast)
+            %{data: data, params: params} = changeset =
+              to_changeset(changeset, parent_action, module, cast)
 
             %Phoenix.HTML.Form{
               source: changeset,
               impl: __MODULE__,
               id: id,
               name: name,
-              errors: changeset.errors,
+              errors: form_for_errors(changeset),
               data: data,
-              params: changeset.params || %{},
+              params: params || %{},
               hidden: form_for_hidden(data),
               options: opts
             }
@@ -72,7 +74,8 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           changesets = skip_replaced(changesets)
 
           for {changeset, index} <- Enum.with_index(changesets) do
-            %{data: data} = changeset = to_changeset(changeset, module, cast)
+            %{data: data, params: params} = changeset =
+              to_changeset(changeset, parent_action, module, cast)
             index_string = Integer.to_string(index)
 
             %Phoenix.HTML.Form{
@@ -81,9 +84,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
               id: id <> "_" <> index_string,
               name: name <> "[" <> index_string <> "]",
               index: index,
-              errors: changeset.errors,
+              errors: form_for_errors(changeset),
               data: data,
-              params: changeset.params || %{},
+              params: params || %{},
               hidden: form_for_hidden(data),
               options: opts
             }
@@ -118,15 +121,14 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp assoc_from_data(data, field) do
       assoc_from_data(data, Map.fetch!(data, field), field)
     end
-
-    defp assoc_from_data(%{__meta__: %{state: :built}}, %Ecto.Association.NotLoaded{}, _field), do: nil
-
+    defp assoc_from_data(%{__meta__: %{state: :built}}, %Ecto.Association.NotLoaded{}, _field) do
+      nil
+    end
     defp assoc_from_data(%{__struct__: struct}, %Ecto.Association.NotLoaded{}, field) do
       raise ArgumentError, "using inputs_for for association `#{field}` " <>
         "from `#{inspect struct}` but it was not loaded. Please preload your " <>
         "associations before using them in inputs_for"
     end
-
     defp assoc_from_data(_data, value, _field) do
       value
     end
@@ -202,11 +204,19 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    defp to_changeset(%Ecto.Changeset{} = changeset, _module, _cast), do: changeset
-    defp to_changeset(%{} = data, _module, cast) when is_function(cast, 2),
-      do: cast.(data, :invalid)
-    defp to_changeset(%{} = data, _module, nil),
-      do: Ecto.Changeset.change(data)
+    defp to_changeset(%Ecto.Changeset{} = changeset, parent_action, _module, _cast),
+      do: apply_action(changeset, parent_action)
+    defp to_changeset(%{} = data, parent_action, _module, cast) when is_function(cast, 2),
+      do: apply_action(cast.(data, %{}), parent_action)
+    defp to_changeset(%{} = data, parent_action, _module, nil),
+      do: apply_action(Ecto.Changeset.change(data), parent_action)
+
+    # If the parent changeset had no action, we need to remove the action
+    # from children changeset so we ignore all errors accordingly.
+    defp apply_action(changeset, nil),
+      do: %{changeset | action: nil}
+    defp apply_action(changeset, _action),
+      do: changeset
 
     defp validate_list!(value, _what) when is_list(value) or is_nil(value), do: value
     defp validate_list!(value, what) do
@@ -217,6 +227,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp validate_map!(value, what) do
       raise ArgumentError, "expected #{what} to be a map/struct, got: #{inspect value}"
     end
+
+    defp form_for_errors(%{action: nil}), do: []
+    defp form_for_errors(%{errors: errors}), do: errors
 
     defp form_for_hidden(data) do
       # Since they are primary keys, we should ignore nil values.

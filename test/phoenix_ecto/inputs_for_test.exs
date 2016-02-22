@@ -51,6 +51,16 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :comment, fn f ->
+        assert f.errors == []
+        assert f.source.validations == [body: {:length, min: 3}]
+        text_input f, :body
+      end)
+
+    assert contents ==
+           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
+
+    contents =
+      safe_inputs_for(Map.put(changeset, :action, :insert), :comment, fn f ->
         assert f.errors == [body: {"should be at least %{count} character(s)", count: 3}]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
@@ -129,6 +139,7 @@ defmodule PhoenixEcto.InputsForTest do
       %User{comments: [%Comment{body: "def1"}, %Comment{body: "def2"}]}
       |> cast(:invalid, [], [])
       |> cast_assoc(:comments)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :comments, [
@@ -151,6 +162,7 @@ defmodule PhoenixEcto.InputsForTest do
       %User{comments: [%Comment{id: "a", body: "data1"}, %Comment{id: "b", body: "data2"}]}
       |> cast(:invalid, [], [])
       |> cast_assoc(:comments)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :comments,
@@ -177,6 +189,7 @@ defmodule PhoenixEcto.InputsForTest do
       |> cast(%{"comments" => [%{"id" => "1", "body" => "h1"},
                                %{"id" => "2", "body" => "h2"}]}, [], [])
       |> cast_assoc(:comments)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :comments,
@@ -270,6 +283,16 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :permalink, fn f ->
+        assert f.errors == []
+        assert f.source.validations == [url: {:length, min: 3}]
+        text_input f, :url
+      end)
+
+    assert contents ==
+           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
+
+    contents =
+      safe_inputs_for(Map.put(changeset, :action, :insert), :permalink, fn f ->
         assert f.errors == [url: {"should be at least %{count} character(s)", count: 3}]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
@@ -348,6 +371,7 @@ defmodule PhoenixEcto.InputsForTest do
       %User{permalinks: [%Permalink{url: "def1"}, %Permalink{url: "def2"}]}
       |> cast(:invalid, [], [])
       |> cast_embed(:permalinks)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :permalinks, [
@@ -370,6 +394,7 @@ defmodule PhoenixEcto.InputsForTest do
       %User{permalinks: [%Permalink{id: "a", url: "data1"}, %Permalink{id: "b", url: "data2"}]}
       |> cast(:invalid, [], [])
       |> cast_embed(:permalinks)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :permalinks,
@@ -396,6 +421,7 @@ defmodule PhoenixEcto.InputsForTest do
       |> cast(%{"permalinks" => [%{"id" => "a", "url" => "h1"},
                                  %{"id" => "b", "url" => "h2"}]}, [], [])
       |> cast_embed(:permalinks)
+      |> Map.put(:action, :insert)
 
     contents =
       safe_inputs_for(changeset, :permalinks,
