@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.0.0-beta.1
+
+* Enhancements
+  * Do not list errors if changeset has no action
+
 ## v3.0.0-beta.0
 
 * Enhancements
