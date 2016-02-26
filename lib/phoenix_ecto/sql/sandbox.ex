@@ -7,11 +7,11 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   This plug should only be used during tests. First, set a flag to
   enable it in `config/test.exs`:
 
-      config :my_app, sql_sandbox: true
+      config :your_app, sql_sandbox: true
 
-  And use the flag to conditionally add the plug to `lib/my_app/endpoint.ex`:
+  And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
 
-      if Application.get_env(:my_app, :sql_sandbox) do
+      if Application.get_env(:your_app, :sql_sandbox) do
         plug Phoenix.Ecto.SQL.Sandbox
       end
 
@@ -20,10 +20,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   that will be used on subsequent requests to allow access to the test's connection.
   Here's an example using hound:
 
+      use Hound.Helpers
+
       setup do
-        :ok = Ecto.Adapters.SQL.Sandbox.checkout(MyApp.Repo)
+        :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
         Hound.start_session
-        Hound.Helpers.Navigation.navigate_to Phoenix.Ecto.SQL.Sandbox.path_for(MyApp.Repo, self())
+        navigate_to Phoenix.Ecto.SQL.Sandbox.path_for(YourApp.Repo, self())
       end
   """
 

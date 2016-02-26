@@ -20,14 +20,52 @@ You can use `phoenix_ecto` in your projects in two steps:
     end
     ```
 
-## Details
+## The Phoenix <-> Ecto integration
 
-This project:
+Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
 
-  * Implements the `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
-  * Implements the `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * Implements the `Poison.Encoder` protocol for `Ecto.Changeset` (it renders its errors as JSON), `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * Implements the `Plug.Exception` protocol for the relevant Ecto exceptions
+  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+  * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+  * `Plug.Exception` protocol for the relevant Ecto exceptions
+  * `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+
+## Concurrent acceptance tests
+
+This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
+
+In the examples below, we will list the instructions of running concurrent acceptance tests with Hound but it would apply to any tool.
+
+  1. First [add Hound as a dependency to your project as outlined in its README](https://github.com/HashNuke/hound)
+
+  2. Then set a flag to enable the sandbox in `config/test.exs`:
+
+    ```elixir
+    config :your_app, sql_sandbox: true
+    ```
+
+  3. And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
+
+    ```elixir
+    if Application.get_env(:your_app, :sql_sandbox) do
+      plug Phoenix.Ecto.SQL.Sandbox
+    end
+    ```
+
+  4. Then, within an acceptance test, checkout a sandboxed connection as usual and
+    then use your acceptance test driver to access the sandbox endpoint. This will
+    set a cookie that will be used for connection management in following requests:
+  
+    ```elixir
+    use Hound.Helpers
+
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+      Hound.start_session
+      navigate_to Phoenix.Ecto.SQL.Sandbox.path_for(YourApp.Repo, self())
+    end
+    ```
+
+Keep in mind `phantomjs` is not currently supported for concurrent transactional tests as it shares cookies between sessions.
 
 ## License
 
