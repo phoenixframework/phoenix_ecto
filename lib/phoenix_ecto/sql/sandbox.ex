@@ -18,7 +18,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Then, within an acceptance test, checkout a sandboxed connection as before.
   Before starting the test, access the endpoint at `path_for/2`. This sets a cookie
   that will be used on subsequent requests to allow access to the test's connection.
-  Here's an example using hound:
+  Here's an example using [Hound](https://hex.pm/packages/hound):
 
       use Hound.Helpers
 
