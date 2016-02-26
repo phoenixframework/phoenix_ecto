@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.0.0-beta.2
+
+* Enhancements
+  * Add `Phoenix.Ecto.SQL.Sandbox` for concurrent acceptance tests with Phoenix and Ecto
+
 ## v3.0.0-beta.1
 
 * Enhancements

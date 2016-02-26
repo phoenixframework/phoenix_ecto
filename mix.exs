@@ -1,7 +1,7 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
-  @version "3.0.0-beta.1"
+  @version "3.0.0-beta.2"
 
   def project do
     [app: :phoenix_ecto,
