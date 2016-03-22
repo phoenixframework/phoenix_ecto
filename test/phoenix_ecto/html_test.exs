@@ -25,7 +25,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with new changeset" do
-    changeset = cast(%User{}, :invalid, ~w())
+    changeset = cast(%User{}, %{}, ~w())
                 |> validate_length(:name, min: 3)
 
     form = safe_form_for(changeset, fn f ->
@@ -62,7 +62,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with custom options" do
-    changeset = cast(%User{}, :invalid, ~w())
+    changeset = cast(%User{}, %{}, ~w())
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.id == "another"
@@ -126,7 +126,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "input types" do
-    changeset = cast(%Custom{}, :invalid, ~w())
+    changeset = cast(%Custom{}, %{}, ~w())
 
     safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
@@ -143,7 +143,7 @@ defmodule PhoenixEcto.HTMLTest do
 
   test "input validations" do
     changeset =
-      cast(%Custom{}, :invalid, ~w(), ~w(integer string))
+      cast(%Custom{}, %{}, ~w(integer string))
       |> validate_required([:integer, :string])
       |> validate_number(:integer, greater_than: 0, less_than: 100)
       |> validate_number(:float, greater_than_or_equal_to: 0)
