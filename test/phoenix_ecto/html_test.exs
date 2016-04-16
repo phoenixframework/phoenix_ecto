@@ -80,7 +80,7 @@ defmodule PhoenixEcto.HTMLTest do
       %User{}
       |> cast(%{"name" => "JV"}, ~w(name))
       |> validate_length(:name, min: 3)
-      |> add_error(:score, {"must be greater than %{count}", count: Decimal.new(18)})
+      |> add_error(:score, "must be greater than %{count}", count: Decimal.new(18))
 
     safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.errors == []
