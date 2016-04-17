@@ -15,22 +15,32 @@ defmodule PhoenixEcto.SQL.SandboxTest do
     Sandbox.call(conn, opts)
   end
 
-  test "allows sandbox access to subsequent connections with proper cookie" do
-    old_conn = conn(:get, Sandbox.path_for(MyRepo, self())) |> call_plug
-    _conn = recycle_cookies(conn(:get, "/"), old_conn) |> call_plug
+  defp add_metadata(conn, metadata) do
+    encoded = {:v1, metadata} |> :erlang.term_to_binary |> Base.url_encode64
+    put_req_header(conn, "user-agent", "PhoenixEcto/BeamMetadata (#{encoded})")
+  end
+
+  test "allows sandbox access to single repository" do
+    metadata = Sandbox.metadata_for(MyRepo, self())
+    assert metadata == %{repo: MyRepo, owner: self()}
+
+    _conn = conn(:get, "/") |> add_metadata(metadata) |> call_plug
 
     assert_receive {:allowed, MyRepo}
   end
 
   test "allows sandbox access to multiple repositories" do
-    old_conn = conn(:get, Sandbox.path_for([MyRepoOne, MyRepoTwo], self())) |> call_plug
-    _conn = recycle_cookies(conn(:get, "/"), old_conn) |> call_plug
+    repos = [MyRepoOne, MyRepoTwo]
+    metadata = Sandbox.metadata_for(repos, self())
+    assert metadata == %{repo: repos, owner: self()}
+
+    _conn = conn(:get, "/") |> add_metadata(metadata) |> call_plug
 
     assert_receive {:allowed, MyRepoOne}
     assert_receive {:allowed, MyRepoTwo}
   end
 
-  test "does not allow sandbox access without cookie" do
+  test "does not allow sandbox access without metadata" do
     conn(:get, "/") |> call_plug
 
     refute_receive {:allowed, _}

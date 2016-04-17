@@ -52,20 +52,19 @@ In the examples below, we will list the instructions of running concurrent accep
     ```
 
   4. Then, within an acceptance test, checkout a sandboxed connection as usual and
-    then use your acceptance test driver to access the sandbox endpoint. This will
-    set a cookie that will be used for connection management in following requests:
+    start your test driver using the metadata provided by `Phoenix.Ecto.SQL.Sandbox.metadata_for`.
   
     ```elixir
     use Hound.Helpers
 
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-      Hound.start_session
-      navigate_to Phoenix.Ecto.SQL.Sandbox.path_for(YourApp.Repo, self())
+      Hound.start_session(metadata: Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self()))
     end
     ```
 
-Keep in mind `phantomjs` is not currently supported for concurrent transactional tests as it shares cookies between sessions.
+Keep in mind `phantomjs` shares cookies between sessions, which could therefore results in
+race conditions or bugs when running tests concurrently.
 
 ## License
 
