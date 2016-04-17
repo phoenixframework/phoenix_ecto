@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.0.0-rc.0
+
+* Enhancements
+  * Use the new sandbox based on user-agent
+  * Update to Ecto 2.0.0-rc
+
 ## v3.0.0-beta.2
 
 * Enhancements
