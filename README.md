@@ -20,15 +20,6 @@ You can use `phoenix_ecto` in your projects in two steps:
     end
     ```
 
-## The Phoenix <-> Ecto integration
-
-Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
-
-  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
-  * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * `Plug.Exception` protocol for the relevant Ecto exceptions
-  * `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-
 ## Concurrent acceptance tests
 
 This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
@@ -95,17 +86,26 @@ Make sure to start it at the top of your `test/test_helper.exs`:
 
 Then add the following to your test case (or to your case template):
 
-    ```elixir
-    use Wallaby.DSL
+```elixir
+use Wallaby.DSL
 
-    setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-      metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
-      {:ok, session} = Wallaby.start_session(metadata: metadata)
-    end
-    ```
+setup do
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+  {:ok, session} = Wallaby.start_session(metadata: metadata)
+end
+```
 
 Wallaby currently supports PhantomJS (including concurrent tests). Support for other drivers may be added in the future.
+
+## The Phoenix <-> Ecto integration
+
+Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
+
+  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+  * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+  * `Plug.Exception` protocol for the relevant Ecto exceptions
+  * `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
 
 ## License
 
