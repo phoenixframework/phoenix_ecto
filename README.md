@@ -33,17 +33,15 @@ Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a
 
 This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
 
-In the examples below, we will list the instructions of running concurrent acceptance tests with Hound but it would apply to any tool.
+To enable concurrent acceptance tests follow the instructions below:
 
-  1. First [add Hound as a dependency to your project as outlined in its README](https://github.com/HashNuke/hound)
-
-  2. Then set a flag to enable the sandbox in `config/test.exs`:
+  1. Set a flag to enable the sandbox in `config/test.exs`:
 
     ```elixir
     config :your_app, sql_sandbox: true
     ```
 
-  3. And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
+  2. And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
 
     ```elixir
     if Application.get_env(:your_app, :sql_sandbox) do
@@ -51,9 +49,10 @@ In the examples below, we will list the instructions of running concurrent accep
     end
     ```
 
-  4. Then, within an acceptance test, checkout a sandboxed connection as usual and
-    start your test driver using the metadata provided by `Phoenix.Ecto.SQL.Sandbox.metadata_for`.
-  
+You can now checkout a sandboxed connection and pass the connection information to a acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby):
+
+### Hound
+
     ```elixir
     use Hound.Helpers
 
@@ -63,8 +62,17 @@ In the examples below, we will list the instructions of running concurrent accep
     end
     ```
 
-Keep in mind `phantomjs` shares cookies between sessions, which could therefore results in
-race conditions or bugs when running tests concurrently.
+### Wallaby
+
+    ```elixir
+    use Wallaby.DSL
+
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+      metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+      {:ok, session} = Wallaby.start_session(metadata: metadata)
+    end
+    ```
 
 ## License
 
