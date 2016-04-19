@@ -33,7 +33,7 @@ Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a
 
 This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
 
-To enable concurrent acceptance tests follow the instructions below:
+To enable concurrent acceptance tests, make sure you are using PostgreSQL and follow the instructions below:
 
   1. Set a flag to enable the sandbox in `config/test.exs`:
 
@@ -49,20 +49,51 @@ To enable concurrent acceptance tests follow the instructions below:
     end
     ```
 
-You can now checkout a sandboxed connection and pass the connection information to a acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby):
+You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby).
 
 ### Hound
 
-    ```elixir
-    use Hound.Helpers
+To write concurrent acceptance tests with Hound, first add it as a dependency to your `mix.exs`:
 
-    setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-      Hound.start_session(metadata: Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self()))
-    end
-    ```
+```elixir
+{:hound, "~> 1.0"}
+```
+
+Make sure to start it at the top of your `test/test_helper.exs`:
+
+```elixir
+{:ok, _} = Application.ensure_all_started(:hound)
+```
+
+Then add the following to your test case (or to your case template):
+
+```elixir
+use Hound.Helpers
+
+setup do
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+  Hound.start_session(metadata: metadata)
+end
+```
+
+Hound supports multiple drivers like Chrome, Firefox, etc but it does not support concurrent tests under PhantomJS (the default).
 
 ### Wallaby
+
+To write concurrent acceptance tests with Wallaby, first add it as a dependency to your `mix.exs`:
+
+```elixir
+{:wallaby, "~> 0.4"}
+```
+
+Make sure to start it at the top of your `test/test_helper.exs`:
+
+```elixir
+{:ok, _} = Application.ensure_all_started(:wallaby)
+```
+
+Then add the following to your test case (or to your case template):
 
     ```elixir
     use Wallaby.DSL
@@ -73,6 +104,8 @@ You can now checkout a sandboxed connection and pass the connection information 
       {:ok, session} = Wallaby.start_session(metadata: metadata)
     end
     ```
+
+Wallaby currently supports PhantomJS (including concurrent tests). Support for other drivers may be added in the future.
 
 ## License
 
