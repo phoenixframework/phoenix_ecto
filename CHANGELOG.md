@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.2
+
+* Enhancements
+  * Fix Elixir v1.3 warnings and relax Poison requirement
+
 ## v2.0.1
 
 * Enhancements
