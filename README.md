@@ -105,7 +105,6 @@ Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a
   * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
   * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
   * `Plug.Exception` protocol for the relevant Ecto exceptions
-  * `Poison.Encoder` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
 
 ## License
 
