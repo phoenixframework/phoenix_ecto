@@ -1,26 +1,15 @@
 # Changelog
 
-## v3.0.0-rc.0
+## v3.0.0
 
 * Enhancements
+  * Add `Phoenix.Ecto.SQL.Sandbox` for concurrent acceptance tests with Phoenix and Ecto based on user-agent
   * Use the new sandbox based on user-agent
-  * Update to Ecto 2.0.0-rc
-
-## v3.0.0-beta.2
-
-* Enhancements
-  * Add `Phoenix.Ecto.SQL.Sandbox` for concurrent acceptance tests with Phoenix and Ecto
-
-## v3.0.0-beta.1
-
-* Enhancements
-  * Do not list errors if changeset has no action
-
-## v3.0.0-beta.0
-
-* Enhancements
-  * Depend on Phoenix.HTML ~> 2.5
+  * Depend on Phoenix.HTML ~> 2.6
   * Depend on Ecto ~> 2.0
+
+* Bug fixes
+  * Do not list errors if changeset has no action
 
 ## v2.0.0
 

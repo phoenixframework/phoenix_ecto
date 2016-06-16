@@ -1,6 +1,6 @@
-%{"decimal": {:hex, :decimal, "1.1.1", "a8ff5b673105e6cdaca96f799aeefc6f07142881b616c65db16e14e556b16e76", [:mix], []},
-  "ecto": {:hex, :ecto, "2.0.0-rc.0", "e8b3f9baa080395df0bf2a2710973a6aac0e978ee9f4b473e870bd0fb442835a", [:mix], [{:sbroker, "~> 0.7", [hex: :sbroker, optional: true]}, {:postgrex, "~> 0.11.1", [hex: :postgrex, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:mariaex, "~> 0.7.1", [hex: :mariaex, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
-  "phoenix_html": {:hex, :phoenix_html, "2.5.0", "44377a0470e8368ff7e6180dcafabeafe5112e920cf2a72e630416cb4b6b58c1", [:mix], [{:plug, "~> 0.13 or ~> 1.0", [hex: :plug, optional: false]}]},
-  "plug": {:hex, :plug, "1.1.1", "555797bd7f6c9ad9b95568aa0d659cd33c3ef8bb68af7cfba47f2c107b5c7b1f", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}]},
+%{"decimal": {:hex, :decimal, "1.1.2", "79a769d4657b2d537b51ef3c02d29ab7141d2b486b516c109642d453ee08e00c", [:mix], []},
+  "ecto": {:hex, :ecto, "2.0.0-rc.6", "a207218470d8c6366a20940e33f6f9fcd2e9a34c8e9779b808fe100f88c05f5e", [:mix], [{:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:sbroker, "~> 1.0-beta", [hex: :sbroker, optional: true]}, {:postgrex, "~> 0.11.2", [hex: :postgrex, optional: true]}, {:mariaex, "~> 0.7.7", [hex: :mariaex, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}]},
+  "phoenix_html": {:hex, :phoenix_html, "2.6.0", "b9f7e091eb3d908586d9634596478fb9e577ee033d76f4ff327a745569bdd2d8", [:mix], [{:plug, "~> 0.13 or ~> 1.0", [hex: :plug, optional: false]}]},
+  "plug": {:hex, :plug, "1.1.6", "8927e4028433fcb859e000b9389ee9c37c80eb28378eeeea31b0273350bf668b", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}]},
   "poison": {:hex, :poison, "2.1.0"},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []}}
