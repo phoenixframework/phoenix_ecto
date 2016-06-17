@@ -7,11 +7,11 @@ defmodule PhoenixEcto.Mixfile do
     [app: :phoenix_ecto,
      version: @version,
      elixir: "~> 1.2",
-     deps: deps,
+     deps: deps(),
 
      # Hex
      description: "Integration between Phoenix & Ecto",
-     package: package,
+     package: package(),
 
      # Docs
      name: "Phoenix/Ecto",
