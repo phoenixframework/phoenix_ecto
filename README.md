@@ -8,7 +8,7 @@ You can use `phoenix_ecto` in your projects in two steps:
 
     ```elixir
     def deps do
-      [{:phoenix_ecto, "~> 2.0"}]
+      [{:phoenix_ecto, "~> 3.0"}]
     end
     ```
 
@@ -75,7 +75,7 @@ Hound supports multiple drivers like Chrome, Firefox, etc but it does not suppor
 To write concurrent acceptance tests with Wallaby, first add it as a dependency to your `mix.exs`:
 
 ```elixir
-{:wallaby, "~> 0.4"}
+{:wallaby, "~> 0.6"}
 ```
 
 Make sure to start it at the top of your `test/test_helper.exs`:
