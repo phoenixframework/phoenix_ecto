@@ -31,6 +31,6 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [{:phoenix_html, "~> 2.6", optional: true},
-     {:ecto, "~> 2.0.0-rc"}]
+     {:ecto, "~> 2.0"}]
   end
 end
