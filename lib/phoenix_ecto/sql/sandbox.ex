@@ -14,6 +14,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       if Application.get_env(:your_app, :sql_sandbox) do
         plug Phoenix.Ecto.SQL.Sandbox
       end
+  
+  It's important that this is at the top of `endpoint.ex`, before any other plugs.
 
   Then, within an acceptance test, checkout a sandboxed connection as before.
   Use `metadata_for/2` helper to get the session metadata to that will allow access
