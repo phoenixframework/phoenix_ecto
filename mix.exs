@@ -20,7 +20,7 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :ecto]]
+    [applications: [:logger, :ecto, :plug]]
   end
 
   defp package do
@@ -31,6 +31,7 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [{:phoenix_html, "~> 2.6", optional: true},
-     {:ecto, "~> 2.0"}]
+     {:ecto, "~> 2.0"},
+     {:plug, "~> 1.0"}]
   end
 end
