@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.0.1
+
+* Enhancements
+  * Support non-struct data in changeset
+
 ## v3.0.0
 
 * Enhancements

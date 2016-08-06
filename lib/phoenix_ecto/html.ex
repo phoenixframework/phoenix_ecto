@@ -244,7 +244,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       |> Macro.underscore()
     end
     defp form_for_name(_) do
-      raise ArgumentError, "non-struct data passed in the changeset without `:as` option set"
+      raise ArgumentError, "non-struct data in changeset requires the :as option to be given"
     end
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
