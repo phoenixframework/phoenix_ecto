@@ -110,6 +110,16 @@ defmodule PhoenixEcto.HTMLTest do
     assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
   end
 
+  test "form_for/4 with a map for changeset data" do
+    changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
+
+    form = safe_form_for(changeset, [as: "some"], fn f ->
+      [text_input(f, :name)]
+    end)
+
+    assert form =~ ~s(<input id="some_name" name="some[name]" type="text" value="JV">)
+  end
+
   defmodule Custom do
     use Ecto.Schema
 

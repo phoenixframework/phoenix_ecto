@@ -231,16 +231,20 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_errors(%{action: nil}), do: []
     defp form_for_errors(%{errors: errors}), do: errors
 
-    defp form_for_hidden(data) do
+    defp form_for_hidden(%{__struct__: _} = data) do
       # Since they are primary keys, we should ignore nil values.
       for {k, v} <- Ecto.primary_key(data), v != nil, do: {k, v}
     end
+    defp form_for_hidden(_), do: []
 
     defp form_for_name(%{__struct__: module}) do
       module
       |> Module.split()
       |> List.last()
       |> Macro.underscore()
+    end
+    defp form_for_name(_) do
+      raise ArgumentError, "non-struct data passed in the changeset without `:as` option set"
     end
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
