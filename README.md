@@ -40,7 +40,7 @@ To enable concurrent acceptance tests, make sure you are using PostgreSQL and fo
     end
     ```
 
-    Make sure that this is placed **before** the line `plug YourApp.router`.
+    Make sure that this is placed **before** the line `plug YourApp.Router` (or any other plug that may access the database).
 
 You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby).
 
