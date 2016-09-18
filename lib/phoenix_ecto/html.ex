@@ -99,14 +99,15 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       type = if Ecto.Type.primitive?(type), do: type, else: type.type
 
       case type do
-        :integer  -> :number_input
-        :float    -> :number_input
-        :decimal  -> :number_input
-        :boolean  -> :checkbox
-        :date     -> :date_select
-        :time     -> :time_select
-        :datetime -> :datetime_select
-        _         -> :text_input
+        :integer        -> :number_input
+        :float          -> :number_input
+        :decimal        -> :number_input
+        :boolean        -> :checkbox
+        :date           -> :date_select
+        :time           -> :time_select
+        :utc_datetime   -> :datetime_select
+        :naive_datetime -> :datetime_select
+        _               -> :text_input
       end
     end
 
@@ -251,9 +252,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_method(_), do: "post"
   end
 
-  defimpl Phoenix.HTML.Safe, for: [Decimal, Ecto.Time, Ecto.Date, Ecto.DateTime] do
+  defimpl Phoenix.HTML.Safe, for: Decimal do
     def to_iodata(t) do
       @for.to_string(t)
+    end
+  end
+
+  if Code.ensure_loaded?(Ecto.DateTime) do
+    defimpl Phoenix.HTML.Safe, for: [Ecto.Time, Ecto.Date, Ecto.DateTime] do
+      def to_iodata(t) do
+        @for.to_string(t)
+      end
     end
   end
 end

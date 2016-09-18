@@ -8,7 +8,8 @@ defmodule Permalink do
   def changeset(permalink, params) do
     import Ecto.Changeset
     permalink
-    |> cast(params, ~w(url), ~w())
+    |> cast(params, ~w(url))
+    |> validate_required(:url)
     |> validate_length(:url, min: 3)
   end
 end
@@ -23,7 +24,8 @@ defmodule Comment do
   def changeset(comment, params) do
     import Ecto.Changeset
     comment
-    |> cast(params, ~w(body), ~w())
+    |> cast(params, ~w(body))
+    |> validate_required(:body)
     |> validate_length(:body, min: 3)
   end
 end

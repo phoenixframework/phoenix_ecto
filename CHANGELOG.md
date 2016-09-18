@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.1.0-rc
+
+* Enhancements
+  * Depend on Ecto ~> 2.1 an support new `:naive_datetime` and `:utc_datetime` types
+
 ## v3.0.1
 
 * Enhancements
