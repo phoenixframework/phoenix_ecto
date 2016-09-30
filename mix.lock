@@ -1,6 +1,7 @@
 %{"decimal": {:hex, :decimal, "1.1.2", "79a769d4657b2d537b51ef3c02d29ab7141d2b486b516c109642d453ee08e00c", [:mix], []},
-  "ecto": {:hex, :ecto, "1.1.7", "c37127248756e725eb8254b371764b40c05a90c104b2065d1d4f7e32573fdbec", [:mix], [{:sbroker, "~> 0.7", [hex: :sbroker, optional: true]}, {:postgrex, "~> 0.11.0", [hex: :postgrex, optional: true]}, {:poolboy, "~> 1.4", [hex: :poolboy, optional: false]}, {:poison, "~> 1.0 or ~> 2.0", [hex: :poison, optional: true]}, {:mariaex, "~> 0.5.0 or ~> 0.6.0", [hex: :mariaex, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
-  "phoenix_html": {:hex, :phoenix_html, "2.2.0", "fbd2a9d012377c199beecbb7442f213ab3b7a05030d8a0909b1981f19b139209", [:mix], [{:plug, "~> 0.13 or ~> 1.0", [hex: :plug, optional: false]}]},
-  "plug": {:hex, :plug, "1.0.0", "dfb6e50cebdde4dd338d175df9b067e8e2e3a34e8b7b61aba6f5213cf7d13000", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}]},
+  "ecto": {:hex, :ecto, "1.1.7", "c37127248756e725eb8254b371764b40c05a90c104b2065d1d4f7e32573fdbec", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.5.0 or ~> 0.6.0", [hex: :mariaex, optional: true]}, {:poison, "~> 1.0 or ~> 2.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.4", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.11.0", [hex: :postgrex, optional: true]}, {:sbroker, "~> 0.7", [hex: :sbroker, optional: true]}]},
+  "mime": {:hex, :mime, "1.0.1", "05c393850524767d13a53627df71beeebb016205eb43bfbd92d14d24ec7a1b51", [:mix], []},
+  "phoenix_html": {:hex, :phoenix_html, "2.6.2", "944a5e581b0d899e4f4c838a69503ebd05300fe35ba228a74439e6253e10e0c0", [:mix], [{:plug, "~> 1.0", [hex: :plug, optional: false]}]},
+  "plug": {:hex, :plug, "1.2.1", "dc878eb303099c945465b3f7811200e7dc0a4e2b1b6f3e26dc749011f3ed27ad", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}, {:mime, "~> 1.0", [hex: :mime, optional: false]}]},
   "poison": {:hex, :poison, "2.1.0", "f583218ced822675e484648fa26c933d621373f01c6c76bd00005d7bd4b82e27", [:mix], []},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []}}
