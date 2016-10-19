@@ -20,9 +20,9 @@ You can use `phoenix_ecto` in your projects in two steps:
     end
     ```
 
-## Concurrent acceptance tests
+## Concurrent browser tests
 
-This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
+This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests powered by headless browsers such as Phantom.js and Selenium concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html).
 
 To enable concurrent acceptance tests, make sure you are using PostgreSQL and follow the instructions below:
 
