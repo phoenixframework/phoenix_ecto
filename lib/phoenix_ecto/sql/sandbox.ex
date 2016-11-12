@@ -42,7 +42,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     |> get_req_header("user-agent")
     |> List.first
     |> extract_metadata
-    |> allow_sandbox_access(sandbox)
+    |> Enum.each(&allow_sandbox_access(&1, sandbox))
 
     conn
   end
@@ -65,8 +65,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   defp extract_metadata(user_agent) when is_binary(user_agent) do
     ua_last_part = user_agent |> String.split("/") |> List.last
     case Regex.run(~r/BeamMetadata \((.*?)\)/, ua_last_part) do
-      [_, metadata] -> parse_metadata(metadata)
-      _             -> %{}
+      [_, metadata] ->
+        metadata
+        |> String.split(",")
+        |> Enum.reduce([], fn meta, acc -> [parse_metadata(meta)] ++ acc end)
+      _ ->
+        %{}
     end
   end
   defp extract_metadata(_), do: %{}
@@ -76,8 +80,10 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     |> Base.url_decode64!
     |> :erlang.binary_to_term
     |> case do
-         {:v1, metadata} -> metadata
-         _               -> %{}
+         {:v1, metadata} ->
+          metadata
+         _ ->
+          %{}
        end
   end
 end
