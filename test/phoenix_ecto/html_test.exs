@@ -91,7 +91,7 @@ defmodule PhoenixEcto.HTMLTest do
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.errors == [score: {"must be greater than %{count}", count: Decimal.new(18)},
-                          name: {"should be at least %{count} character(s)", count: 3}]
+                          name: {"should be at least %{count} character(s)", count: 3, validation: :length, min: 3}]
       "FROM FORM"
     end)
 
