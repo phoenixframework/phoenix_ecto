@@ -135,6 +135,20 @@ defmodule PhoenixEcto.HTMLTest do
     end
   end
 
+  test "input value" do
+    changeset =
+      %Custom{string: "string", integer: 321}
+      |> cast(%{}, ~w())
+      |> put_change(:integer, 123)
+
+    safe_form_for(changeset, fn f ->
+      assert input_value(f, :integer) == 123
+      assert input_value(f, :string) == "string"
+      assert input_value(f, :float) == nil
+      ""
+    end)
+  end
+
   test "input types" do
     changeset = cast(%Custom{}, %{}, ~w())
 

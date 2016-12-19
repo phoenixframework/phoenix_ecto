@@ -94,8 +94,15 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    def input_type(changeset, field) do
-      type = Map.get(changeset.types, field, :string)
+    def input_value(%{changes: changes, data: data}, _, field) do
+      case Map.fetch(changes, field) do
+        {:ok, field} -> field
+        :error -> Map.get(data, field)
+      end
+    end
+
+    def input_type(%{types: types}, _, field) do
+      type = Map.get(types, field, :string)
       type = if Ecto.Type.primitive?(type), do: type, else: type.type
 
       case type do
@@ -111,9 +118,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    def input_validations(changeset, field) do
-      [required: field in changeset.required] ++
-        for({key, validation} <- changeset.validations,
+    def input_validations(%{required: required, validations: validations} = changeset, _, field) do
+      [required: field in required] ++
+        for({key, validation} <- validations,
             key == field,
             attr <- validation_to_attrs(validation, field, changeset),
             do: attr)
