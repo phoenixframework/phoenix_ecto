@@ -96,7 +96,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     def input_value(%{changes: changes, data: data}, _, field) do
       case Map.fetch(changes, field) do
-        {:ok, field} -> field
+        {:ok, value} -> value
         :error -> Map.get(data, field)
       end
     end
