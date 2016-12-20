@@ -94,7 +94,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    def input_value(%{changes: changes, data: data}, %{params: params}, field, default \\ nil) do
+    def input_value(%{changes: changes, data: data}, %{params: params}, field, computed \\ nil) do
       case Map.fetch(changes, field) do
         {:ok, value} ->
           value
@@ -102,10 +102,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           case Map.fetch(params, Atom.to_string(field)) do
             {:ok, value} ->
               value
-            :error when is_nil(default) ->
+            :error when is_nil(computed) ->
               Map.get(data, field)
             :error ->
-              default
+              computed
           end
       end
     end
