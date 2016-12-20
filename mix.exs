@@ -30,7 +30,7 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp deps do
-    [{:phoenix_html, "~> 2.9"},
+    [{:phoenix_html, "~> 2.9", github: "phoenixframework/phoenix_html"},
      {:ecto, "~> 2.1"},
      {:plug, "~> 1.0"}]
   end
