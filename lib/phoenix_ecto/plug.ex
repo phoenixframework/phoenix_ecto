@@ -9,3 +9,7 @@ end
 defimpl Plug.Exception, for: Ecto.NoResultsError do
   def status(_), do: 404
 end
+
+defimpl Plug.Exception, for: Ecto.InvalidChangesetError do
+  def status(_), do: 422
+end
