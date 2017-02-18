@@ -110,6 +110,17 @@ defmodule PhoenixEcto.HTMLTest do
     assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
   end
 
+  test "form_for/4 with schemaless changeset from an elixir struct" do
+    changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
+
+    form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
+      [text_input(f, :name), text_input(f, :other)]
+    end)
+
+    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
+    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
+  end
+
   test "form_for/4 with a map for changeset data" do
     changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
 
