@@ -45,4 +45,8 @@ defmodule User do
   end
 end
 
+defmodule SchemalessUser do
+  defstruct name: nil
+end
+
 ExUnit.start()
