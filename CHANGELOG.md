@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.2.2
+
+* Enhancements
+  * Give `Ecto.InvalidChangesetError` plug_status 422
+
+* Bug fixes
+  * Do not raise for schemaless structs
+
 ## v3.2.1
 
 * Bug fixes
