@@ -249,12 +249,11 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp form_for_errors(%{errors: errors}), do: errors
 
     defp form_for_hidden(%{__struct__: module} = data) do
-      case Keyword.has_key?(module.__info__(:functions), :__schema__) do
-        true -> 
-          # Since they are primary keys, we should ignore nil values.
-          for {k, v} <- Ecto.primary_key(data), v != nil, do: {k, v}
-        false -> []
-      end
+      module.__schema__(:primary_key)
+    rescue
+      _ -> []
+    else
+      keys -> for k <- keys, v = Map.fetch!(data, k), do: {k, v}
     end
     defp form_for_hidden(_), do: []
 
