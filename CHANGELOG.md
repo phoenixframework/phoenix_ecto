@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.2.3
+
+* Bug fixes
+  * Make `phoenix_html` dependency optional once again
+
 ## v3.2.2
 
 * Enhancements
