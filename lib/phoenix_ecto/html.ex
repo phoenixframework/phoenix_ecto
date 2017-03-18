@@ -180,6 +180,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       step_for(type) ++ min_for(type, opts) ++ max_for(type, opts)
     end
 
+    defp validation_to_attrs({:format, opts}, _field, _changeset) do
+      [pattern: Regex.source(opts)]
+    end
+
     defp validation_to_attrs(_validation, _field, _changeset) do
       []
     end

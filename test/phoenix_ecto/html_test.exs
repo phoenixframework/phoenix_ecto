@@ -198,12 +198,13 @@ defmodule PhoenixEcto.HTMLTest do
       |> validate_number(:integer, greater_than: 0, less_than: 100)
       |> validate_number(:float, greater_than_or_equal_to: 0)
       |> validate_length(:string, min: 0, max: 100)
+      |> validate_format(:string, ~r/.+@.+/)
 
     safe_form_for(changeset, fn f ->
       assert input_validations(f, :integer) == [required: true, step: 1, min: 1, max: 99]
       assert input_validations(f, :float)   == [required: false, step: "any", min: 0]
       assert input_validations(f, :decimal) == [required: false]
-      assert input_validations(f, :string)  == [required: true, maxlength: 100, minlength: 0]
+      assert input_validations(f, :string)  == [required: true, pattern: ".+@.+", maxlength: 100, minlength: 0]
       ""
     end)
   end
