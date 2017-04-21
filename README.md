@@ -26,20 +26,20 @@ This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows 
 
 To enable concurrent acceptance tests, make sure you are using PostgreSQL and follow the instructions below:
 
-  1. Set a flag to enable the sandbox in `config/test.exs`:
+1. Set a flag to enable the sandbox in `config/test.exs`:
 
     ```elixir
     config :your_app, sql_sandbox: true
     ```
 
-  2. And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
+2. And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
 
     ```elixir
     if Application.get_env(:your_app, :sql_sandbox) do
       plug Phoenix.Ecto.SQL.Sandbox
     end
     ```
-
+    
     Make sure that this is placed **before** the line `plug YourApp.Router` (or any other plug that may access the database).
 
 You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby).
