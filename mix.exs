@@ -15,8 +15,8 @@ defmodule PhoenixEcto.Mixfile do
 
      # Docs
      name: "Phoenix/Ecto",
-     docs: [source_ref: "v#{@version}",
-            source_url: "https://github.com/phoenixframework/phoenix_ecto"]]
+     docs: [main: "main",
+            extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]]]]
   end
 
   def application do
@@ -32,6 +32,7 @@ defmodule PhoenixEcto.Mixfile do
   defp deps do
     [{:phoenix_html, "~> 2.9", optional: true},
      {:ecto, "~> 2.1"},
-     {:plug, "~> 1.0"}]
+     {:plug, "~> 1.0"},
+     {:ex_doc, ">= 0.0.0", only: :dev}]
   end
 end
