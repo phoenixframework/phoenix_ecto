@@ -16,7 +16,9 @@ defmodule PhoenixEcto.Mixfile do
      # Docs
      name: "Phoenix/Ecto",
      docs: [main: "main",
-            extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]]]]
+            extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]],
+            source_ref: "v#{@version}",
+            source_url: "https://github.com/phoenixframework/phoenix_ecto"]]
   end
 
   def application do
