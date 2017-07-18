@@ -22,7 +22,10 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :ecto, :plug]]
+    [
+      applications: [:logger, :ecto, :plug],
+      env: [exclude_ecto_exceptions_from_plug: []]
+    ]
   end
 
   defp package do

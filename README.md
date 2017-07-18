@@ -108,6 +108,15 @@ Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a
   * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
   * `Plug.Exception` protocol for the relevant Ecto exceptions
 
+## Configuration
+
+The `Plug.Exception` implementations for Ecto exceptions may be disabled by including the error in the mix configuration.
+
+```elixir
+config :phoenix_ecto,
+  exclude_ecto_exceptions_from_plug: [Ecto.NoResultsError]
+```
+
 ## License
 
 Same license as Phoenix.
