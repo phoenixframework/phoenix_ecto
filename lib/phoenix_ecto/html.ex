@@ -37,7 +37,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           changesets =
             case Map.fetch(source.changes, field) do
               {:ok, nil} -> []
-              {:ok, map} when not is_nil(map) -> [validate_map!(map, field)]
+              {:ok, map} -> [validate_map!(map, field)]
               _  -> [validate_map!(assoc_from_data(source.data, field), field) || module.__struct__]
             end
 
