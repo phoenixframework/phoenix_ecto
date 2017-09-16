@@ -23,6 +23,7 @@ defmodule PhoenixEcto.Mixfile do
 
   def application do
     [
+      mod: {Phoenix.Ecto, []},
       applications: [:logger, :ecto, :plug],
       env: [exclude_ecto_exceptions_from_plug: []]
     ]
