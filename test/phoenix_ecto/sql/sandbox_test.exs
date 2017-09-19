@@ -21,12 +21,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
   end
 
   defp call_plug_with_checkout(conn, opts \\ []) do
-    opts =
-      Enum.into(opts,
-        checkout: {"/sandbox/checkout", MyRepo},
-        checkin: "/sandbox/checkin"
-      )
-
+    opts = Enum.into(opts, at: "/sandbox", repo: MyRepo)
     call_plug(conn, opts)
   end
 
@@ -99,7 +94,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
   test "checks out/in connection through sandbox owner at path" do
     # start new sandbox owner
-    conn = call_plug_with_checkout(conn(:post, "/sandbox/checkout"))
+    conn = call_plug_with_checkout(conn(:post, "/sandbox"))
     assert "BeamMetadata" <> _ = user_agent = conn.resp_body
     assert conn.halted
     assert conn.status == 200
@@ -121,7 +116,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
     # checks in request with metadata
     conn =
-      conn(:delete, "/sandbox/checkin")
+      conn(:delete, "/sandbox")
       |> put_req_header("user-agent", user_agent)
       |> call_plug_with_checkout()
 

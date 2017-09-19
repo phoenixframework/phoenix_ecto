@@ -17,22 +17,6 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   It's important that this is at the top of `endpoint.ex`, before any other plugs.
 
-
-        plug Phoenix.Ecto.SQL.Sandbox,
-          checkout: "/sandbox/checkout"
-          checkin: "/sandbox/checkin"
-
-
-  ## Metadata headers
-
-  A special metadata header must be passed by clients to maintain a sandbox
-  session. By default, the `"user-agent"` header is used, but this can be
-  customized with the `:header` option. For example:
-
-      plug Phoenix.Ecto.SQL.Sandbox, header: "x-custom"
-
-  The metadata may be encoded for a remote client using `encoded_metadata/1`.
-
   Then, within an acceptance test, checkout a sandboxed connection as before.
   Use `metadata_for/2` helper to get the session metadata to that will allow access
   to the test's connection.
@@ -45,6 +29,26 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
         Hound.start_session(metadata: metadata)
       end
+
+  ## Concurrent end-to-end tests with external clients
+
+  Concurrent and transactional tests for external HTTP clients is supported,
+  allowing for complete end-to-end tests. This is useful for cases such as
+  JavaScript test suites for single page applications that exercise the
+  Phoenix endpoint for end-to-end test setup and teardown. To enable this,
+  you can expose a sandbox route on the `Phoenix.Ecto.SQL.Sandbox` plug by
+  providing the `:at`, and `:repo` options. For example:
+
+      plug Phoenix.Ecto.SQL.Sandbox,
+        at: "/sandbox",
+        repo: MyApp.Repo
+
+  This would expose a route at `"/sandbox"` for the given repo where
+  external clients send POST requests to spawn a new sandbox session,
+  and DELETE requests to stop an active sandbox session. By default,
+  the external client is expected to pass up the `"user-agent" header
+  containing serialized sandbox metadata returned from the POST request,
+  but this value may customized with the `:header` option.
   """
 
   import Plug.Conn
@@ -52,13 +56,13 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   alias Phoenix.Ecto.SQL.SandboxSupervisor
 
   @doc """
-  Spawns a sandbox process to checkout a connection for a remote client.
+  Spawns a sandbox session to checkout a connection for a remote client.
 
   ## Examples
 
-      iex> {:ok, _owner_pid, metdata} = checkout(MyApp.Repo)
+      iex> {:ok, _owner_pid, metdata} = start_child(MyApp.Repo)
   """
-  def checkout(repo, opts \\ []) do
+  def start_child(repo, opts \\ []) do
     case Supervisor.start_child(SandboxSupervisor, [repo, self(), opts]) do
       {:ok, owner} ->
         metadata = metadata_for(repo, owner)
@@ -70,50 +74,40 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   @doc """
-  Checks in a sandbox owner process holding a connection for a remote client.
+  Stops a sandbox session holding a connection for a remote client.
 
   ## Examples
 
-      iex> {:ok, owner_pid, metdata} = checkout(MyApp.Repo)
-      iex> :ok = checkin(owner_pid)
+      iex> {:ok, owner_pid, metadata} = start_child(MyApp.Repo)
+      iex> :ok = stop(owner_pid)
   """
-  def checkin(owner) when is_pid(owner) do
+  def stop(owner) when is_pid(owner) do
     GenServer.call(owner, :checkin)
   end
 
   def init(opts \\ []) do
-    opts
-    |> Enum.into(%{
-      sandbox: Ecto.Adapters.SQL.Sandbox,
-      header: "user-agent",
-      checkout: nil,
-      checkin: nil
-    })
-    |> put_checkout_path()
-    |> put_checkin_path()
+    %{
+      sandbox: Keyword.get(opts, :sandbox, Ecto.Adapters.SQL.Sandbox),
+      header: Keyword.get(opts, :header, "user-agent"),
+      path: get_path_info(opts[:at]),
+      repo: opts[:repo]
+    }
   end
-  defp put_checkout_path(%{checkout: nil} = opts), do: opts
-  defp put_checkout_path(%{checkout: {path, repo}} = opts) do
-    put_in(opts, [:checkout], {split_path(path), repo})
-  end
-  defp put_checkin_path(%{checkin: nil} = opts), do: opts
-  defp put_checkin_path(%{checkin: path} = opts) do
-    put_in(opts, [:checkin], split_path(path))
-  end
-  defp split_path(path), do: Plug.Router.Utils.split(path)
+  defp get_path_info(nil), do: nil
+  defp get_path_info(path), do: Plug.Router.Utils.split(path)
 
-  def call(%Conn{method: "POST", path_info: path} = conn, %{checkout: {path, repo}} = opts) do
-    {:ok, _owner, metadata} = checkout(repo, sandbox: opts.sandbox)
+  def call(%Conn{method: "POST", path_info: path} = conn, %{path: path} = opts) do
+    {:ok, _owner, metadata} = start_child(opts.repo, sandbox: opts.sandbox)
 
     conn
     |> put_resp_content_type("text/plain")
     |> send_resp(200, encode_metadata(metadata))
     |> halt()
   end
-  def call(%Conn{method: "DELETE", path_info: path} = conn, %{checkin: path} = opts) do
+  def call(%Conn{method: "DELETE", path_info: path} = conn, %{path: path} = opts) do
     case extract_metadata(conn, opts.header) do
       %{owner: owner} ->
-        :ok = checkin(owner)
+        :ok = stop(owner)
 
         conn
         |> put_resp_content_type("text/plain")

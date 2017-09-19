@@ -8,7 +8,7 @@ defmodule Phoenix.Ecto.SQL.SandboxSupervisor do
 
   def init(_) do
     supervise([
-      worker(Phoenix.Ecto.SQL.SandboxOwner, [], restart: :temporary)
+      worker(Phoenix.Ecto.SQL.SandboxSession, [], restart: :temporary)
     ], strategy: :simple_one_for_one)
   end
 end

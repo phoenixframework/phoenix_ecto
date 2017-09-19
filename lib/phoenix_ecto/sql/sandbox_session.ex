@@ -1,4 +1,4 @@
-defmodule Phoenix.Ecto.SQL.SandboxOwner do
+defmodule Phoenix.Ecto.SQL.SandboxSession do
   @moduledoc false
   use GenServer
 
@@ -20,12 +20,12 @@ defmodule Phoenix.Ecto.SQL.SandboxOwner do
 
   def handle_call(:checkin, _from, state) do
     :ok = checkin_connection(state.sandbox, state.repo, state.client)
-    {:stop, {:shutdown, :normal}, :ok, state}
+    {:stop, :shutdown, :ok, state}
   end
 
   def handle_info(:timeout, state) do
     :ok = checkin_connection(state.sandbox, state.repo, state.client)
-    {:stop, {:shutdown, :normal}, state}
+    {:stop, :shutdown, state}
   end
 
   def handle_info({:allowed, repo}, state) do
