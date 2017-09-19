@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.3.0
+
+* Enhancements
+  * Support concurrent and transactional end-to-end tests for external   HTTP clients using the new `:at` and `:repo` options to the `Phoenix.Ecto.SQL.Sandbox` plug
+
 ## v3.2.3
 
 * Bug fixes
