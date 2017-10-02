@@ -144,6 +144,16 @@ defmodule PhoenixEcto.HTMLTest do
     assert form =~ ~s(<input id="some_name" name="some[name]" type="text" value="JV">)
   end
 
+  test "form_for/4 with Decimal type input field" do
+    changeset = cast({%{}, %{price: :decimal}}, %{"price" => Decimal.new("0.000000000")}, ~w(price))
+
+    form = safe_form_for(changeset, [as: "some"], fn f ->
+      [number_input(f, :price)]
+    end)
+
+    assert form =~ ~s(<input id="some_price" name="some[price]" type="number" value="0.000000000">)
+  end
+
   defmodule Custom do
     use Ecto.Schema
 

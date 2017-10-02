@@ -273,7 +273,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
   defimpl Phoenix.HTML.Safe, for: Decimal do
     def to_iodata(t) do
-      @for.to_string(t)
+      @for.to_string(t, :normal)
     end
   end
 
