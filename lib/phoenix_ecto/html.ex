@@ -246,6 +246,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp form_for_errors(%{action: nil}), do: []
+    defp form_for_errors(%{action: :ignore}), do: []
     defp form_for_errors(%{errors: errors}), do: errors
 
     defp form_for_hidden(%{__struct__: module} = data) do
