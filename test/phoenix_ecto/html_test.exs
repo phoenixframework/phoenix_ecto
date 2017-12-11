@@ -89,6 +89,13 @@ defmodule PhoenixEcto.HTMLTest do
       "FROM FORM"
     end)
 
+    changeset = %{changeset | action: :ignore}
+
+    safe_form_for(changeset, [as: "another", multipart: true], fn f ->
+      assert f.errors == []
+      "FROM FORM"
+    end)
+
     changeset = %{changeset | action: :insert}
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
