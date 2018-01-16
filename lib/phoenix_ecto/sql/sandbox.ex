@@ -41,7 +41,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
       plug Phoenix.Ecto.SQL.Sandbox,
         at: "/sandbox",
-        repo: MyApp.Repo
+        repo: MyApp.Repo,
+        timeout: 15_000 # the default
 
   This would expose a route at `"/sandbox"` for the given repo where
   external clients send POST requests to spawn a new sandbox session,
@@ -86,18 +87,23 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def init(opts \\ []) do
+    session_opts = Keyword.take(opts, [:sandbox, :timeout])
+
     %{
-      sandbox: Keyword.get(opts, :sandbox, Ecto.Adapters.SQL.Sandbox),
       header: Keyword.get(opts, :header, "user-agent"),
       path: get_path_info(opts[:at]),
-      repo: opts[:repo]
+      repo: opts[:repo],
+      sandbox: session_opts[:sandbox] || Ecto.Adapters.SQL.Sandbox,
+      session_opts: session_opts
     }
   end
+
   defp get_path_info(nil), do: nil
   defp get_path_info(path), do: Plug.Router.Utils.split(path)
 
   def call(%Conn{method: "POST", path_info: path} = conn, %{path: path} = opts) do
-    {:ok, _owner, metadata} = start_child(opts.repo, sandbox: opts.sandbox)
+    %{repo: repo, session_opts: session_opts} = opts
+    {:ok, _owner, metadata} = start_child(repo, session_opts)
 
     conn
     |> put_resp_content_type("text/plain")
