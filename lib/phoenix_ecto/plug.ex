@@ -14,3 +14,11 @@ for {exception, status_code} <- errors do
     end
   end
 end
+
+unless Ecto.SubQueryError in excluded_exceptions do
+  defimpl Plug.Exception, for: Ecto.SubQueryError do
+    def status(sub_query_error) do
+      Plug.Exception.status(sub_query_error.exception)
+    end
+  end
+end
