@@ -47,7 +47,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   This would expose a route at `"/sandbox"` for the given repo where
   external clients send POST requests to spawn a new sandbox session,
   and DELETE requests to stop an active sandbox session. By default,
-  the external client is expected to pass up the `"user-agent" header
+  the external client is expected to pass up the `"user-agent"` header
   containing serialized sandbox metadata returned from the POST request,
   but this value may customized with the `:header` option.
   """
@@ -145,7 +145,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   @doc """
   Returns metadata to associate with the session
-  to allow the endpoint to acces the database connection checked
+  to allow the endpoint to access the database connection checked
   out by the test process.
   """
   @spec metadata_for(Ecto.Repo.t | [Ecto.Repo.t], pid) :: map
