@@ -39,6 +39,6 @@ defmodule PhoenixEcto.Mixfile do
     [{:phoenix_html, "~> 2.9", optional: true},
      {:ecto, "~> 2.1"},
      {:plug, "~> 1.0"},
-     {:ex_doc, ">= 0.0.0", only: :dev}]
+     {:ex_doc, ">= 0.0.0", only: :docs}]
   end
 end
