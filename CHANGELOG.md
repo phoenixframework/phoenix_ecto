@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.4.0
+
+* Enhancements
+  * Use `:normal` formatting when converting `Decimal` to HTML safe
+  * Ignore errors in case `changeset.action` is `:ignore`
+  * Allow `:timeout` option on external sandbox
+  * Extract and translate internal exception from `Ecto.SubQueryError`
+
 ## v3.3.0
 
 * Enhancements
