@@ -10,7 +10,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has one: inputs_for/4" do
     changeset =
       %User{}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comment)
 
     contents =
@@ -29,7 +29,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has one: inputs_for/4 with data" do
     changeset =
       %User{comment: %Comment{body: "data"}}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comment)
 
     contents =
@@ -46,7 +46,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has one: inputs_for/4 with params" do
     changeset =
       %User{comment: %Comment{body: "data"}}
-      |> cast(%{"comment" => %{"body" => "ht"}}, ~w())
+      |> cast(%{"comment" => %{"body" => "ht"}}, ~w()a)
       |> cast_assoc(:comment)
 
     contents =
@@ -61,7 +61,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(Map.put(changeset, :action, :insert), :comment, fn f ->
-        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, min: 3}]
+        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
       end)
@@ -73,7 +73,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has one: inputs_for/4 with custom id and name" do
     changeset =
       %User{comment: %Comment{body: "data"}}
-      |> cast(%{"comment" => %{"body" => "given"}}, ~w())
+      |> cast(%{"comment" => %{"body" => "given"}}, ~w()a)
       |> cast_assoc(:comment)
 
     contents =
@@ -88,7 +88,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has one: inputs_for/4 and replaced changesets" do
     changeset =
       %User{comment: %Comment{id: 1}}
-      |> cast(%{"comment" => nil}, ~w())
+      |> cast(%{"comment" => nil}, ~w()a)
       |> cast_assoc(:comment)
 
     input = ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
@@ -103,7 +103,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4" do
     changeset =
       %User{}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comments)
 
     contents =
@@ -117,7 +117,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4 with data" do
     changeset =
       %User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comments)
 
     contents =
@@ -137,7 +137,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4 with prepend and append" do
     changeset =
       %User{comments: [%Comment{body: "def1"}, %Comment{body: "def2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comments)
       |> Map.put(:action, :insert)
 
@@ -160,7 +160,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4 with prepend and append with data" do
     changeset =
       %User{comments: [%Comment{id: "a", body: "data1"}, %Comment{id: "b", body: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comments)
       |> Map.put(:action, :insert)
 
@@ -187,7 +187,7 @@ defmodule PhoenixEcto.InputsForTest do
     changeset =
       %User{comments: comments}
       |> cast(%{"comments" => [%{"id" => "1", "body" => "h1"},
-                               %{"id" => "2", "body" => "h2"}]}, ~w())
+                               %{"id" => "2", "body" => "h2"}]}, ~w()a)
       |> cast_assoc(:comments)
       |> Map.put(:action, :insert)
 
@@ -195,7 +195,7 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :comments,
                       [prepend: [%Comment{body: "prepend"}],
                        append: [%Comment{body: "append"}]], fn f ->
-        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, min: 3}]
+        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
         assert f.source.validations == [body: {:length, min: 3}]
         text_input f, :body
       end)
@@ -210,7 +210,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4 with custom id and name" do
     changeset =
       %User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_assoc(:comments)
 
     contents =
@@ -228,7 +228,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "has many: inputs_for/4 with replaced changesets" do
     changeset =
       %User{comments: [%Comment{id: 1, body: "data1"}, %Comment{id: 2, body: "data2"}]}
-      |> cast(%{"comments" => []}, ~w())
+      |> cast(%{"comments" => []}, ~w()a)
       |> cast_assoc(:comments)
 
     input = ~r(<input id="user_comments_0_body".*<input id="user_comments_1_body")
@@ -243,7 +243,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds one: inputs_for/4" do
     changeset =
       %User{}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalink)
 
     contents =
@@ -261,7 +261,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds one: inputs_for/4 with data" do
     changeset =
       %User{permalink: %Permalink{url: "data"}}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalink)
 
     contents =
@@ -278,7 +278,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds one: inputs_for/4 with params" do
     changeset =
       %User{permalink: %Permalink{url: "data"}}
-      |> cast(%{"permalink" => %{"url" => "ht"}}, ~w())
+      |> cast(%{"permalink" => %{"url" => "ht"}}, ~w()a)
       |> cast_embed(:permalink)
 
     contents =
@@ -293,7 +293,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(Map.put(changeset, :action, :insert), :permalink, fn f ->
-        assert f.errors == [url: {"should be at least %{count} character(s)", count: 3, validation: :length, min: 3}]
+        assert f.errors == [url: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
@@ -305,7 +305,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds one: inputs_for/4 with custom id and name" do
     changeset =
       %User{permalink: %Permalink{url: "data"}}
-      |> cast(%{"permalink" => %{"url" => "given"}}, ~w())
+      |> cast(%{"permalink" => %{"url" => "given"}}, ~w()a)
       |> cast_embed(:permalink)
 
     contents =
@@ -320,7 +320,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds one: inputs_for/4 and replaced changesets" do
     changeset =
       %User{permalink: %Permalink{id: 1}}
-      |> cast(%{"permalink" => nil}, ~w())
+      |> cast(%{"permalink" => nil}, ~w()a)
       |> cast_embed(:permalink)
 
     input = ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
@@ -335,7 +335,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4" do
     changeset =
       %User{}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalinks)
 
     contents =
@@ -349,7 +349,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4 with data" do
     changeset =
       %User{permalinks: [%Permalink{url: "data1"}, %Permalink{url: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalinks)
 
     contents =
@@ -369,7 +369,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4 with prepend and append" do
     changeset =
       %User{permalinks: [%Permalink{url: "def1"}, %Permalink{url: "def2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalinks)
       |> Map.put(:action, :insert)
 
@@ -392,7 +392,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4 with prepend and append with data" do
     changeset =
       %User{permalinks: [%Permalink{id: "a", url: "data1"}, %Permalink{id: "b", url: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalinks)
       |> Map.put(:action, :insert)
 
@@ -419,7 +419,7 @@ defmodule PhoenixEcto.InputsForTest do
     changeset  =
       %User{permalinks: permalinks}
       |> cast(%{"permalinks" => [%{"id" => "a", "url" => "h1"},
-                                 %{"id" => "b", "url" => "h2"}]}, ~w())
+                                 %{"id" => "b", "url" => "h2"}]}, ~w()a)
       |> cast_embed(:permalinks)
       |> Map.put(:action, :insert)
 
@@ -427,7 +427,7 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :permalinks,
                       [prepend: [%Permalink{url: "prepend"}],
                        append: [%Permalink{url: "append"}]], fn f ->
-        assert f.errors == [url: {"should be at least %{count} character(s)", [count: 3, validation: :length, min: 3]}]
+        assert f.errors == [url: {"should be at least %{count} character(s)", [count: 3, validation: :length, kind: :min]}]
         assert f.source.validations == [url: {:length, min: 3}]
         text_input f, :url
       end)
@@ -442,7 +442,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4 with custom id and name" do
     changeset =
       %User{permalinks: [%Permalink{url: "data1"}, %Permalink{url: "data2"}]}
-      |> cast(%{}, ~w())
+      |> cast(%{}, ~w()a)
       |> cast_embed(:permalinks)
 
     contents =
@@ -460,7 +460,7 @@ defmodule PhoenixEcto.InputsForTest do
   test "embeds many: inputs_for/4 with replaced changesets" do
     changeset =
       %User{permalinks: [%Permalink{id: 1, url: "data1"}, %Permalink{id: 2, url: "data2"}]}
-      |> cast(%{"permalinks" => []}, ~w())
+      |> cast(%{"permalinks" => []}, ~w()a)
       |> cast_embed(:permalinks)
 
     input = ~r(<input id="user_permalinks_0_url".*<input id="user_permalinks_1_url")

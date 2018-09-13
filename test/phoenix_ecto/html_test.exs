@@ -13,21 +13,19 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(Decimal.new("1.0")) == {:safe, "1.0"}
   end
 
-  if Code.ensure_loaded?(Ecto.DateTime) do
-    test "converts datetime to safe" do
-      t = struct(Ecto.Time, hour: 0, min: 0, sec: 0)
-      assert html_escape(t) == {:safe, "00:00:00"}
+  test "converts datetime to safe" do
+    {:ok, t} = Time.new(0, 0, 0)
+    assert html_escape(t) == {:safe, "00:00:00"}
 
-      d = struct(Ecto.Date, year: 2010, month: 4, day: 17)
-      assert html_escape(d) == {:safe, "2010-04-17"}
+    {:ok, d} = Date.new(2010, 4, 17)
+    assert html_escape(d) == {:safe, "2010-04-17"}
 
-      dt = struct(Ecto.DateTime, year: 2010, month: 4, day: 17, hour: 0, min: 0, sec: 0)
-      assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
-    end
+    {:ok, dt} = NaiveDateTime.new(2010, 4, 17, 0, 0, 0)
+    assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
   end
 
   test "form_for/4 with new changeset" do
-    changeset = cast(%User{}, %{}, ~w())
+    changeset = cast(%User{}, %{}, ~w()a)
                 |> validate_length(:name, min: 3)
 
     form = safe_form_for(changeset, fn f ->
@@ -46,7 +44,7 @@ defmodule PhoenixEcto.HTMLTest do
 
   test "form_for/4 with loaded changeset" do
     changeset = cast(%User{__meta__: %{state: :loaded}, id: 13},
-                     %{"foo" => "bar"}, ~w())
+                     %{"foo" => "bar"}, ~w()a)
 
     form = safe_form_for(changeset, fn f ->
       assert f.id == "user"
@@ -64,7 +62,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with custom options" do
-    changeset = cast(%User{}, %{}, ~w())
+    changeset = cast(%User{}, %{}, ~w()a)
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.id == "another"
@@ -80,7 +78,7 @@ defmodule PhoenixEcto.HTMLTest do
   test "form_for/4 with errors" do
     changeset =
       %User{}
-      |> cast(%{"name" => "JV"}, ~w(name))
+      |> cast(%{"name" => "JV"}, ~w(name)a)
       |> validate_length(:name, min: 3)
       |> add_error(:score, "must be greater than %{count}", count: Decimal.new(18))
 
@@ -100,7 +98,7 @@ defmodule PhoenixEcto.HTMLTest do
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       assert f.errors == [score: {"must be greater than %{count}", count: Decimal.new(18)},
-                          name: {"should be at least %{count} character(s)", count: 3, validation: :length, min: 3}]
+                          name: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
       "FROM FORM"
     end)
 
@@ -109,7 +107,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with inputs" do
-    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name))
+    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       [text_input(f, :name), text_input(f, :other)]
@@ -120,7 +118,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with schemaless changeset from a map" do
-    changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
+    changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       [text_input(f, :name), text_input(f, :other)]
@@ -131,7 +129,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with schemaless changeset from a struct" do
-    changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
+    changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
     form = safe_form_for(changeset, [as: "another", multipart: true], fn f ->
       [text_input(f, :name), text_input(f, :other)]
@@ -142,7 +140,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with a map for changeset data" do
-    changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name))
+    changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
     form = safe_form_for(changeset, [as: "some"], fn f ->
       [text_input(f, :name)]
@@ -152,7 +150,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "form_for/4 with Decimal type input field" do
-    changeset = cast({%{}, %{price: :decimal}}, %{"price" => Decimal.new("0.000000000")}, ~w(price))
+    changeset = cast({%{}, %{price: :decimal}}, %{"price" => Decimal.new("0.000000000")}, ~w(price)a)
 
     form = safe_form_for(changeset, [as: "some"], fn f ->
       [number_input(f, :price)]
@@ -170,16 +168,16 @@ defmodule PhoenixEcto.HTMLTest do
       field :decimal, :decimal
       field :string,  :string
       field :boolean, :boolean
-      field :date, Ecto.Date
-      field :time, Ecto.Time
-      field :datetime, Ecto.DateTime
+      field :date, :date
+      field :time, :time
+      field :datetime, :naive_datetime
     end
   end
 
   test "input value" do
     changeset =
       %Custom{string: "string", integer: 321, float: 321}
-      |> cast(%{float: 78.9, integer: 789}, ~w())
+      |> cast(%{float: 78.9, integer: 789}, ~w()a)
       |> put_change(:integer, 123)
 
     safe_form_for(changeset, fn f ->
@@ -195,7 +193,7 @@ defmodule PhoenixEcto.HTMLTest do
   end
 
   test "input types" do
-    changeset = cast(%Custom{}, %{}, ~w())
+    changeset = cast(%Custom{}, %{}, ~w()a)
 
     safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
@@ -212,7 +210,7 @@ defmodule PhoenixEcto.HTMLTest do
 
   test "input validations" do
     changeset =
-      cast(%Custom{}, %{}, ~w(integer string))
+      cast(%Custom{}, %{}, ~w(integer string)a)
       |> validate_required([:integer, :string])
       |> validate_number(:integer, greater_than: 0, less_than: 100)
       |> validate_number(:float, greater_than_or_equal_to: 0)

@@ -277,12 +277,4 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       @for.to_string(t, :normal)
     end
   end
-
-  if Code.ensure_loaded?(Ecto.DateTime) do
-    defimpl Phoenix.HTML.Safe, for: [Ecto.Time, Ecto.Date, Ecto.DateTime] do
-      def to_iodata(t) do
-        @for.to_string(t)
-      end
-    end
-  end
 end
