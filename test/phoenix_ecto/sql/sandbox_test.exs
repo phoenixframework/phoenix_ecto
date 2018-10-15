@@ -21,14 +21,14 @@ defmodule PhoenixEcto.SQL.SandboxTest do
   end
 
   defp call_plug_with_checkout(conn, opts \\ []) do
-    opts = Enum.into(opts, at: "/sandbox", repo: MyRepo)
+    opts = Keyword.merge([at: "/sandbox", repo: MyRepo], opts)
     call_plug(conn, opts)
   end
 
   defp call_plug(conn, opts \\ []) do
     opts =
       opts
-      |> Enum.into(sandbox: MockSandbox)
+      |> Keyword.put_new(:sandbox, MockSandbox)
       |> Sandbox.init()
 
     Sandbox.call(conn, opts)

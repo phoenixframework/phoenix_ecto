@@ -37,7 +37,7 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [{:phoenix_html, "~> 2.9", optional: true},
-     {:ecto, git: "https://github.com/elixir-ecto/ecto.git"},
+     {:ecto, "~> 2.2 or ~> 3.0-rc"},
      {:plug, "~> 1.0"},
      {:ex_doc, ">= 0.0.0", only: :docs}]
   end

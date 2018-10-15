@@ -13,6 +13,19 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(Decimal.new("1.0")) == {:safe, "1.0"}
   end
 
+  if Code.ensure_loaded?(Ecto.DateTime) do
+    test "converts ecto datetime to safe" do
+      t = struct(Ecto.Time, hour: 0, min: 0, sec: 0)
+      assert html_escape(t) == {:safe, "00:00:00"}
+
+      d = struct(Ecto.Date, year: 2010, month: 4, day: 17)
+      assert html_escape(d) == {:safe, "2010-04-17"}
+
+      dt = struct(Ecto.DateTime, year: 2010, month: 4, day: 17, hour: 0, min: 0, sec: 0)
+      assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
+    end
+  end
+
   test "converts datetime to safe" do
     {:ok, t} = Time.new(0, 0, 0)
     assert html_escape(t) == {:safe, "00:00:00"}
