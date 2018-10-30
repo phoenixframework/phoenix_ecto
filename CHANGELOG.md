@@ -1,9 +1,9 @@
 # Changelog
 
-## v3.5.0
+## v4.0.0
 
   * Implement `Plug.Status` for `Ecto.StaleEntryError`
-  * Support Ecto 3.0-rc
+  * Support Ecto 3.0
 
 ## v3.4.0
 
