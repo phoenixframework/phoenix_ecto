@@ -1,9 +1,13 @@
 # Changelog
 
+## v3.6.0
+
+  * Remove support for Ecto 3.0 as it causes previous Phoenix installers to fail. Support for Ecto 3.0 can be found on `phoenix_ecto ~> 4.0`
+
 ## v3.5.0
 
   * Implement `Plug.Status` for `Ecto.StaleEntryError`
-  * Support Ecto 3.0-rc
+  * Support Ecto 3.0 (reverted later on)
 
 ## v3.4.0
 
