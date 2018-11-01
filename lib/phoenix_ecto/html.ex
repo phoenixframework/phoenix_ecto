@@ -224,9 +224,16 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp to_changeset(%Ecto.Changeset{} = changeset, parent_action, _module, _cast),
       do: apply_action(changeset, parent_action)
     defp to_changeset(%{} = data, parent_action, _module, cast) when is_function(cast, 2),
-      do: apply_action(cast.(data, %{}), parent_action)
+      do: apply_action(cast!(cast, data), parent_action)
     defp to_changeset(%{} = data, parent_action, _module, nil),
       do: apply_action(Ecto.Changeset.change(data), parent_action)
+
+    defp cast!(cast, data) do
+      case cast.(data, %{}) do
+        %Ecto.Changeset{} = changeset -> changeset
+        other -> raise "expected on_cast/2 callback #{inspect cast} to return an Ecto.Changeset, got: #{inspect other}"
+      end
+    end
 
     # If the parent changeset had no action, we need to remove the action
     # from children changeset so we ignore all errors accordingly.
