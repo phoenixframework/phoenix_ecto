@@ -1,6 +1,7 @@
 defmodule Phoenix.Ecto.SQL.Sandbox do
   @moduledoc """
-  A plug to allow concurrent, transactional acceptance tests with Ecto.Adapters.SQL.Sandbox.
+  A plug to allow concurrent, transactional acceptance tests with [`Ecto.Adapters.SQL.Sandbox`]
+  (https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
 
   ## Example
 
@@ -173,11 +174,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     last_part = encoded_meta |> String.split("/") |> List.last()
 
     case Regex.run(~r/BeamMetadata \((.*?)\)/, last_part) do
-      [_, metadata] ->
-        parse_metadata(metadata)
-
-      _ ->
-        %{}
+      [_, metadata] -> parse_metadata(metadata)
+      _ -> %{}
     end
   end
 
