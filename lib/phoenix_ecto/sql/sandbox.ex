@@ -1,6 +1,7 @@
 defmodule Phoenix.Ecto.SQL.Sandbox do
   @moduledoc """
-  A plug to allow concurrent, transactional acceptance tests with Ecto.Adapters.SQL.Sandbox.
+  A plug to allow concurrent, transactional acceptance tests with [`Ecto.Adapters.SQL.Sandbox`]
+  (https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
 
   ## Example
 
@@ -110,6 +111,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     |> send_resp(200, encode_metadata(metadata))
     |> halt()
   end
+
   def call(%Conn{method: "DELETE", path_info: path} = conn, %{path: path} = opts) do
     case extract_metadata(conn, opts.header) do
       %{owner: owner} ->
@@ -148,7 +150,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   to allow the endpoint to access the database connection checked
   out by the test process.
   """
-  @spec metadata_for(Ecto.Repo.t | [Ecto.Repo.t], pid) :: map
+  @spec metadata_for(Ecto.Repo.t() | [Ecto.Repo.t()], pid) :: map
   def metadata_for(repo_or_repos, pid) when is_pid(pid) do
     %{repo: repo_or_repos, owner: pid}
   end
@@ -170,16 +172,19 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   """
   def decode_metadata(encoded_meta) when is_binary(encoded_meta) do
     last_part = encoded_meta |> String.split("/") |> List.last()
+
     case Regex.run(~r/BeamMetadata \((.*?)\)/, last_part) do
       [_, metadata] -> parse_metadata(metadata)
-      _             -> %{}
+      _ -> %{}
     end
   end
+
   def decode_metadata(_), do: %{}
 
   defp allow_sandbox_access(%{repo: repo, owner: owner}, sandbox) do
     Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
   end
+
   defp allow_sandbox_access(_metadata, _sandbox), do: nil
 
   defp parse_metadata(encoded_metadata) do
@@ -187,8 +192,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     |> Base.url_decode64!()
     |> :erlang.binary_to_term()
     |> case do
-         {:v1, metadata} -> metadata
-         _               -> %{}
-       end
+      {:v1, metadata} -> metadata
+      _ -> %{}
+    end
   end
 end
