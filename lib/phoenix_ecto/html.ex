@@ -138,12 +138,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     def input_validations(%{required: required, validations: validations} = changeset, _, field) do
       [required: field in required] ++
-        for(
-          {key, validation} <- validations,
-          key == field,
-          attr <- validation_to_attrs(validation, field, changeset),
-          do: attr
-        )
+        for {key, validation} <- validations,
+            key == field,
+            attr <- validation_to_attrs(validation, field, changeset),
+            do: attr
     end
 
     defp assoc_from_data(data, field) do
@@ -204,27 +202,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     defp max_for(type, opts) do
       cond do
-        max = type == :integer && Keyword.get(opts, :less_than) ->
-          [max: max - 1]
-
-        max = Keyword.get(opts, :less_than_or_equal_to) ->
-          [max: max]
-
-        true ->
-          []
+        max = type == :integer && Keyword.get(opts, :less_than) -> [max: max - 1]
+        max = Keyword.get(opts, :less_than_or_equal_to) -> [max: max]
+        true -> []
       end
     end
 
     defp min_for(type, opts) do
       cond do
-        min = type == :integer && Keyword.get(opts, :greater_than) ->
-          [min: min + 1]
-
-        min = Keyword.get(opts, :greater_than_or_equal_to) ->
-          [min: min]
-
-        true ->
-          []
+        min = type == :integer && Keyword.get(opts, :greater_than) -> [min: min + 1]
+        min = Keyword.get(opts, :greater_than_or_equal_to) -> [min: min]
+        true -> []
       end
     end
 
@@ -235,10 +223,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           {cardinality, cast, module}
 
         _ ->
+          struct = changeset.data.__struct__
+
           raise ArgumentError,
-                "could not generate inputs for #{inspect(field)} from #{
-                  inspect(changeset.data.__struct__)
-                }. " <>
+                "could not generate inputs for #{inspect(field)} from #{inspect(struct)}. " <>
                   "Check the field exists and it is one of embeds_one, embeds_many, has_one, " <>
                   "has_many, belongs_to or many_to_many"
       end
@@ -259,9 +247,8 @@ if Code.ensure_loaded?(Phoenix.HTML) do
           changeset
 
         other ->
-          raise "expected on_cast/2 callback #{inspect(cast)} to return an Ecto.Changeset, got: #{
-                  inspect(other)
-                }"
+          raise "expected on_cast/2 callback #{inspect(cast)} to return an Ecto.Changeset, " <>
+                  "got: #{inspect(other)}"
       end
     end
 

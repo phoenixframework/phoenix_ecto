@@ -7,11 +7,10 @@ defmodule Phoenix.Ecto.SQL.SandboxSupervisor do
   end
 
   def init(_) do
-    supervise(
-      [
-        worker(Phoenix.Ecto.SQL.SandboxSession, [], restart: :temporary)
-      ],
-      strategy: :simple_one_for_one
-    )
+    children = [
+      worker(Phoenix.Ecto.SQL.SandboxSession, [], restart: :temporary)
+    ]
+
+    supervise(children, strategy: :simple_one_for_one)
   end
 end

@@ -183,14 +183,14 @@ defmodule PhoenixEcto.HTMLTest do
     use Ecto.Schema
 
     schema "customs" do
-      field(:integer, :integer)
-      field(:float, :float)
-      field(:decimal, :decimal)
-      field(:string, :string)
-      field(:boolean, :boolean)
-      field(:date, :date)
-      field(:time, :time)
-      field(:datetime, :naive_datetime)
+      field :integer, :integer
+      field :float, :float
+      field :decimal, :decimal
+      field :string, :string
+      field :boolean, :boolean
+      field :date, :date
+      field :time, :time
+      field :datetime, :naive_datetime
     end
   end
 

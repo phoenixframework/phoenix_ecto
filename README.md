@@ -104,9 +104,9 @@ Wallaby currently supports PhantomJS (including concurrent tests). Support for o
 
 Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
 
-* `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
-* `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-* `Plug.Exception` protocol for the relevant Ecto exceptions
+  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+  * `Phoenix.HTML.Safe` protocol for `Decimal`
+  * `Plug.Exception` protocol for the relevant Ecto exceptions
 
 ## Configuration
 
