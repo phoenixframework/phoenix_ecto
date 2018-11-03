@@ -6,17 +6,17 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
   defmodule MockSandbox do
     def checkout(repo, opts) do
-      send opts[:client], {:checkout, repo}
+      send(opts[:client], {:checkout, repo})
       :ok
     end
 
     def checkin(repo, opts) do
-      send opts[:client], {:checkin, repo}
+      send(opts[:client], {:checkin, repo})
       :ok
     end
 
     def allow(repo, owner, _allowed) do
-      send owner, {:allowed, repo}
+      send(owner, {:allowed, repo})
     end
   end
 
@@ -35,7 +35,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
   end
 
   defp add_metadata(conn, metadata, header_key) do
-    encoded = {:v1, metadata} |> :erlang.term_to_binary |> Base.url_encode64()
+    encoded = {:v1, metadata} |> :erlang.term_to_binary() |> Base.url_encode64()
     put_req_header(conn, header_key, "PhoenixEcto/BeamMetadata (#{encoded})")
   end
 
@@ -76,7 +76,6 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
     assert_receive {:allowed, MyRepo}
   end
-
 
   test "does not allow sandbox access without metadata" do
     conn(:get, "/") |> call_plug()

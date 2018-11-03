@@ -18,13 +18,11 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
-    assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
+    assert contents == ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
   end
-
 
   test "has one: inputs_for/4 with data" do
     changeset =
@@ -36,11 +34,11 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :comment, fn f ->
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="data">)
+             ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="data">)
   end
 
   test "has one: inputs_for/4 with params" do
@@ -53,21 +51,26 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :comment, fn f ->
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
+             ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
 
     contents =
       safe_inputs_for(Map.put(changeset, :action, :insert), :comment, fn f ->
-        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
+        assert f.errors == [
+                 body:
+                   {"should be at least %{count} character(s)",
+                    count: 3, validation: :length, kind: :min}
+               ]
+
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents ==
-           ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
+             ~s(<input id="user_comment_body" name="user[comment][body]" type="text" value="ht">)
   end
 
   test "has one: inputs_for/4 with custom id and name" do
@@ -78,11 +81,10 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :comment, [as: "foo", id: "bar"], fn f ->
-        text_input f, :body
+        text_input(f, :body)
       end)
 
-    assert contents ==
-           ~s(<input id="bar_body" name="foo[body]" type="text" value="given">)
+    assert contents == ~s(<input id="bar_body" name="foo[body]" type="text" value="given">)
   end
 
   test "has one: inputs_for/4 and replaced changesets" do
@@ -94,8 +96,8 @@ defmodule PhoenixEcto.InputsForTest do
     input = ~s(<input id="user_comment_body" name="user[comment][body]" type="text">)
 
     refute safe_inputs_for(changeset, :comment, [], fn f ->
-      text_input f, :body
-    end) =~ input
+             text_input(f, :body)
+           end) =~ input
   end
 
   ## inputs_for has_many
@@ -108,7 +110,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :comments, fn f ->
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents == ""
@@ -126,12 +128,12 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.index in [0, 1]
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents ==
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="data1">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data2">)
+             ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="data1">) <>
+               ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data2">)
   end
 
   test "has many: inputs_for/4 with prepend and append" do
@@ -142,19 +144,22 @@ defmodule PhoenixEcto.InputsForTest do
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :comments, [
-                        prepend: [%Comment{body: "prepend"}],
-                        append: [%Comment{body: "append"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
+      safe_inputs_for(
+        changeset,
+        :comments,
+        [prepend: [%Comment{body: "prepend"}], append: [%Comment{body: "append"}]],
+        fn f ->
+          assert f.errors == []
+          assert f.source.validations == [body: {:length, min: 3}]
+          text_input(f, :body)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="prepend">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="def1">) <>
-      ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="def2">) <>
-      ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
+             ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="prepend">) <>
+               ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="def1">) <>
+               ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="def2">) <>
+               ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
   end
 
   test "has many: inputs_for/4 with prepend and append with data" do
@@ -165,46 +170,60 @@ defmodule PhoenixEcto.InputsForTest do
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :comments,
-                      [prepend: [%Comment{body: "prepend"}],
-                       append: [%Comment{body: "append"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
+      safe_inputs_for(
+        changeset,
+        :comments,
+        [prepend: [%Comment{body: "prepend"}], append: [%Comment{body: "append"}]],
+        fn f ->
+          assert f.errors == []
+          assert f.source.validations == [body: {:length, min: 3}]
+          text_input(f, :body)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="prepend">) <>
-      ~s(<input id="user_comments_1_id" name="user[comments][1][id]" type="hidden" value="a">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data1">) <>
-      ~s(<input id="user_comments_2_id" name="user[comments][2][id]" type="hidden" value="b">) <>
-      ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="data2">) <>
-      ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
+             ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="prepend">) <>
+               ~s(<input id="user_comments_1_id" name="user[comments][1][id]" type="hidden" value="a">) <>
+               ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data1">) <>
+               ~s(<input id="user_comments_2_id" name="user[comments][2][id]" type="hidden" value="b">) <>
+               ~s(<input id="user_comments_2_body" name="user[comments][2][body]" type="text" value="data2">) <>
+               ~s(<input id="user_comments_3_body" name="user[comments][3][body]" type="text" value="append">)
   end
 
   test "has many: inputs_for/4 with prepend and append with params" do
     comments = [%Comment{id: 1, body: "data1"}, %Comment{id: 2, body: "data2"}]
+
     changeset =
       %User{comments: comments}
-      |> cast(%{"comments" => [%{"id" => "1", "body" => "h1"},
-                               %{"id" => "2", "body" => "h2"}]}, ~w()a)
+      |> cast(
+        %{"comments" => [%{"id" => "1", "body" => "h1"}, %{"id" => "2", "body" => "h2"}]},
+        ~w()a
+      )
       |> cast_assoc(:comments)
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :comments,
-                      [prepend: [%Comment{body: "prepend"}],
-                       append: [%Comment{body: "append"}]], fn f ->
-        assert f.errors == [body: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
-        assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
-      end)
+      safe_inputs_for(
+        changeset,
+        :comments,
+        [prepend: [%Comment{body: "prepend"}], append: [%Comment{body: "append"}]],
+        fn f ->
+          assert f.errors == [
+                   body:
+                     {"should be at least %{count} character(s)",
+                      count: 3, validation: :length, kind: :min}
+                 ]
+
+          assert f.source.validations == [body: {:length, min: 3}]
+          text_input(f, :body)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_comments_0_id" name="user[comments][0][id]" type="hidden" value="1">) <>
-      ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="h1">) <>
-      ~s(<input id="user_comments_1_id" name="user[comments][1][id]" type="hidden" value="2">) <>
-      ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="h2">)
+             ~s(<input id="user_comments_0_id" name="user[comments][0][id]" type="hidden" value="1">) <>
+               ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="h1">) <>
+               ~s(<input id="user_comments_1_id" name="user[comments][1][id]" type="hidden" value="2">) <>
+               ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="h2">)
   end
 
   test "has many: inputs_for/4 with custom id and name" do
@@ -217,12 +236,12 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :comments, [as: "foo", id: "bar"], fn f ->
         assert f.errors == []
         assert f.source.validations == [body: {:length, min: 3}]
-        text_input f, :body
+        text_input(f, :body)
       end)
 
     assert contents ==
-      ~s(<input id="bar_0_body" name="foo[0][body]" type="text" value="data1">) <>
-      ~s(<input id="bar_1_body" name="foo[1][body]" type="text" value="data2">)
+             ~s(<input id="bar_0_body" name="foo[0][body]" type="text" value="data1">) <>
+               ~s(<input id="bar_1_body" name="foo[1][body]" type="text" value="data2">)
   end
 
   test "has many: inputs_for/4 with replaced changesets" do
@@ -234,8 +253,8 @@ defmodule PhoenixEcto.InputsForTest do
     input = ~r(<input id="user_comments_0_body".*<input id="user_comments_1_body")
 
     refute safe_inputs_for(changeset, :comments, [], fn f ->
-      text_input f, :body
-    end) =~ input
+             text_input(f, :body)
+           end) =~ input
   end
 
   ## inputs_for embeds one
@@ -251,11 +270,10 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
-    assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
+    assert contents == ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
   end
 
   test "embeds one: inputs_for/4 with data" do
@@ -268,11 +286,11 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :permalink, fn f ->
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="data">)
+             ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="data">)
   end
 
   test "embeds one: inputs_for/4 with params" do
@@ -285,21 +303,26 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :permalink, fn f ->
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
+             ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
 
     contents =
       safe_inputs_for(Map.put(changeset, :action, :insert), :permalink, fn f ->
-        assert f.errors == [url: {"should be at least %{count} character(s)", count: 3, validation: :length, kind: :min}]
+        assert f.errors == [
+                 url:
+                   {"should be at least %{count} character(s)",
+                    count: 3, validation: :length, kind: :min}
+               ]
+
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents ==
-           ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
+             ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text" value="ht">)
   end
 
   test "embeds one: inputs_for/4 with custom id and name" do
@@ -310,11 +333,10 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :permalink, [as: "foo", id: "bar"], fn f ->
-        text_input f, :url
+        text_input(f, :url)
       end)
 
-    assert contents ==
-           ~s(<input id="bar_url" name="foo[url]" type="text" value="given">)
+    assert contents == ~s(<input id="bar_url" name="foo[url]" type="text" value="given">)
   end
 
   test "embeds one: inputs_for/4 and replaced changesets" do
@@ -326,8 +348,8 @@ defmodule PhoenixEcto.InputsForTest do
     input = ~s(<input id="user_permalink_url" name="user[permalink][url]" type="text">)
 
     refute safe_inputs_for(changeset, :permalink, [], fn f ->
-      text_input f, :url
-    end) =~ input
+             text_input(f, :url)
+           end) =~ input
   end
 
   ## inputs_for embeds many
@@ -340,7 +362,7 @@ defmodule PhoenixEcto.InputsForTest do
 
     contents =
       safe_inputs_for(changeset, :permalinks, fn f ->
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents == ""
@@ -358,12 +380,12 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.index in [0, 1]
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents ==
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="data1">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data2">)
+             ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="data1">) <>
+               ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data2">)
   end
 
   test "embeds many: inputs_for/4 with prepend and append" do
@@ -374,19 +396,22 @@ defmodule PhoenixEcto.InputsForTest do
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :permalinks, [
-                        prepend: [%Permalink{url: "prepend"}],
-                        append: [%Permalink{url: "append"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
+      safe_inputs_for(
+        changeset,
+        :permalinks,
+        [prepend: [%Permalink{url: "prepend"}], append: [%Permalink{url: "append"}]],
+        fn f ->
+          assert f.errors == []
+          assert f.source.validations == [url: {:length, min: 3}]
+          text_input(f, :url)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="prepend">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="def1">) <>
-      ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="def2">) <>
-      ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
+             ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="prepend">) <>
+               ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="def1">) <>
+               ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="def2">) <>
+               ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
   end
 
   test "embeds many: inputs_for/4 with prepend and append with data" do
@@ -397,46 +422,60 @@ defmodule PhoenixEcto.InputsForTest do
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :permalinks,
-                      [prepend: [%Permalink{url: "prepend"}],
-                       append: [%Permalink{url: "append"}]], fn f ->
-        assert f.errors == []
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
+      safe_inputs_for(
+        changeset,
+        :permalinks,
+        [prepend: [%Permalink{url: "prepend"}], append: [%Permalink{url: "append"}]],
+        fn f ->
+          assert f.errors == []
+          assert f.source.validations == [url: {:length, min: 3}]
+          text_input(f, :url)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="prepend">) <>
-      ~s(<input id="user_permalinks_1_id" name="user[permalinks][1][id]" type="hidden" value="a">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data1">) <>
-      ~s(<input id="user_permalinks_2_id" name="user[permalinks][2][id]" type="hidden" value="b">) <>
-      ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="data2">) <>
-      ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
+             ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="prepend">) <>
+               ~s(<input id="user_permalinks_1_id" name="user[permalinks][1][id]" type="hidden" value="a">) <>
+               ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="data1">) <>
+               ~s(<input id="user_permalinks_2_id" name="user[permalinks][2][id]" type="hidden" value="b">) <>
+               ~s(<input id="user_permalinks_2_url" name="user[permalinks][2][url]" type="text" value="data2">) <>
+               ~s(<input id="user_permalinks_3_url" name="user[permalinks][3][url]" type="text" value="append">)
   end
 
   test "embeds many: inputs_for/4 with prepend and append with params" do
     permalinks = [%Permalink{id: "a", url: "data1"}, %Permalink{id: "b", url: "data2"}]
-    changeset  =
+
+    changeset =
       %User{permalinks: permalinks}
-      |> cast(%{"permalinks" => [%{"id" => "a", "url" => "h1"},
-                                 %{"id" => "b", "url" => "h2"}]}, ~w()a)
+      |> cast(
+        %{"permalinks" => [%{"id" => "a", "url" => "h1"}, %{"id" => "b", "url" => "h2"}]},
+        ~w()a
+      )
       |> cast_embed(:permalinks)
       |> Map.put(:action, :insert)
 
     contents =
-      safe_inputs_for(changeset, :permalinks,
-                      [prepend: [%Permalink{url: "prepend"}],
-                       append: [%Permalink{url: "append"}]], fn f ->
-        assert f.errors == [url: {"should be at least %{count} character(s)", [count: 3, validation: :length, kind: :min]}]
-        assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
-      end)
+      safe_inputs_for(
+        changeset,
+        :permalinks,
+        [prepend: [%Permalink{url: "prepend"}], append: [%Permalink{url: "append"}]],
+        fn f ->
+          assert f.errors == [
+                   url:
+                     {"should be at least %{count} character(s)",
+                      [count: 3, validation: :length, kind: :min]}
+                 ]
+
+          assert f.source.validations == [url: {:length, min: 3}]
+          text_input(f, :url)
+        end
+      )
 
     assert contents ==
-      ~s(<input id="user_permalinks_0_id" name="user[permalinks][0][id]" type="hidden" value="a">) <>
-      ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="h1">) <>
-      ~s(<input id="user_permalinks_1_id" name="user[permalinks][1][id]" type="hidden" value="b">) <>
-      ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="h2">)
+             ~s(<input id="user_permalinks_0_id" name="user[permalinks][0][id]" type="hidden" value="a">) <>
+               ~s(<input id="user_permalinks_0_url" name="user[permalinks][0][url]" type="text" value="h1">) <>
+               ~s(<input id="user_permalinks_1_id" name="user[permalinks][1][id]" type="hidden" value="b">) <>
+               ~s(<input id="user_permalinks_1_url" name="user[permalinks][1][url]" type="text" value="h2">)
   end
 
   test "embeds many: inputs_for/4 with custom id and name" do
@@ -449,12 +488,12 @@ defmodule PhoenixEcto.InputsForTest do
       safe_inputs_for(changeset, :permalinks, [as: "foo", id: "bar"], fn f ->
         assert f.errors == []
         assert f.source.validations == [url: {:length, min: 3}]
-        text_input f, :url
+        text_input(f, :url)
       end)
 
     assert contents ==
-      ~s(<input id="bar_0_url" name="foo[0][url]" type="text" value="data1">) <>
-      ~s(<input id="bar_1_url" name="foo[1][url]" type="text" value="data2">)
+             ~s(<input id="bar_0_url" name="foo[0][url]" type="text" value="data1">) <>
+               ~s(<input id="bar_1_url" name="foo[1][url]" type="text" value="data2">)
   end
 
   test "embeds many: inputs_for/4 with replaced changesets" do
@@ -466,17 +505,19 @@ defmodule PhoenixEcto.InputsForTest do
     input = ~r(<input id="user_permalinks_0_url".*<input id="user_permalinks_1_url")
 
     refute safe_inputs_for(changeset, :permalinks, [], fn f ->
-      text_input f, :url
-    end) =~ input
+             text_input(f, :url)
+           end) =~ input
   end
 
   defp safe_inputs_for(changeset, field, opts \\ [], fun) do
     mark = "--PLACEHOLDER--"
 
     contents =
-      safe_to_string form_for(changeset, "/", fn f ->
-        html_escape [mark, inputs_for(f, field, opts, fun), mark]
-      end)
+      safe_to_string(
+        form_for(changeset, "/", fn f ->
+          html_escape([mark, inputs_for(f, field, opts, fun), mark])
+        end)
+      )
 
     [_, inner, _] = String.split(contents, mark)
     inner

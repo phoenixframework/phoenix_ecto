@@ -4,21 +4,25 @@ defmodule PhoenixEcto.Mixfile do
   @version "4.0.0"
 
   def project do
-    [app: :phoenix_ecto,
-     version: @version,
-     elixir: "~> 1.4",
-     deps: deps(),
+    [
+      app: :phoenix_ecto,
+      version: @version,
+      elixir: "~> 1.4",
+      deps: deps(),
 
-     # Hex
-     description: "Integration between Phoenix & Ecto",
-     package: package(),
+      # Hex
+      description: "Integration between Phoenix & Ecto",
+      package: package(),
 
-     # Docs
-     name: "Phoenix/Ecto",
-     docs: [main: "main",
-            extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]],
-            source_ref: "v#{@version}",
-            source_url: "https://github.com/phoenixframework/phoenix_ecto"]]
+      # Docs
+      name: "Phoenix/Ecto",
+      docs: [
+        main: "main",
+        extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]],
+        source_ref: "v#{@version}",
+        source_url: "https://github.com/phoenixframework/phoenix_ecto"
+      ]
+    ]
   end
 
   def application do
@@ -30,15 +34,19 @@ defmodule PhoenixEcto.Mixfile do
   end
 
   defp package do
-    [maintainers: ["José Valim", "Chris Mccord"],
-     licenses: ["Apache 2.0"],
-     links: %{"GitHub" => "https://github.com/phoenixframework/phoenix_ecto"}]
+    [
+      maintainers: ["José Valim", "Chris Mccord"],
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/phoenixframework/phoenix_ecto"}
+    ]
   end
 
   defp deps do
-    [{:phoenix_html, "~> 2.9", optional: true},
-     {:ecto, "~> 3.0"},
-     {:plug, "~> 1.0"},
-     {:ex_doc, ">= 0.0.0", only: :docs}]
+    [
+      {:phoenix_html, "~> 2.9", optional: true},
+      {:ecto, "~> 3.0"},
+      {:plug, "~> 1.0"},
+      {:ex_doc, ">= 0.0.0", only: :docs}
+    ]
   end
 end
