@@ -39,7 +39,7 @@ To enable concurrent acceptance tests, make sure you are using PostgreSQL and fo
       plug Phoenix.Ecto.SQL.Sandbox
     end
     ```
-    
+
     Make sure that this is placed **before** the line `plug YourApp.Router` (or any other plug that may access the database).
 
 You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby).
@@ -104,9 +104,9 @@ Wallaby currently supports PhantomJS (including concurrent tests). Support for o
 
 Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
 
-  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
-  * `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
-  * `Plug.Exception` protocol for the relevant Ecto exceptions
+* `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+* `Phoenix.HTML.Safe` protocol for `Decimal`, `Ecto.Date`, `Ecto.Time` and `Ecto.DateTime`
+* `Plug.Exception` protocol for the relevant Ecto exceptions
 
 ## Configuration
 

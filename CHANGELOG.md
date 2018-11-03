@@ -2,8 +2,8 @@
 
 ## v4.0.0
 
-  * Implement `Plug.Status` for `Ecto.StaleEntryError`
-  * Support Ecto 3.0
+* Implement `Plug.Status` for `Ecto.StaleEntryError`
+* Support Ecto 3.0
 
 ## v3.4.0
 
@@ -16,7 +16,7 @@
 ## v3.3.0
 
 * Enhancements
-  * Support concurrent and transactional end-to-end tests for external   HTTP clients using the new `:at` and `:repo` options to the `Phoenix.Ecto.SQL.Sandbox` plug
+  * Support concurrent and transactional end-to-end tests for external HTTP clients using the new `:at` and `:repo` options to the `Phoenix.Ecto.SQL.Sandbox` plug
 
 ## v3.2.3
 

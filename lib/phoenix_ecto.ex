@@ -9,8 +9,12 @@ defmodule Phoenix.Ecto do
   import Supervisor.Spec
 
   def start(_type, _args) do
-    Supervisor.start_link([
-      supervisor(Phoenix.Ecto.SQL.SandboxSupervisor, [])
-    ], strategy: :one_for_one, name: Phoenix.Ecto.Supervisor)
+    Supervisor.start_link(
+      [
+        supervisor(Phoenix.Ecto.SQL.SandboxSupervisor, [])
+      ],
+      strategy: :one_for_one,
+      name: Phoenix.Ecto.Supervisor
+    )
   end
 end
