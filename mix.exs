@@ -36,7 +36,7 @@ defmodule PhoenixEcto.Mixfile do
   defp package do
     [
       maintainers: ["José Valim", "Chris Mccord"],
-      licenses: ["Apache 2.0"],
+      licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/phoenixframework/phoenix_ecto"}
     ]
   end
