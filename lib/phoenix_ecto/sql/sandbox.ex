@@ -29,6 +29,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
         metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
         Hound.start_session(metadata: metadata)
+        :ok
       end
 
   ## Concurrent end-to-end tests with external clients

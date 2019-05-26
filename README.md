@@ -67,6 +67,7 @@ setup do
   :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
   metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
   Hound.start_session(metadata: metadata)
+  :ok
 end
 ```
 
