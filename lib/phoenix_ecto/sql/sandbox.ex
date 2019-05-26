@@ -62,7 +62,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   ## Examples
 
-      iex> {:ok, _owner_pid, metdata} = start_child(MyApp.Repo)
+      iex> {:ok, _owner_pid, metadata} = start_child(MyApp.Repo)
   """
   def start_child(repo, opts \\ []) do
     case Supervisor.start_child(SandboxSupervisor, [repo, self(), opts]) do
