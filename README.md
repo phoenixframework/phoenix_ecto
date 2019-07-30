@@ -78,7 +78,7 @@ Hound supports multiple drivers like Chrome, Firefox, etc but it does not suppor
 To write concurrent acceptance tests with Wallaby, first add it as a dependency to your `mix.exs`:
 
 ```elixir
-{:wallaby, "~> 0.6"}
+{:wallaby, "~> 0.22"}
 ```
 
 Make sure to start it at the top of your `test/test_helper.exs`:
