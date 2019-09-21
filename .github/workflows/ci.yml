@@ -11,6 +11,7 @@ jobs:
     name: mix test (OTP ${{matrix.otp}} | Elixir ${{matrix.elixir}})
     strategy:
       matrix:
+        elixir: ['1.4.5', '1.9.1']
         include:
           - elixir: '1.4.5'
             otp: '18.x'
