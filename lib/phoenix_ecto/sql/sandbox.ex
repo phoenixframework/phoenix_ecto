@@ -56,7 +56,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   import Plug.Conn
   alias Plug.Conn
-  alias Phoenix.Ecto.SQL.SandboxSupervisor
+  alias Phoenix.Ecto.SQL.{SandboxSession, SandboxSupervisor}
 
   @doc """
   Spawns a sandbox session to checkout a connection for a remote client.
@@ -66,7 +66,9 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       iex> {:ok, _owner_pid, metadata} = start_child(MyApp.Repo)
   """
   def start_child(repo, opts \\ []) do
-    case Supervisor.start_child(SandboxSupervisor, [repo, self(), opts]) do
+    child_spec = {SandboxSession, {repo, self(), opts}}
+
+    case DynamicSupervisor.start_child(SandboxSupervisor, child_spec) do
       {:ok, owner} ->
         metadata = metadata_for(repo, owner)
         {:ok, owner, metadata}

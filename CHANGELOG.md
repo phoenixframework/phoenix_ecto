@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.1.0
+
+* Enhancements
+  * Add `Phoenix.Ecto.CheckRepoStatus` plug
+
 ## v4.0.0
 
 * Enhancements

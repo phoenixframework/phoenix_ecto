@@ -1,13 +1,13 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
-  @version "4.0.0"
+  @version "4.1.0"
 
   def project do
     [
       app: :phoenix_ecto,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.6",
       deps: deps(),
 
       # Hex

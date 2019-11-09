@@ -6,11 +6,10 @@ defmodule Phoenix.Ecto do
   Ecto with Phoenix either when working with HTML or JSON.
   """
   use Application
-  import Supervisor.Spec
 
   def start(_type, _args) do
     children = [
-      supervisor(Phoenix.Ecto.SQL.SandboxSupervisor, [])
+      {DynamicSupervisor, name: Phoenix.Ecto.SQL.SandboxSupervisor, strategy: :one_for_one}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Phoenix.Ecto.Supervisor)

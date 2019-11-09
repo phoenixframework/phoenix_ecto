@@ -1,10 +1,10 @@
 defmodule Phoenix.Ecto.SQL.SandboxSession do
   @moduledoc false
-  use GenServer
+  use GenServer, restart: :temporary
 
   @timeout 15_000
 
-  def start_link(repo, client, opts) do
+  def start_link({repo, client, opts}) do
     GenServer.start_link(__MODULE__, [repo, client, opts])
   end
 
