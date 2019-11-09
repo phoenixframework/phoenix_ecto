@@ -23,3 +23,35 @@ unless Ecto.SubQueryError in excluded_exceptions do
     end
   end
 end
+
+unless Phoenix.Ecto.PendingMigrationError in excluded_exceptions do
+  defimpl Plug.Exception, for: Phoenix.Ecto.PendingMigrationError do
+    def status(_error), do: 505
+
+    def actions(%{repo: repo}),
+      do: [
+        %{
+          label: "Run migrations for repo",
+          handler: {__MODULE__, :migrate, [repo]}
+        }
+      ]
+
+    def migrate(repo), do: Ecto.Migrator.run(repo, :up, all: true)
+  end
+end
+
+unless Phoenix.Ecto.StorageNotCreatedError in excluded_exceptions do
+  defimpl Plug.Exception, for: Phoenix.Ecto.StorageNotCreatedError do
+    def status(_error), do: 505
+
+    def actions(%{repo: repo}),
+      do: [
+        %{
+          label: "Create database for repo",
+          handler: {__MODULE__, :storage_up, [repo]}
+        }
+      ]
+
+    def storage_up(repo), do: repo.__adapter__.storage_up(repo.config())
+  end
+end

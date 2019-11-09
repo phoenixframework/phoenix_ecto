@@ -21,6 +21,12 @@ defmodule PhoenixEcto.Mixfile do
         extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]],
         source_ref: "v#{@version}",
         source_url: "https://github.com/phoenixframework/phoenix_ecto"
+      ],
+      xref: [
+        exclude: [
+          {Ecto.Migrator, :migrations, 1},
+          {Ecto.Migrator, :run, 3}
+        ]
       ]
     ]
   end
