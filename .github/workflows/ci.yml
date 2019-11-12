@@ -11,10 +11,10 @@ jobs:
     name: mix test (OTP ${{matrix.otp}} | Elixir ${{matrix.elixir}})
     strategy:
       matrix:
-        elixir: ['1.4.5', '1.9.1']
+        elixir: ['1.6.6', '1.9.1']
         include:
-          - elixir: '1.4.5'
-            otp: '18.x'
+          - elixir: '1.6.6'
+            otp: '19.x'
           - elixir: '1.9.1'
             otp: '22.x'
     runs-on: ubuntu-16.04
