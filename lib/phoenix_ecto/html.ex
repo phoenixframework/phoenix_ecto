@@ -125,8 +125,6 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
       case type do
         :integer -> :number_input
-        :float -> :number_input
-        :decimal -> :number_input
         :boolean -> :checkbox
         :date -> :date_select
         :time -> :time_select

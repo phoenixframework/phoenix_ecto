@@ -217,8 +217,8 @@ defmodule PhoenixEcto.HTMLTest do
 
     safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
-      assert input_type(f, :float) == :number_input
-      assert input_type(f, :decimal) == :number_input
+      assert input_type(f, :float) == :text_input # https://github.com/phoenixframework/phoenix_html/issues/279
+      assert input_type(f, :decimal) == :text_input
       assert input_type(f, :string) == :text_input
       assert input_type(f, :boolean) == :checkbox
       assert input_type(f, :date) == :date_select
