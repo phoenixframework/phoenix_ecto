@@ -236,6 +236,10 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp to_changeset(%{} = data, parent_action, _module, cast) when is_function(cast, 2),
       do: apply_action(cast!(cast, data), parent_action)
 
+    defp to_changeset(%{} = data, parent_action, _module, {module, func, arguments} = mfa)
+         when is_atom(module) and is_atom(func) and is_list(arguments),
+         do: apply_action(apply!(mfa, data), parent_action)
+
     defp to_changeset(%{} = data, parent_action, _module, nil),
       do: apply_action(Ecto.Changeset.change(data), parent_action)
 
@@ -246,6 +250,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
         other ->
           raise "expected on_cast/2 callback #{inspect(cast)} to return an Ecto.Changeset, " <>
+                  "got: #{inspect(other)}"
+      end
+    end
+
+    defp apply!({module, func, arguments}, data) do
+      case apply(module, func, [data, %{} | arguments]) do
+        %Ecto.Changeset{} = changeset ->
+          changeset
+
+        other ->
+          raise "expected #{module}.#{func} to return an Ecto.Changeset, " <>
                   "got: #{inspect(other)}"
       end
     end

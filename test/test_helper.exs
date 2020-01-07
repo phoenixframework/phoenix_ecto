@@ -30,6 +30,14 @@ defmodule Comment do
     |> validate_required(:body)
     |> validate_length(:body, min: 3)
   end
+
+  def custom_changeset(comment, params, required_length) do
+    import Ecto.Changeset
+
+    comment
+    |> cast(params, ~w(body)a)
+    |> validate_length(:body, min: required_length)
+  end
 end
 
 defmodule User do
