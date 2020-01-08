@@ -257,6 +257,29 @@ defmodule PhoenixEcto.InputsForTest do
            end) =~ input
   end
 
+  test "has many: inputs_for/4 with custom changeset" do
+    required_length = 5
+
+    changeset =
+      %User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]}
+      |> cast(%{}, ~w()a)
+      |> cast_assoc(:comments, with: {Comment, :custom_changeset, [required_length]})
+
+    contents =
+      safe_inputs_for(
+        changeset,
+        :comments,
+        fn f ->
+          assert f.source.validations == [body: {:length, min: required_length}]
+          text_input(f, :body)
+        end
+      )
+
+    assert contents ==
+             ~s(<input id="user_comments_0_body" name="user[comments][0][body]" type="text" value="data1">) <>
+               ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data2">)
+  end
+
   ## inputs_for embeds one
 
   test "embeds one: inputs_for/4" do
