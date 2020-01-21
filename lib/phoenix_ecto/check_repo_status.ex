@@ -8,10 +8,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
   ## Plug options
 
     * `:otp_app` - name of the application which the repos are fetched from
-    * `:get_migration_function` - function that returns the migrations for a given `repo`.
-      Should return a list of tuples with three elements,
-      e.g. `[{state :: :up | :down, version :: integer(), name :: String.t()]]`
-      If `ecto_sql` dependency is loaded, uses `Ecto.Migrator.migrations/1` by default.
+
   """
 
   @behaviour Plug
