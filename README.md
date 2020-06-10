@@ -78,13 +78,7 @@ Hound supports multiple drivers like Chrome, Firefox, etc but it does not suppor
 To write concurrent acceptance tests with Wallaby, first add it as a dependency to your `mix.exs`:
 
 ```elixir
-{:wallaby, "~> 0.25", only: :test, runtime: false}
-```
-
-Make sure to start it at the top of your `test/test_helper.exs`:
-
-```elixir
-{:ok, _} = Application.ensure_all_started(:wallaby)
+{:wallaby, "~> 0.25", only: :test}
 ```
 
 Wallaby can take care of setting up the Ecto Sandbox for you if you use `use Wallaby.Feature` in your test module.
