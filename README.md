@@ -22,7 +22,7 @@ You can use `phoenix_ecto` in your projects in two steps:
 
 ## Concurrent browser tests
 
-This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests powered by headless browsers such as Phantom.js and Selenium concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
+This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests powered by headless browsers such as ChromeDriver and Selenium concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
 
 To enable concurrent acceptance tests, make sure you are using PostgreSQL and follow the instructions below:
 
@@ -42,7 +42,7 @@ To enable concurrent acceptance tests, make sure you are using PostgreSQL and fo
 
     Make sure that this is placed **before** the line `plug YourApp.Router` (or any other plug that may access the database).
 
-You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/keathley/wallaby).
+You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like [Hound](https://github.com/hashnuke/hound) or [Wallaby](https://github.com/elixir-wallaby/wallaby).
 
 ### Hound
 
@@ -58,7 +58,7 @@ Make sure to start it at the top of your `test/test_helper.exs`:
 {:ok, _} = Application.ensure_all_started(:hound)
 ```
 
-Then add the following to your test case (or to your case template):
+Then add the following to your test case (or case template):
 
 ```elixir
 use Hound.Helpers
@@ -78,16 +78,25 @@ Hound supports multiple drivers like Chrome, Firefox, etc but it does not suppor
 To write concurrent acceptance tests with Wallaby, first add it as a dependency to your `mix.exs`:
 
 ```elixir
-{:wallaby, "~> 0.22"}
+{:wallaby, "~> 0.25", only: :test}
 ```
 
-Make sure to start it at the top of your `test/test_helper.exs`:
+Wallaby can take care of setting up the Ecto Sandbox for you if you use `use Wallaby.Feature` in your test module.
 
 ```elixir
-{:ok, _} = Application.ensure_all_started(:wallaby)
+defmodule MyAppWeb.PageFeature do
+  use ExUnit.Case, async: true
+  use Wallaby.Feature
+
+  feature "shows some text", %{session: session} do
+    session
+    |> visit("/home")
+    |> assert_text("Hello world!")
+  end
+end
 ```
 
-Then add the following to your test case (or to your case template):
+If you don't `use Wallaby.Feature`, you can add the following to your test case (or case template):
 
 ```elixir
 use Wallaby.DSL
@@ -99,7 +108,7 @@ setup do
 end
 ```
 
-Wallaby currently supports PhantomJS (including concurrent tests). Support for other drivers may be added in the future.
+Wallaby currently supports ChromeDriver and Selenium, allowing testing in almost any browser.
 
 ## The Phoenix <-> Ecto integration
 
