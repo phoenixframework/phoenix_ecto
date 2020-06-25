@@ -24,6 +24,45 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
   end
 
+  test "form_for/3 with new changeset" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/", [])
+    assert %Phoenix.HTML.Form{} = form
+
+    contents = form |> html_escape() |> safe_to_string()
+
+    assert contents =~ ~s(<form action="/" method="post">)
+  end
+
+  test "form_for/3 with id prefix the form id in the input id" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/", id: "form_id")
+
+    contents =
+      form
+      |> text_input(:name)
+      |> html_escape()
+      |> safe_to_string()
+
+    assert contents =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
+  end
+
+  test "form_for/3 without id prefix the form name in the input id" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/")
+
+    contents =
+      form
+      |> text_input(:name)
+      |> html_escape()
+      |> safe_to_string()
+
+    assert contents =~ ~s(<input id="user_name" name="user[name]" type="text">)
+  end
+ 
   test "form_for/4 with new changeset" do
     changeset =
       cast(%User{}, %{}, ~w()a)
@@ -177,6 +216,17 @@ defmodule PhoenixEcto.HTMLTest do
 
     assert form =~
              ~s(<input id="some_price" name="some[price]" type="number" value="0.000000000">)
+  end
+
+  test "form_for/4 with id prefix id on inputs id" do
+    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
+
+    form =
+      safe_form_for(changeset, [id: "form_id"], fn f ->
+        text_input(f, :name)
+      end)
+
+    assert form =~ ~s(<input id="form_id_name" name="user[name]" type="text" value="JV">)
   end
 
   defmodule Custom do
