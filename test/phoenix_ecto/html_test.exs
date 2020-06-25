@@ -40,7 +40,7 @@ defmodule PhoenixEcto.HTMLTest do
         "FROM FORM"
       end)
 
-    assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
+    assert form =~ ~s(<form action="/" method="post">)
     assert form =~ "FROM FORM"
   end
 
@@ -57,7 +57,7 @@ defmodule PhoenixEcto.HTMLTest do
         "FROM FORM"
       end)
 
-    assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
+    assert form =~ ~s(<form action="/" method="post">)
     assert form =~ ~s(<input name="_method" type="hidden" value="put">)
     assert form =~ "FROM FORM"
     refute form =~ ~s(<input id="user_id" name="user[id]" type="hidden" value="13">)
@@ -75,7 +75,7 @@ defmodule PhoenixEcto.HTMLTest do
       end)
 
     assert form =~
-             ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+             ~s(<form action="/" enctype="multipart/form-data" method="post">)
 
     assert form =~ "FROM FORM"
   end
@@ -114,7 +114,7 @@ defmodule PhoenixEcto.HTMLTest do
       end)
 
     assert form =~
-             ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+             ~s(<form action="/" enctype="multipart/form-data" method="post">)
 
     assert form =~ "FROM FORM"
   end
@@ -204,10 +204,6 @@ defmodule PhoenixEcto.HTMLTest do
       assert input_value(f, :integer) == 123
       assert input_value(f, :string) == "string"
       assert input_value(f, :float) == 78.9
-
-      assert input_value(f, :integer, 0) == 123
-      assert input_value(f, :string, "default") == "default"
-      assert input_value(f, :float, 0.0) == 78.9
       ""
     end)
   end
