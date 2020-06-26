@@ -29,7 +29,7 @@ end
 
 unless Phoenix.Ecto.PendingMigrationError in excluded_exceptions do
   defimpl Plug.Exception, for: Phoenix.Ecto.PendingMigrationError do
-    def status(_error), do: 505
+    def status(_error), do: 503
 
     def actions(%{repo: repo}),
       do: [
@@ -45,7 +45,7 @@ end
 
 unless Phoenix.Ecto.StorageNotCreatedError in excluded_exceptions do
   defimpl Plug.Exception, for: Phoenix.Ecto.StorageNotCreatedError do
-    def status(_error), do: 505
+    def status(_error), do: 503
 
     def actions(%{repo: repo}),
       do: [
