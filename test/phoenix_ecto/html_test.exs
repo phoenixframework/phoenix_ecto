@@ -24,6 +24,45 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
   end
 
+  test "form_for/3 with new changeset" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/", [])
+    assert %Phoenix.HTML.Form{} = form
+
+    contents = form |> html_escape() |> safe_to_string()
+
+    assert contents =~ ~s(<form action="/" method="post">)
+  end
+
+  test "form_for/3 with id prefix the form id in the input id" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/", id: "form_id")
+
+    contents =
+      form
+      |> text_input(:name)
+      |> html_escape()
+      |> safe_to_string()
+
+    assert contents =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
+  end
+
+  test "form_for/3 without id prefix the form name in the input id" do
+    changeset = cast(%User{}, %{}, ~w()a)
+
+    form = form_for(changeset, "/")
+
+    contents =
+      form
+      |> text_input(:name)
+      |> html_escape()
+      |> safe_to_string()
+
+    assert contents =~ ~s(<input id="user_name" name="user[name]" type="text">)
+  end
+ 
   test "form_for/4 with new changeset" do
     changeset =
       cast(%User{}, %{}, ~w()a)
@@ -40,7 +79,7 @@ defmodule PhoenixEcto.HTMLTest do
         "FROM FORM"
       end)
 
-    assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
+    assert form =~ ~s(<form action="/" method="post">)
     assert form =~ "FROM FORM"
   end
 
@@ -57,7 +96,7 @@ defmodule PhoenixEcto.HTMLTest do
         "FROM FORM"
       end)
 
-    assert form =~ ~s(<form accept-charset="UTF-8" action="/" method="post">)
+    assert form =~ ~s(<form action="/" method="post">)
     assert form =~ ~s(<input name="_method" type="hidden" value="put">)
     assert form =~ "FROM FORM"
     refute form =~ ~s(<input id="user_id" name="user[id]" type="hidden" value="13">)
@@ -75,7 +114,7 @@ defmodule PhoenixEcto.HTMLTest do
       end)
 
     assert form =~
-             ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+             ~s(<form action="/" enctype="multipart/form-data" method="post">)
 
     assert form =~ "FROM FORM"
   end
@@ -114,7 +153,7 @@ defmodule PhoenixEcto.HTMLTest do
       end)
 
     assert form =~
-             ~s(<form accept-charset="UTF-8" action="/" enctype="multipart/form-data" method="post">)
+             ~s(<form action="/" enctype="multipart/form-data" method="post">)
 
     assert form =~ "FROM FORM"
   end
@@ -179,6 +218,17 @@ defmodule PhoenixEcto.HTMLTest do
              ~s(<input id="some_price" name="some[price]" type="number" value="0.000000000">)
   end
 
+  test "form_for/4 with id prefix id on inputs id" do
+    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
+
+    form =
+      safe_form_for(changeset, [id: "form_id"], fn f ->
+        text_input(f, :name)
+      end)
+
+    assert form =~ ~s(<input id="form_id_name" name="user[name]" type="text" value="JV">)
+  end
+
   defmodule Custom do
     use Ecto.Schema
 
@@ -204,10 +254,6 @@ defmodule PhoenixEcto.HTMLTest do
       assert input_value(f, :integer) == 123
       assert input_value(f, :string) == "string"
       assert input_value(f, :float) == 78.9
-
-      assert input_value(f, :integer, 0) == 123
-      assert input_value(f, :string, "default") == "default"
-      assert input_value(f, :float, 0.0) == 78.9
       ""
     end)
   end

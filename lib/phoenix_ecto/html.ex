@@ -3,12 +3,15 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     def to_form(changeset, opts) do
       %{params: params, data: data} = changeset
       {name, opts} = Keyword.pop(opts, :as)
+      {id, opts} = Keyword.pop(opts, :id)
+
       name = to_string(name || form_for_name(data))
+      id = id || name
 
       %Phoenix.HTML.Form{
         source: changeset,
         impl: __MODULE__,
-        id: name,
+        id: id,
         name: name,
         errors: form_for_errors(changeset),
         data: data,
