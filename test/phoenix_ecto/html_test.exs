@@ -40,13 +40,19 @@ defmodule PhoenixEcto.HTMLTest do
 
     form = form_for(changeset, "/", id: "form_id")
 
-    contents =
+    form_content =
+      form
+      |> html_escape()
+      |> safe_to_string()
+
+    input_content =
       form
       |> text_input(:name)
       |> html_escape()
       |> safe_to_string()
 
-    assert contents =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
+    assert form_content  =~ ~s(<form action="/" id="form_id" method="post">)
+    assert input_content =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
   end
 
   test "form_for/3 without id prefix the form name in the input id" do
