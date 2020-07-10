@@ -2,8 +2,7 @@ errors = [
   {Ecto.CastError, 400},
   {Ecto.Query.CastError, 400},
   {Ecto.NoResultsError, 404},
-  {Ecto.StaleEntryError, 409},
-  {Ecto.InvalidChangesetError, 422}
+  {Ecto.StaleEntryError, 409}
 ]
 
 excluded_exceptions = Application.get_env(:phoenix_ecto, :exclude_ecto_exceptions_from_plug, [])
