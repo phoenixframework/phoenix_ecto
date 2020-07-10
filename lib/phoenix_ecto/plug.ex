@@ -54,6 +54,6 @@ unless Phoenix.Ecto.StorageNotCreatedError in excluded_exceptions do
         }
       ]
 
-    def storage_up(repo), do: repo.__adapter__.storage_up(repo.config())
+    def storage_up(repo), do: repo.__adapter__().storage_up(repo.config())
   end
 end

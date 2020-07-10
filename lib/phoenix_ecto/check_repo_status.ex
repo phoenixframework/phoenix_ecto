@@ -33,9 +33,10 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
 
   defp check_storage_up!(repo) do
     try do
-      if Code.ensure_loaded?(repo.__adapter__) &&
-           function_exported?(repo.__adapter__, :storage_status, 1) do
-        repo.__adapter__.storage_status(repo.config())
+      adapter = repo.__adapter__()
+
+      if Code.ensure_loaded?(adapter) && function_exported?(adapter, :storage_status, 1) do
+        adapter.storage_status(repo.config())
       end
     rescue
       _ -> :ok
