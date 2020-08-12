@@ -4,7 +4,12 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       %{params: params, data: data} = changeset
       {name, opts} = Keyword.pop(opts, :as)
 
-      name = to_string(name || form_for_name(data))
+      name =
+        case name || form_for_name(data) do
+          nil -> nil
+          name -> to_string(name)
+        end
+
       id = Keyword.get(opts, :id) || name
 
       %Phoenix.HTML.Form{
@@ -308,9 +313,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       |> Macro.underscore()
     end
 
-    defp form_for_name(_) do
-      raise ArgumentError, "non-struct data in changeset requires the :as option to be given"
-    end
+    defp form_for_name(_), do: nil
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
     defp form_for_method(_), do: "post"

@@ -51,7 +51,7 @@ defmodule PhoenixEcto.HTMLTest do
       |> html_escape()
       |> safe_to_string()
 
-    assert form_content  =~ ~s(<form action="/" id="form_id" method="post">)
+    assert form_content =~ ~s(<form action="/" id="form_id" method="post">)
     assert input_content =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
   end
 
@@ -68,7 +68,7 @@ defmodule PhoenixEcto.HTMLTest do
 
     assert contents =~ ~s(<input id="user_name" name="user[name]" type="text">)
   end
- 
+
   test "form_for/4 with new changeset" do
     changeset =
       cast(%User{}, %{}, ~w()a)
@@ -176,39 +176,83 @@ defmodule PhoenixEcto.HTMLTest do
     assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
   end
 
-  test "form_for/4 with schemaless changeset from a map" do
-    changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+  describe "form_for/4 with schemaless changeset from a map" do
+    test "with :as" do
+      changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        [text_input(f, :name), text_input(f, :other)]
-      end)
+      form =
+        safe_form_for(changeset, [as: "another", multipart: true], fn f ->
+          [text_input(f, :name), text_input(f, :other)]
+        end)
 
-    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
-    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
+      assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
+      assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
+    end
+
+    test "without :as" do
+      changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+
+      form =
+        safe_form_for(changeset, [multipart: true], fn f ->
+          [text_input(f, :name), text_input(f, :other)]
+        end)
+
+      assert form =~ ~s(<input id="name" name="name" type="text" value="JV">)
+      assert form =~ ~s(<input id="other" name="other" type="text">)
+    end
   end
 
-  test "form_for/4 with schemaless changeset from a struct" do
-    changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+  describe "form_for/4 with schemaless changeset from a struct" do
+    test "with :as" do
+      changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        [text_input(f, :name), text_input(f, :other)]
-      end)
+      form =
+        safe_form_for(changeset, [as: "another", multipart: true], fn f ->
+          [text_input(f, :name), text_input(f, :other)]
+        end)
 
-    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
-    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
+      assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
+      assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
+    end
+
+    test "without :as" do
+      changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+
+      form =
+        safe_form_for(changeset, [multipart: true], fn f ->
+          [text_input(f, :name), text_input(f, :other)]
+        end)
+
+      assert form =~
+               ~s(<input id="schemaless_user_name" name="schemaless_user[name]" type="text" value="JV">)
+
+      assert form =~
+               ~s(<input id="schemaless_user_other" name="schemaless_user[other]" type="text">)
+    end
   end
 
-  test "form_for/4 with a map for changeset data" do
-    changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+  describe "form_for/4 with a map for changeset data" do
+    test "with :as" do
+      changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
 
-    form =
-      safe_form_for(changeset, [as: "some"], fn f ->
-        [text_input(f, :name)]
-      end)
+      form =
+        safe_form_for(changeset, [as: "some"], fn f ->
+          [text_input(f, :name)]
+        end)
 
-    assert form =~ ~s(<input id="some_name" name="some[name]" type="text" value="JV">)
+      assert form =~ ~s(<input id="some_name" name="some[name]" type="text" value="JV">)
+    end
+
+    test "without :as" do
+      changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+
+      form =
+        safe_form_for(changeset, [], fn f ->
+          [text_input(f, :name)]
+        end)
+
+      assert form =~ ~s(<input id="name" name="name" type="text" value="JV">)
+    end
   end
 
   test "form_for/4 with Decimal type input field" do
@@ -269,7 +313,8 @@ defmodule PhoenixEcto.HTMLTest do
 
     safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
-      assert input_type(f, :float) == :text_input # https://github.com/phoenixframework/phoenix_html/issues/279
+      # https://github.com/phoenixframework/phoenix_html/issues/279
+      assert input_type(f, :float) == :text_input
       assert input_type(f, :decimal) == :text_input
       assert input_type(f, :string) == :text_input
       assert input_type(f, :boolean) == :checkbox
