@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.2.0
+
+* Enhancements
+  * Support cast_assoc `with` MFA option on inputs_for
+
+* Bug fixes
+  * Do not treat `InvalidChangesetError` as 422 as those are not logged
+  * Fix status code in check status exceptions to 503
+  * Use text for floats and decimals as the `input_type` - numerics have many usability issues that led them to not be widely used
+
 ## v4.1.0
 
 * Enhancements
