@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.2.1
+
+* Bug fixes
+  * Only check for storage if we cannot check for migrations. This reduces the amount of operations for successful cases (which are the most common) and avoid issues for when we can't check the storage in the first place
+
 ## v4.2.0
 
 * Enhancements
