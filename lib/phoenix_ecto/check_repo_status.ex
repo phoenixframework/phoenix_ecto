@@ -24,8 +24,9 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
 
     for repo <- repos, Process.whereis(repo) do
-      check_storage_up!(repo)
-      check_pending_migrations!(repo, opts)
+      unless check_pending_migrations!(repo, opts) do
+        check_storage_up!(repo)
+      end
     end
 
     conn
@@ -53,7 +54,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
       fallback_get_migrations =
         if Code.ensure_loaded?(Ecto.Migrator),
           do: &Ecto.Migrator.migrations/1,
-          else: fn _repo -> [] end
+          else: fn _repo -> raise "to be rescued" end
 
       get_migrations = Keyword.get(opts, :get_migrations_function, fallback_get_migrations)
 
@@ -61,10 +62,10 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
       |> get_migrations.()
       |> Enum.any?(fn {status, _version, _migration} -> status == :down end)
     rescue
-      _ -> :ok
+      _ -> false
     else
       true -> raise Phoenix.Ecto.PendingMigrationError, repo: repo
-      false -> :ok
+      false -> true
     end
   end
 end

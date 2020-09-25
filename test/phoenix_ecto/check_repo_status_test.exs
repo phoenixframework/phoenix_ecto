@@ -58,7 +58,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   test "raises an error when there is no storage created for a repo" do
     Process.register(self(), StorageDownRepo)
     Application.put_env(:check_repo_ready, :ecto_repos, [StorageDownRepo])
-    get_migrations_function = fn _repo -> [] end
+    get_migrations_function = fn _repo -> raise "failed" end
 
     conn = conn(:get, "/")
 
@@ -96,7 +96,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   test "does not raise an error when the repo's adapter does not implement storage_status/1" do
     Process.register(self(), StorageStatusRepo)
     Application.put_env(:check_repo_ready, :ecto_repos, [NoStorageStatusRepo])
-    get_migrations_function = fn _repo -> [] end
+    get_migrations_function = fn _repo -> raise "failed" end
 
     conn = conn(:get, "/")
 
@@ -142,7 +142,6 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   test "does not raise an error when the storage is created and there are no pending migrations for multiple repos" do
     Process.register(self(), StorageUpRepo)
     Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo, StorageUpRepo])
-
     get_migrations_function = fn _repo -> [] end
 
     conn = conn(:get, "/")
@@ -161,10 +160,8 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   test "raises an error when one of multiple repos does not have the database created" do
     Process.register(self(), StorageUpRepo)
     Process.register(spawn_link(&LongLivedProcess.run/0), StorageDownRepo)
-
     Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo, StorageDownRepo])
-
-    get_migrations_function = fn _repo -> [] end
+    get_migrations_function = fn _repo -> raise "failed" end
 
     conn = conn(:get, "/")
 
@@ -184,7 +181,6 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   test "raises an error when one of multiple repos has pending migrations" do
     Process.register(self(), StorageUpRepo)
     Process.register(spawn_link(&LongLivedProcess.run/0), NoStorageStatusRepo)
-
     Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo, NoStorageStatusRepo])
 
     get_migrations_function = fn
