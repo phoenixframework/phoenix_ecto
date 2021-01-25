@@ -1,6 +1,7 @@
 defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/phoenixframework/phoenix_ecto"
   @version "4.2.1"
 
   def project do
@@ -20,7 +21,7 @@ defmodule PhoenixEcto.Mixfile do
         main: "main",
         extras: ["README.md": [filename: "main", title: "Phoenix/Ecto"]],
         source_ref: "v#{@version}",
-        source_url: "https://github.com/phoenixframework/phoenix_ecto"
+        source_url: @source_url
       ],
       xref: [
         exclude: [
@@ -43,7 +44,7 @@ defmodule PhoenixEcto.Mixfile do
     [
       maintainers: ["José Valim", "Chris Mccord"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/phoenixframework/phoenix_ecto"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 

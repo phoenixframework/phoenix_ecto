@@ -1,8 +1,12 @@
+# Phoenix/Ecto
+
+[![Action Status](https://github.com/phoenixframework/phoenix_ecto/workflows/CI/badge.svg)](https://github.com/phoenixframework/phoenix_ecto/actions?query=workflow%3ACI)
+
 A project that integrates [Phoenix](http://github.com/phoenixframework/phoenix) with [Ecto](http://github.com/elixir-lang/ecto), implementing all relevant protocols.
 
 ## Usage
 
-You can use `phoenix_ecto` in your projects in two steps:
+You can use `:phoenix_ecto` in your projects in two steps:
 
 1. Add it to your `mix.exs` dependencies:
 
@@ -127,6 +131,8 @@ config :phoenix_ecto,
   exclude_ecto_exceptions_from_plug: [Ecto.NoResultsError]
 ```
 
-## License
+## Copyright and License
 
-Same license as Phoenix.
+Copyright (c) 2015, Chris McCord.
+
+Phoenix/Ecto source code is licensed under the [MIT License](https://github.com/phoenixframework/phoenix_ecto/blob/master/LICENSE).
