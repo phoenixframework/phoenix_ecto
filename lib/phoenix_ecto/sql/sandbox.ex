@@ -32,6 +32,35 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         :ok
       end
 
+  ### Supporting live view pages
+
+  To support live view pages those live views need access to the header used for
+  transporting the metadata. By default this is the user agent header:
+
+      socket "/live", Phoenix.LiveView.Socket,
+        websocket: [connect_info: [:user_agent, session: @session_options]]
+
+  With this setup you can then do this in each of your `c:Phoenix.LiveView.mount/3`
+  callbacks:
+
+      def mount(_, _, socket) do
+        Phoenix.Ecto.SQL.Sandbox.allow_ecto_sandbox(socket)
+        …
+      end
+
+  If you're using a custom header you can also make any `X-` header available
+  to live views:
+
+      socket "/live", Phoenix.LiveView.Socket,
+        websocket: [connect_info: [:x_headers, session: @session_options]]
+
+  In the live views you then need to tell which header shall be inspected:any()
+
+      def mount(_, _, socket) do
+        Phoenix.Ecto.SQL.Sandbox.allow_ecto_sandbox(socket, "x-my-custom-header")
+        …
+      end
+
   ## Concurrent end-to-end tests with external clients
 
   Concurrent and transactional tests for external HTTP clients is supported,
@@ -133,12 +162,35 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def call(conn, %{header: header, sandbox: sandbox}) do
-    _result =
-      conn
-      |> extract_metadata(header)
-      |> allow_sandbox_access(sandbox)
+    metadata = extract_metadata(conn, header)
+    _result = allow_sandbox_access(metadata, sandbox)
+    assign(conn, :phoenix_ecto_sandbox, metadata)
+  end
 
-    conn
+  if Code.ensure_loaded?(Phoenix.LiveView) do
+    @doc """
+    Allow access to the sandbox for liveview processes.
+    """
+    def allow_ecto_sandbox(%Phoenix.LiveView.Socket{} = socket, header \\ :user_agent) do
+      %{assigns: %{phoenix_ecto_sandbox: metadata}} =
+        Phoenix.LiveView.assign_new(socket, :phoenix_ecto_sandbox, fn ->
+          info = Phoenix.LiveView.get_connect_info(socket)
+
+          case header do
+            :user_agent ->
+              info.user_agent
+
+            header ->
+              Enum.find_value(info.x_headers, fn
+                {^header, val} -> val
+                _ -> false
+              end)
+          end
+          |> decode_metadata()
+        end)
+
+      allow_sandbox_access(metadata, Ecto.Adapters.SQL.Sandbox)
+    end
   end
 
   defp extract_metadata(%Conn{} = conn, header) do
