@@ -44,7 +44,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       socket "/path", Socket,
         websocket: [connect_info: [:x_headers, …]]
 
-  To fetch the value you either use `connect_info.user_agent` or for a custom header:
+  To fetch the value you either use `connect_info[:user_agent]` or for a custom header:
 
       Enum.find_value(connect_info.x_headers, fn
         {"x-my-custom-header", val} -> val
@@ -58,7 +58,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
       # user_socket.ex
       def connect(_params, socket, connect_info) do
-        {:ok, assign(socket, :phoenix_ecto_sandbox, connect_info.user_agent)}
+        {:ok, assign(socket, :phoenix_ecto_sandbox, connect_info[:user_agent])}
       end
 
   This stores the value on the socket, so it can be available to all of your
@@ -72,7 +72,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
       # This is a great function to extract to a helper module
       defp allow_ecto_sandbox(socket) do
-        Ecto.Adapters.SQL.Sandbox.allow(
+        Phoenix.Ecto.SQL.Sandbox.allow(
           socket.assigns.phoenix_ecto_sandbox,
           Ecto.Adapters.SQL.Sandbox
         )
@@ -95,10 +95,10 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       defp allow_ecto_sandbox(socket) do
         %{assigns: %{phoenix_ecto_sandbox: metadata}} =
           assign_new(socket, :phoenix_ecto_sandbox, fn ->
-            if connected?(socket), do: get_connect_info(socket).user_agent
+            if connected?(socket), do: get_connect_info(socket)[:user_agent]
           end)
 
-        Ecto.Adapters.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
+        Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
       end
 
   This is a bit more complex than the channel code, because LiveViews not only
