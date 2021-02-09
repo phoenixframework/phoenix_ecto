@@ -50,7 +50,6 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [
-      {:phoenix_live_view, "~> 0.15.0", optional: true},
       {:phoenix_html, "~> 2.14.2 or ~> 2.15", optional: true},
       {:ecto, "~> 3.0"},
       {:plug, "~> 1.0"},

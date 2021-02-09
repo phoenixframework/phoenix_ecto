@@ -32,41 +32,80 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         :ok
       end
 
-  ### Supporting live view pages
+  ### Supporting socket connections
 
-  To support live view pages those live views need access to the header used for
-  transporting the metadata. By default this is the user agent header:
+  To support socket connections the spawned processes need access to the header
+  used for transporting the metadata. By default this is the user agent header,
+  but you can also use custom `X-`-headers.
 
-      socket "/live", Phoenix.LiveView.Socket,
-        websocket: [connect_info: [:user_agent, session: @session_options]]
+      socket "/path", Socket,
+        websocket: [connect_info: [:user_agent, …]]
 
-  With this setup you can then do this in each of your `c:Phoenix.LiveView.mount/3`
-  callbacks:
+      socket "/path", Socket,
+        websocket: [connect_info: [:x_headers, …]]
+
+  To fetch the value you either use `connect_info.user_agent` or for a custom header:
+
+      Enum.find_value(connect_info.x_headers, fn
+        {"x-my-custom-header", val} -> val
+        _ -> false
+      end)
+
+  #### Channels
+
+  For channels `:connect_info` data is available to any of your Sockets'
+  `c:Phoenix.Socket.connect/3` callbacks:
+
+      # user_socket.ex
+      def connect(_params, socket, connect_info) do
+        {:ok, assign(socket, :phoenix_ecto_sandbox, connect_info.user_agent)}
+      end
+
+  This stores the value on the socket, so it can be available to all of your
+  channels for allowing the sandbox.
+
+      # room_channel.ex
+      def join("room:lobby", _payload, socket) do
+        allow_ecto_sandbox(socket)
+        {:ok, socket}
+      end
+
+      # This is a great function to extract to a helper module
+      defp allow_ecto_sandbox(socket) do
+        Ecto.Adapters.SQL.Sandbox.allow(
+          socket.assigns.phoenix_ecto_sandbox,
+          Ecto.Adapters.SQL.Sandbox
+        )
+      end
+
+  `allow/2` needs to be manually called once for each channel, at best directly
+  at the start of `c:Phoenix.Channel.join/3`.
+
+  #### Live View
+
+  LiveViews can be supported in a similar fashion than channels, but using the
+  `c:Phoenix.LiveView.mount/3` callback.
 
       def mount(_, _, socket) do
-        Phoenix.Ecto.SQL.Sandbox.allow_ecto_sandbox(socket)
+        allow_ecto_sandbox(socket)
         …
       end
 
-  If you're using a custom header you can also make any `X-` header available
-  to live views:
+      # This is a great function to extract to a helper module
+      defp allow_ecto_sandbox(socket) do
+        %{assigns: %{phoenix_ecto_sandbox: metadata}} =
+          assign_new(socket, :phoenix_ecto_sandbox, fn ->
+            if connected?(socket), do: get_connect_info(socket).user_agent
+          end)
 
-      socket "/live", Phoenix.LiveView.Socket,
-        websocket: [connect_info: [:x_headers, session: @session_options]]
-
-  In the live views you then need to tell which header shall be inspected:any()
-
-      def mount(_, _, socket) do
-        Phoenix.Ecto.SQL.Sandbox.allow_ecto_sandbox(socket, "x-my-custom-header")
-        …
+        Ecto.Adapters.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
       end
 
-  To not break regular live view tests you'll also need to make sure the used
-  header is available on the `ccnn` structs used. E.g. like this in `MyAppWeb.ConnCase.setup/1`:
-
-      Phoenix.ConnTest.build_conn()
-      |> Plug.Conn.put_req_header("user-agent", "conn-test")
-      |> Phoenix.LiveViewTest.put_connect_info(%{user_agent: "conn-test"})
+  This is a bit more complex than the channel code, because LiveViews not only
+  are their own processes when spawned via a socket connection, but also when
+  doing the static render as part of the plug pipeline. Given `get_connect_info/1`
+  is only available for socket connections, this uses the `:phoenix_ecto_sandbox`
+  assign of the rendering `conn` for the static render.
 
   ## Concurrent end-to-end tests with external clients
 
@@ -152,7 +191,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def call(%Conn{method: "DELETE", path_info: path} = conn, %{path: path} = opts) do
-    case extract_metadata(conn, opts.header) do
+    case decode_metadata(extract_header(conn, opts.header)) do
       %{owner: owner} ->
         :ok = stop(owner)
 
@@ -169,46 +208,13 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def call(conn, %{header: header, sandbox: sandbox}) do
-    metadata = extract_metadata(conn, header)
-    _result = allow_sandbox_access(metadata, sandbox)
-    assign(conn, :phoenix_ecto_sandbox, metadata)
+    header = extract_header(conn, header)
+    allow(header, sandbox)
+    assign(conn, :phoenix_ecto_sandbox, header)
   end
 
-  if Code.ensure_loaded?(Phoenix.LiveView) do
-    @doc """
-    Allow access to the sandbox for liveview processes.
-    """
-    def allow_ecto_sandbox(%Phoenix.LiveView.Socket{} = socket, header \\ :user_agent) do
-      %{assigns: %{phoenix_ecto_sandbox: metadata}} =
-        Phoenix.LiveView.assign_new(socket, :phoenix_ecto_sandbox, fn ->
-          if Phoenix.LiveView.connected?(socket) do
-            info = Phoenix.LiveView.get_connect_info(socket)
-
-            case header do
-              :user_agent ->
-                info.user_agent
-
-              header ->
-                Enum.find_value(info.x_headers, fn
-                  {^header, val} -> val
-                  _ -> false
-                end)
-            end
-            |> decode_metadata()
-          else
-            %{}
-          end
-        end)
-
-      allow_sandbox_access(metadata, Ecto.Adapters.SQL.Sandbox)
-    end
-  end
-
-  defp extract_metadata(%Conn{} = conn, header) do
-    conn
-    |> get_req_header(header)
-    |> List.first()
-    |> decode_metadata()
+  defp extract_header(%Conn{} = conn, header) do
+    conn |> get_req_header(header) |> List.first()
   end
 
   @doc """
@@ -246,6 +252,19 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def decode_metadata(_), do: %{}
+
+  def allow(encoded_metadata, sandbox) when is_binary(encoded_metadata) do
+    metadata = decode_metadata(encoded_metadata)
+    allow(metadata, sandbox)
+  end
+
+  def allow(metadata, sandbox) when is_map(metadata) do
+    allow_sandbox_access(metadata, sandbox)
+  end
+
+  def allow(nil, _sandbox) do
+    :ok
+  end
 
   defp allow_sandbox_access(%{repo: repo, owner: owner}, sandbox) do
     Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
