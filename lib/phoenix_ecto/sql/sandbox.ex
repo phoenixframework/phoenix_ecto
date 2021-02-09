@@ -61,6 +61,13 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         …
       end
 
+  To not break regular live view tests you'll also need to make sure the used
+  header is available on the `ccnn` structs used. E.g. like this in `MyAppWeb.ConnCase.setup/1`:
+
+      Phoenix.ConnTest.build_conn()
+      |> Plug.Conn.put_req_header("user-agent", "conn-test")
+      |> Phoenix.LiveViewTest.put_connect_info(%{user_agent: "conn-test"})
+
   ## Concurrent end-to-end tests with external clients
 
   Concurrent and transactional tests for external HTTP clients is supported,
