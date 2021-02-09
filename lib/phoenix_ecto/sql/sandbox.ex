@@ -174,19 +174,23 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     def allow_ecto_sandbox(%Phoenix.LiveView.Socket{} = socket, header \\ :user_agent) do
       %{assigns: %{phoenix_ecto_sandbox: metadata}} =
         Phoenix.LiveView.assign_new(socket, :phoenix_ecto_sandbox, fn ->
-          info = Phoenix.LiveView.get_connect_info(socket)
+          if Phoenix.LiveView.connected?(socket) do
+            info = Phoenix.LiveView.get_connect_info(socket)
 
-          case header do
-            :user_agent ->
-              info.user_agent
+            case header do
+              :user_agent ->
+                info.user_agent
 
-            header ->
-              Enum.find_value(info.x_headers, fn
-                {^header, val} -> val
-                _ -> false
-              end)
+              header ->
+                Enum.find_value(info.x_headers, fn
+                  {^header, val} -> val
+                  _ -> false
+                end)
+            end
+            |> decode_metadata()
+          else
+            %{}
           end
-          |> decode_metadata()
         end)
 
       allow_sandbox_access(metadata, Ecto.Adapters.SQL.Sandbox)
