@@ -258,19 +258,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     allow(metadata, sandbox)
   end
 
-  def allow(metadata, sandbox) when is_map(metadata) do
-    allow_sandbox_access(metadata, sandbox)
-  end
-
-  def allow(nil, _sandbox) do
-    :ok
-  end
-
-  defp allow_sandbox_access(%{repo: repo, owner: owner}, sandbox) do
+  def allow(%{repo: repo, owner: owner}, sandbox) do
     Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
   end
 
-  defp allow_sandbox_access(_metadata, _sandbox), do: nil
+  def allow(%{}, _sandbox), do: :ok
+  def allow(nil, _sandbox), do: :ok
 
   defp parse_metadata(encoded_metadata) do
     encoded_metadata
