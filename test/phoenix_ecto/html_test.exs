@@ -264,6 +264,22 @@ defmodule PhoenixEcto.HTMLTest do
     end)
   end
 
+  test "input value rejects non atom fields" do
+    changeset =
+      %Custom{string: "string", integer: 321, float: 321}
+      |> cast(%{float: 78.9, integer: 789}, ~w()a)
+      |> put_change(:integer, 123)
+
+    msg = ~s(expected field to be an atom, got: "string")
+
+    assert_raise ArgumentError, msg, fn ->
+      safe_form_for(changeset, fn f ->
+        input_value(f, "string")
+        ""
+      end)
+    end
+  end
+
   test "input types" do
     changeset = cast(%Custom{}, %{}, ~w()a)
 
