@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.3.0
+
+* Enhancements
+  * Support `:phoenix_html` v3.0
+
 ## v4.2.1
 
 * Bug fixes

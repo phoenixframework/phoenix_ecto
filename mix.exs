@@ -2,7 +2,7 @@ defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/phoenixframework/phoenix_ecto"
-  @version "4.2.1"
+  @version "4.3.0"
 
   def project do
     [
@@ -50,7 +50,7 @@ defmodule PhoenixEcto.Mixfile do
 
   defp deps do
     [
-      {:phoenix_html, "~> 2.14.2 or ~> 2.15", optional: true},
+      {:phoenix_html, "~> 2.14.2 or ~> 3.0", optional: true},
       {:ecto, "~> 3.0"},
       {:plug, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :docs}
