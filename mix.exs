@@ -8,7 +8,7 @@ defmodule PhoenixEcto.Mixfile do
     [
       app: :phoenix_ecto,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
       deps: deps(),
 
       # Hex
