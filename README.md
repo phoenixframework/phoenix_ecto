@@ -4,25 +4,15 @@
 
 A project that integrates [Phoenix](http://github.com/phoenixframework/phoenix) with [Ecto](http://github.com/elixir-lang/ecto), implementing all relevant protocols.
 
-## Usage
+## Installation
 
-You can use `:phoenix_ecto` in your projects in two steps:
+You can install `phoenix_ecto` by adding it to your list of dependencies in `mix.exs`:
 
-1. Add it to your `mix.exs` dependencies:
-
-    ```elixir
-    def deps do
-      [{:phoenix_ecto, "~> 4.0"}]
-    end
-    ```
-
-2. List it as your application dependency:
-
-    ```elixir
-    def application do
-      [applications: [:logger, :phoenix_ecto]]
-    end
-    ```
+```elixir
+def deps do
+  [{:phoenix_ecto, "~> 4.0"}]
+end
+```
 
 ## Concurrent browser tests
 
