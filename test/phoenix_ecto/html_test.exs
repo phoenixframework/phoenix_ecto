@@ -51,7 +51,7 @@ defmodule PhoenixEcto.HTMLTest do
       |> html_escape()
       |> safe_to_string()
 
-    assert form_content  =~ ~s(<form action="/" id="form_id" method="post">)
+    assert form_content =~ ~s(<form action="/" id="form_id" method="post">)
     assert input_content =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
   end
 
@@ -68,7 +68,7 @@ defmodule PhoenixEcto.HTMLTest do
 
     assert contents =~ ~s(<input id="user_name" name="user[name]" type="text">)
   end
- 
+
   test "form_for/4 with new changeset" do
     changeset =
       cast(%User{}, %{}, ~w()a)
@@ -285,7 +285,8 @@ defmodule PhoenixEcto.HTMLTest do
 
     safe_form_for(changeset, fn f ->
       assert input_type(f, :integer) == :number_input
-      assert input_type(f, :float) == :text_input # https://github.com/phoenixframework/phoenix_html/issues/279
+      # https://github.com/phoenixframework/phoenix_html/issues/279
+      assert input_type(f, :float) == :text_input
       assert input_type(f, :decimal) == :text_input
       assert input_type(f, :string) == :text_input
       assert input_type(f, :boolean) == :checkbox
