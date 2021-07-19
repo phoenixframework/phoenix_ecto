@@ -1,33 +1,57 @@
 name: CI
-
 on:
   pull_request:
   push:
     branches:
       - master
-
 jobs:
-  mix_test:
-    name: mix test (OTP ${{matrix.otp}} | Elixir ${{matrix.elixir}})
+  test:
+    runs-on: ubuntu-20.04
+    env:
+      MIX_ENV: test
     strategy:
+      fail-fast: false
       matrix:
-        elixir: ['1.6.5', '1.9.1']
         include:
-          - elixir: '1.6.5'
-            otp: '19.x'
-          - elixir: '1.9.1'
-            otp: '22.x'
-    runs-on: ubuntu-16.04
+          - pair:
+              elixir: '1.7'
+              otp: 20
+          - pair:
+              elixir: '1.12'
+              otp: 24
+            lint: lint
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-elixir@v1.0.0
+      - uses: actions/checkout@v2
+
+      - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-      - name: Install Dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
-      - name: Run Tests
-        run: mix test
+          otp-version: ${{matrix.pair.otp}}
+          elixir-version: ${{matrix.pair.elixir}}
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - run: mix deps.get
+
+      - run: mix format --check-formatted
+        if: ${{ matrix.lint }}
+
+      - run: mix deps.unlock --check-unused
+        if: ${{ matrix.lint }}
+
+      - run: mix deps.compile
+
+      - run: mix compile --warnings-as-errors
+        if: ${{ matrix.lint }}
+
+      - run: mix test
+        if: ${{ ! matrix.lint }}
+
+      - run: mix test --warnings-as-errors
+        if: ${{ matrix.lint }}
