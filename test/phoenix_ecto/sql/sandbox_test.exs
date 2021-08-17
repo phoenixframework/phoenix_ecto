@@ -41,7 +41,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
   test "allows sandbox access to single repository" do
     metadata = Sandbox.metadata_for(MyRepo, self())
-    assert metadata == %{repo: MyRepo, owner: self()}
+    assert metadata == %{repo: MyRepo, owner: self(), trap_exit: true}
 
     _conn =
       conn(:get, "/")
@@ -54,7 +54,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
   test "allows sandbox access to multiple repositories" do
     repos = [MyRepoOne, MyRepoTwo]
     metadata = Sandbox.metadata_for(repos, self())
-    assert metadata == %{repo: repos, owner: self()}
+    assert metadata == %{repo: repos, owner: self(), trap_exit: true}
 
     _conn =
       conn(:get, "/")
@@ -67,7 +67,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
   test "allows customized header" do
     metadata = Sandbox.metadata_for(MyRepo, self())
-    assert metadata == %{repo: MyRepo, owner: self()}
+    assert metadata == %{repo: MyRepo, owner: self(), trap_exit: true}
 
     _conn =
       conn(:get, "/")
@@ -75,6 +75,28 @@ defmodule PhoenixEcto.SQL.SandboxTest do
       |> call_plug(header: "x-custom")
 
     assert_receive {:allowed, MyRepo}
+  end
+
+  test "traps exits" do
+    metadata = Sandbox.metadata_for(MyRepo, self(), trap_exit: false)
+    assert metadata == %{repo: MyRepo, owner: self(), trap_exit: false}
+
+    _conn =
+      conn(:get, "/")
+      |> add_metadata(metadata, "user-agent")
+      |> call_plug()
+
+    assert Process.info(self(), :trap_exit) == {:trap_exit, false}
+
+    metadata = Sandbox.metadata_for(MyRepo, self())
+    assert metadata == %{repo: MyRepo, owner: self(), trap_exit: true}
+
+    _conn =
+      conn(:get, "/")
+      |> add_metadata(metadata, "user-agent")
+      |> call_plug()
+
+    assert Process.info(self(), :trap_exit) == {:trap_exit, true}
   end
 
   test "does not allow sandbox access without metadata" do

@@ -12,7 +12,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   And use the flag to conditionally add the plug to `lib/your_app/endpoint.ex`:
 
-      if Application.get_env(:your_app, :sql_sandbox) do
+      if Application.compile_env(:your_app, :sql_sandbox) do
         plug Phoenix.Ecto.SQL.Sandbox
       end
 
@@ -21,6 +21,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Then, within an acceptance test, checkout a sandboxed connection as before.
   Use `metadata_for/2` helper to get the session metadata to that will allow access
   to the test's connection.
+
   Here's an example using [Hound](https://hex.pm/packages/hound):
 
       use Hound.Helpers
@@ -32,7 +33,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         :ok
       end
 
-  ### Supporting socket connections
+  ## Supporting socket connections
 
   To support socket connections the spawned processes need access to the header
   used for transporting the metadata. By default this is the user agent header,
@@ -44,16 +45,17 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       socket "/path", Socket,
         websocket: [connect_info: [:x_headers, …]]
 
-  To fetch the value you either use `connect_info[:user_agent]` or for a custom header:
+  To fetch the value you either use `connect_info[:user_agent]` or
+  for a custom header:
 
       Enum.find_value(connect_info.x_headers, fn
         {"x-my-custom-header", val} -> val
         _ -> false
       end)
 
-  #### Channels
+  ### Channels
 
-  For channels `:connect_info` data is available to any of your Sockets'
+  For channels, `:connect_info` data is available to any of your Sockets'
   `c:Phoenix.Socket.connect/3` callbacks:
 
       # user_socket.ex
@@ -81,7 +83,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   `allow/2` needs to be manually called once for each channel, at best directly
   at the start of `c:Phoenix.Channel.join/3`.
 
-  #### Live View
+  ### LiveView
 
   LiveViews can be supported in a similar fashion than channels, but using the
   `c:Phoenix.LiveView.mount/3` callback.
@@ -165,6 +167,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     GenServer.call(owner, :checkin)
   end
 
+  @doc false
   def init(opts \\ []) do
     session_opts = Keyword.take(opts, [:sandbox, :timeout])
 
@@ -180,6 +183,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   defp get_path_info(nil), do: nil
   defp get_path_info(path), do: Plug.Router.Utils.split(path)
 
+  @doc false
   def call(%Conn{method: "POST", path_info: path} = conn, %{path: path} = opts) do
     %{repo: repo, session_opts: session_opts} = opts
     {:ok, _owner, metadata} = start_child(repo, session_opts)
@@ -218,13 +222,27 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   @doc """
-  Returns metadata to associate with the session
-  to allow the endpoint to access the database connection checked
-  out by the test process.
+  Returns metadata to establish a sandbox for.
+
+  The metadata is then passed via user-agent/headers to browsers.
+  Upon request, the `Phoenix.Ecto.SQL.Sandbox` plug will decode
+  the header and allow the request process under the sandbox.
+
+  ## Options
+
+    * `:trap_exit` - if the browser being used for integration
+      testing navigates away from a page or aborts a AJAX request
+      while the request process is talking to the database, it
+      will corrupt the database connection and make the test fail.
+      Therefore, to avoid intermitent tests, we recommend trapping
+      exits in the request process, so all database connections shut
+      down cleanly. You can disable this behaviour by setting the
+      option to false.
+
   """
-  @spec metadata_for(Ecto.Repo.t() | [Ecto.Repo.t()], pid) :: map
-  def metadata_for(repo_or_repos, pid) when is_pid(pid) do
-    %{repo: repo_or_repos, owner: pid}
+  @spec metadata_for(Ecto.Repo.t() | [Ecto.Repo.t()], pid, keyword) :: map
+  def metadata_for(repo_or_repos, pid, opts \\ []) when is_pid(pid) do
+    %{repo: repo_or_repos, owner: pid, trap_exit: Keyword.get(opts, :trap_exit, true)}
   end
 
   @doc """
@@ -243,27 +261,18 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Decodes encoded metadata back into map generated from `metadata_for/2`.
   """
   def decode_metadata(encoded_meta) when is_binary(encoded_meta) do
-    last_part = encoded_meta |> String.split("/") |> List.last()
+    case encoded_meta |> String.split("/") |> List.last() do
+      "BeamMetadata (" <> metadata ->
+        metadata
+        |> binary_part(0, byte_size(metadata) - 1)
+        |> parse_metadata()
 
-    case Regex.run(~r/BeamMetadata \((.*?)\)/, last_part) do
-      [_, metadata] -> parse_metadata(metadata)
-      _ -> %{}
+      _ ->
+        %{}
     end
   end
 
   def decode_metadata(_), do: %{}
-
-  def allow(encoded_metadata, sandbox) when is_binary(encoded_metadata) do
-    metadata = decode_metadata(encoded_metadata)
-    allow(metadata, sandbox)
-  end
-
-  def allow(%{repo: repo, owner: owner}, sandbox) do
-    Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
-  end
-
-  def allow(%{}, _sandbox), do: :ok
-  def allow(nil, _sandbox), do: :ok
 
   defp parse_metadata(encoded_metadata) do
     encoded_metadata
@@ -274,4 +283,24 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       _ -> %{}
     end
   end
+
+  @doc """
+  Decodes the given metadata and allows the current process
+  under the given sandbox.
+  """
+  def allow(encoded_metadata, sandbox) when is_binary(encoded_metadata) do
+    metadata = decode_metadata(encoded_metadata)
+
+    with %{trap_exit: true} <- metadata do
+      Process.flag(:trap_exit, true)
+    end
+
+    allow(metadata, sandbox)
+  end
+
+  def allow(%{repo: repo, owner: owner}, sandbox),
+    do: Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
+
+  def allow(%{}, _sandbox), do: :ok
+  def allow(nil, _sandbox), do: :ok
 end
