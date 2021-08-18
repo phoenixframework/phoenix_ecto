@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.4.0
+
+This release bumps the requirement for Ecto and Phoenix.
+
+* Enhancements
+  * Trap exits when activating the test sandbox
+
 ## v4.3.0
 
 * Enhancements

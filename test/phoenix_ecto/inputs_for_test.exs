@@ -62,7 +62,7 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.errors == [
                  body:
                    {"should be at least %{count} character(s)",
-                    count: 3, validation: :length, kind: :min}
+                    count: 3, validation: :length, kind: :min, type: :string}
                ]
 
         assert f.source.validations == [body: {:length, min: 3}]
@@ -211,7 +211,7 @@ defmodule PhoenixEcto.InputsForTest do
           assert f.errors == [
                    body:
                      {"should be at least %{count} character(s)",
-                      count: 3, validation: :length, kind: :min}
+                      count: 3, validation: :length, kind: :min, type: :string}
                  ]
 
           assert f.source.validations == [body: {:length, min: 3}]
@@ -337,7 +337,7 @@ defmodule PhoenixEcto.InputsForTest do
         assert f.errors == [
                  url:
                    {"should be at least %{count} character(s)",
-                    count: 3, validation: :length, kind: :min}
+                    count: 3, validation: :length, kind: :min, type: :string}
                ]
 
         assert f.source.validations == [url: {:length, min: 3}]
@@ -486,7 +486,7 @@ defmodule PhoenixEcto.InputsForTest do
           assert f.errors == [
                    url:
                      {"should be at least %{count} character(s)",
-                      [count: 3, validation: :length, kind: :min]}
+                      count: 3, validation: :length, kind: :min, type: :string}
                  ]
 
           assert f.source.validations == [url: {:length, min: 3}]

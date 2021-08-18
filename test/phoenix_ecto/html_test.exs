@@ -152,7 +152,7 @@ defmodule PhoenixEcto.HTMLTest do
                  score: {"must be greater than %{count}", count: Decimal.new(18)},
                  name:
                    {"should be at least %{count} character(s)",
-                    count: 3, validation: :length, kind: :min}
+                    count: 3, validation: :length, kind: :min, type: :string}
                ]
 
         "FROM FORM"
