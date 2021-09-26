@@ -100,7 +100,7 @@ This release bumps the requirement for Ecto and Phoenix.
 * Enhancements
   * Depend on Ecto ~> 1.1
 
-* Backwords incompatible changes
+* Backwards incompatible changes
   * `f.errors` now returns a raw list of `changeset.errors` for the form's changeset which can be further translated with Phoenix' new Gettext support
   * No longer implement Poison protocol for `Ecto.Changeset`
 
