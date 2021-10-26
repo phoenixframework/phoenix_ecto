@@ -103,6 +103,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
       end
 
+  You will also need to explicitly allow the User-Agent header to be copied into
+  the Liveview socket connection. This can be done in `endpoint.ex`.
+
+      socket "/live", Phoenix.LiveView.Socket,
+        websocket: [connect_info: [:user_agent, session: @session_options]]
+
   This is a bit more complex than the channel code, because LiveViews not only
   are their own processes when spawned via a socket connection, but also when
   doing the static render as part of the plug pipeline. Given `get_connect_info/1`
