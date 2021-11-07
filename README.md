@@ -57,9 +57,10 @@ Then add the following to your test case (or case template):
 ```elixir
 use Hound.Helpers
 
-setup do
-  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+setup tags do
+  pid = Ecto.Adapters.SQL.Sandbox.start_owner!(YourApp.Repo, shared: not tags[:async])
+  on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, pid)
   Hound.start_session(metadata: metadata)
   :ok
 end
@@ -95,9 +96,10 @@ If you don't `use Wallaby.Feature`, you can add the following to your test case 
 ```elixir
 use Wallaby.DSL
 
-setup do
-  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+setup tags do
+  pid = Ecto.Adapters.SQL.Sandbox.start_owner!(YourApp.Repo, shared: not tags[:async])
+  on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, pid)
   {:ok, session} = Wallaby.start_session(metadata: metadata)
 end
 ```

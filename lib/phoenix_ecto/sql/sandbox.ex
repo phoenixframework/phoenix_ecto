@@ -26,9 +26,10 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
       use Hound.Helpers
 
-      setup do
-        :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
-        metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+      setup tags do
+        pid = Ecto.Adapters.SQL.Sandbox.start_owner!(YourApp.Repo, shared: not tags[:async])
+        on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+        metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, pid)
         Hound.start_session(metadata: metadata)
         :ok
       end
