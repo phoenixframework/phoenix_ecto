@@ -316,7 +316,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     end
 
     defp form_for_name(_) do
-      raise ArgumentError, "non-struct data in changeset requires the :as option to be given"
+      raise ArgumentError, "non-struct data in changeset requires the :as option to be given. Pass it as one of the assigns to your form or use a struct-based changeset."
     end
 
     defp form_for_method(%{__meta__: %{state: :loaded}}), do: "put"
