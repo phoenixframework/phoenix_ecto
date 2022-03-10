@@ -102,9 +102,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    def input_value(data, form, field, computed \\ nil)
-
-    def input_value(%{changes: changes, data: data}, %{params: params}, field, computed)
+    def input_value(%{changes: changes, data: data}, %{params: params}, field)
         when is_atom(field) do
       case Map.fetch(changes, field) do
         {:ok, value} ->
@@ -115,16 +113,13 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             {:ok, value} ->
               value
 
-            :error when is_nil(computed) ->
-              Map.get(data, field)
-
             :error ->
-              computed
+              Map.get(data, field)
           end
       end
     end
 
-    def input_value(_data, _form, field, _computed) do
+    def input_value(_data, _form, field) do
       raise ArgumentError, "expected field to be an atom, got: #{inspect(field)}"
     end
 
