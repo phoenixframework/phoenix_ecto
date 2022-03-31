@@ -14,6 +14,14 @@ def deps do
 end
 ```
 
+## The Phoenix <-> Ecto integration
+
+Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
+
+  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
+  * `Phoenix.HTML.Safe` protocol for `Decimal`
+  * `Plug.Exception` protocol for the relevant Ecto exceptions
+
 ## Concurrent browser tests
 
 This library also provides a plug called `Phoenix.Ecto.SQL.Sandbox` that allows developers to run acceptance tests powered by headless browsers such as ChromeDriver and Selenium concurrently. If you are not familiar with Ecto's SQL sandbox, we recommend you to first get acquainted with it by [reading `Ecto.Adapters.SQL.Sandbox` documentation](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
@@ -105,14 +113,6 @@ end
 ```
 
 Wallaby currently supports ChromeDriver and Selenium, allowing testing in almost any browser.
-
-## The Phoenix <-> Ecto integration
-
-Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:
-
-  * `Phoenix.HTML.FormData` protocol for `Ecto.Changeset`
-  * `Phoenix.HTML.Safe` protocol for `Decimal`
-  * `Plug.Exception` protocol for the relevant Ecto exceptions
 
 ## Configuration
 
