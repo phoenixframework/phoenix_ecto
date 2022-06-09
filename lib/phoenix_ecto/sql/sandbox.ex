@@ -149,12 +149,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
       iex> {:ok, _owner_pid, metadata} = start_child(MyApp.Repo)
   """
-  def start_child(repo, opts \\ []) do
-    child_spec = {SandboxSession, {repo, self(), opts}}
+  def start_child(repos, opts \\ []) do
+    child_spec = {SandboxSession, {repos, self(), opts}}
 
     case DynamicSupervisor.start_child(SandboxSupervisor, child_spec) do
       {:ok, owner} ->
-        metadata = metadata_for(repo, owner)
+        metadata = metadata_for(repos, owner)
         {:ok, owner, metadata}
 
       {:error, reason} ->
@@ -181,7 +181,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
     %{
       header: Keyword.get(opts, :header, "user-agent"),
       path: get_path_info(opts[:at]),
-      repo: opts[:repo],
+      repos: List.wrap(opts[:repo]),
       sandbox: session_opts[:sandbox] || Ecto.Adapters.SQL.Sandbox,
       session_opts: session_opts
     }
@@ -192,8 +192,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   @doc false
   def call(%Conn{method: "POST", path_info: path} = conn, %{path: path} = opts) do
-    %{repo: repo, session_opts: session_opts} = opts
-    {:ok, _owner, metadata} = start_child(repo, session_opts)
+    %{repos: repos, session_opts: session_opts} = opts
+    {:ok, _owner, metadata} = start_child(repos, session_opts)
 
     conn
     |> put_resp_content_type("text/plain")
