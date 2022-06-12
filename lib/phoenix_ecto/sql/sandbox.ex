@@ -20,25 +20,27 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   Then, within an acceptance test, checkout a sandboxed connection as before.
   Use `metadata_for/2` helper to get the session metadata to that will allow access
-  to the test's connection.
-
-  Here's an example using [Hound](https://hex.pm/packages/hound):
-
-      use Hound.Helpers
+  to the test's connection. In general lines, you would write this:
 
       setup tags do
         pid = Ecto.Adapters.SQL.Sandbox.start_owner!(YourApp.Repo, shared: not tags[:async])
         on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
-        metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, pid)
-        Hound.start_session(metadata: metadata)
+        metadata_header = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, pid)
+        # pass the metadata to the acceptance test library
         :ok
       end
 
-  ## Supporting socket connections
+  You can follow the instructions for Wallaby [here](https://hexdocs.pm/wallaby/readme.html#phoenix).
 
-  To support socket connections the spawned processes need access to the header
-  used for transporting the metadata. By default this is the user agent header,
-  but you can also use custom `X-`-headers.
+  ## Acceptance tests with channels
+
+  To support channels, in addition the above, you need to make it so each channel
+  is allowed within the sandbox. The first step is to access the relevant header
+  metadata.
+
+  To do so, you must declare that you want to pass connection information to your
+  socket. This is typically the user agent header, but it can be a custom x-header
+  too:
 
       socket "/path", Socket,
         websocket: [connect_info: [:user_agent, …]]
@@ -46,23 +48,20 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       socket "/path", Socket,
         websocket: [connect_info: [:x_headers, …]]
 
-  To fetch the value you either use `connect_info[:user_agent]` or
-  for a custom header:
-
-      Enum.find_value(connect_info.x_headers, fn
-        {"x-my-custom-header", val} -> val
-        _ -> false
-      end)
-
-  ### Channels
-
-  For channels, `:connect_info` data is available to any of your Sockets'
-  `c:Phoenix.Socket.connect/3` callbacks:
+  Now use the `c:Phoenix.Socket.connect/3` callback to access the header and
+  store it in the socket:
 
       # user_socket.ex
       def connect(_params, socket, connect_info) do
-        {:ok, assign(socket, :phoenix_ecto_sandbox, connect_info[:user_agent])}
+        {:ok, assign(socket, :phoenix_ecto_sandbox, connect_info.user_agent)}
       end
+
+  Or if you are using a custom header:
+
+      Enum.find_value(connect_info.x_headers, fn
+        {"x-my-custom-header", val} -> val
+        _ -> nil
+      end)
 
   This stores the value on the socket, so it can be available to all of your
   channels for allowing the sandbox.
@@ -84,37 +83,43 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   `allow/2` needs to be manually called once for each channel, at best directly
   at the start of `c:Phoenix.Channel.join/3`.
 
-  ### LiveView
+  ## Acceptance tests with LiveViews
 
-  LiveViews can be supported in a similar fashion than channels, but using the
-  `c:Phoenix.LiveView.mount/3` callback.
-
-      def mount(_, _, socket) do
-        allow_ecto_sandbox(socket)
-        …
-      end
-
-      # This is a great function to extract to a helper module
-      defp allow_ecto_sandbox(socket) do
-        %{assigns: %{phoenix_ecto_sandbox: metadata}} =
-          assign_new(socket, :phoenix_ecto_sandbox, fn ->
-            if connected?(socket), do: get_connect_info(socket)[:user_agent]
-          end)
-
-        Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
-      end
-
-  You will also need to explicitly allow the User-Agent header to be copied into
-  the Liveview socket connection. This can be done in `endpoint.ex`.
-
+  LiveViews can be supported in a similar fashion to channels. First declare the
+  `:user_agent` (or a custom header) in your live socket configuration in `endpoint.ex`:
+  
       socket "/live", Phoenix.LiveView.Socket,
         websocket: [connect_info: [:user_agent, session: @session_options]]
 
-  This is a bit more complex than the channel code, because LiveViews not only
-  are their own processes when spawned via a socket connection, but also when
-  doing the static render as part of the plug pipeline. Given `get_connect_info/1`
-  is only available for socket connections, this uses the `:phoenix_ecto_sandbox`
-  assign of the rendering `conn` for the static render.
+  Now you can use the `on_mount/4` callback to check the header and assign the sandbox:
+  
+      defmodule MyApp.LiveAcceptance do
+        def on_mount(:default, _params, _session, socket) do
+          %{assigns: %{phoenix_ecto_sandbox: metadata}} =
+            assign_new(socket, :phoenix_ecto_sandbox, fn ->
+              if connected?(socket), do: get_connect_info(socket)[:user_agent]
+            end)
+
+          Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
+        end
+      end
+      
+  Now, in your `web.ex` file, you can invoke this callback for all of your
+  LiveViews if the sandbox configuration, defined at the beginning of the
+  documentation, is enabled:
+  
+      def live_view do
+        quote do
+          use Phoenix.LiveView
+          # ...
+          
+          if Application.compile_env(:your_app, :sql_sandbox) do
+            on_mount MyApp.LiveAcceptance
+          end
+          
+          # ...
+        end
+      end
 
   ## Concurrent end-to-end tests with external clients
 
@@ -136,6 +141,14 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   the external client is expected to pass up the `"user-agent"` header
   containing serialized sandbox metadata returned from the POST request,
   but this value may customized with the `:header` option.
+
+  Finally, make sure your repository mode is set either to `:manual`
+  or `{:shared, self()}` before the external client starts. This is
+  typically done by default in your `test/test_helper.exs`, but you
+  may need to do it explicitly depending on your setup:
+
+      Ecto.Adapters.SQL.Sandbox.mode(MyApp.Repo, :manual)
+
   """
 
   import Plug.Conn
