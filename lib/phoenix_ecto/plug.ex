@@ -30,15 +30,15 @@ unless Phoenix.Ecto.PendingMigrationError in excluded_exceptions do
   defimpl Plug.Exception, for: Phoenix.Ecto.PendingMigrationError do
     def status(_error), do: 503
 
-    def actions(%{repo: repo}),
+    def actions(%{repo: repo, directories: directories}),
       do: [
         %{
           label: "Run migrations for repo",
-          handler: {__MODULE__, :migrate, [repo]}
+          handler: {__MODULE__, :migrate, [repo, directories]}
         }
       ]
 
-    def migrate(repo), do: Ecto.Migrator.run(repo, :up, all: true)
+    def migrate(repo, directories), do: Ecto.Migrator.run(repo, directories, :up, all: true)
   end
 end
 
