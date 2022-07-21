@@ -87,12 +87,12 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
 
   LiveViews can be supported in a similar fashion to channels. First declare the
   `:user_agent` (or a custom header) in your live socket configuration in `endpoint.ex`:
-  
+
       socket "/live", Phoenix.LiveView.Socket,
         websocket: [connect_info: [:user_agent, session: @session_options]]
 
   Now you can use the `on_mount/4` callback to check the header and assign the sandbox:
-  
+
       defmodule MyApp.LiveAcceptance do
         def on_mount(:default, _params, _session, socket) do
           %{assigns: %{phoenix_ecto_sandbox: metadata}} =
@@ -107,7 +107,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Now, in your `web.ex` file, you can invoke this callback for all of your
   LiveViews if the sandbox configuration, defined at the beginning of the
   documentation, is enabled:
-  
+
       def live_view do
         quote do
           use Phoenix.LiveView
