@@ -152,4 +152,48 @@ defmodule PhoenixEcto.SQL.SandboxTest do
 
     refute_receive {:allowed, MyRepo}
   end
+
+  test "checks out/in connection through sandbox owner at path with multiple repos" do
+    # start new sandbox owner
+    conn = call_plug_with_checkout(conn(:post, "/sandbox"), repo: [MyRepoOne, MyRepoTwo])
+    assert "BeamMetadata" <> _ = user_agent = conn.resp_body
+    assert conn.halted
+    assert conn.status == 200
+    assert_receive {:checkout, MyRepoOne}
+    assert_receive {:checkout, MyRepoTwo}
+
+    # no allow with missing header
+    conn = call_plug_with_checkout(conn(:get, "/"), repo: [MyRepoOne, MyRepoTwo])
+    refute conn.halted
+    refute_receive {:allowed, MyRepoOne}
+    refute_receive {:allowed, MyRepoTwo}
+
+    # allows new request with metadata in header
+    conn =
+      conn(:get, "/")
+      |> put_req_header("user-agent", user_agent)
+      |> call_plug_with_checkout(repo: [MyRepoOne, MyRepoTwo])
+
+    refute conn.halted
+    assert_receive {:allowed, MyRepoOne}
+    assert_receive {:allowed, MyRepoTwo}
+
+    # checks in request with metadata
+    conn =
+      conn(:delete, "/sandbox")
+      |> put_req_header("user-agent", user_agent)
+      |> call_plug_with_checkout(repo: [MyRepoOne, MyRepoTwo])
+
+    assert conn.status == 200
+    assert conn.halted
+
+    # old user agent refuses owner who has been checked in
+    _conn =
+      conn(:get, "/")
+      |> put_req_header("user-agent", user_agent)
+      |> call_plug_with_checkout(repo: [MyRepoOne, MyRepoTwo])
+
+    refute_receive {:allowed, MyRepoOne}
+    refute_receive {:allowed, MyRepoTwo}
+  end
 end
