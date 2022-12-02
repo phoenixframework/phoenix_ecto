@@ -8,7 +8,7 @@ defmodule PhoenixEcto.Mixfile do
     [
       app: :phoenix_ecto,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       deps: deps(),
 
       # Hex
@@ -52,7 +52,7 @@ defmodule PhoenixEcto.Mixfile do
   defp deps do
     [
       {:phoenix_html, "~> 2.14.2 or ~> 3.0", optional: true},
-      {:ecto, "~> 3.3"},
+      {:ecto, "~> 3.5"},
       {:plug, "~> 1.9"},
       {:ex_doc, ">= 0.0.0", only: :docs}
     ]
