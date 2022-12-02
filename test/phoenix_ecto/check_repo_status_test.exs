@@ -96,6 +96,27 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     Process.unregister(StorageUpRepo)
   end
 
+  test "supports the `ecto_migration_lock` option" do
+    Process.register(self(), StorageUpRepo)
+    Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo])
+    mock_migrations_fn = fn _repo, _directories, _opts -> [{:down, 1, "migration"}] end
+
+    conn = conn(:get, "/")
+
+    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      CheckRepoStatus.call(
+        conn,
+        otp_app: :check_repo_ready,
+        mock_default_migration_directory_fn: &default_mock_migration_directory_fn/1,
+        mock_migrations_fn: mock_migrations_fn,
+        migration_lock: false
+      )
+    end)
+  after
+    Application.delete_env(:check_repo_ready, :ecto_repos)
+    Process.unregister(StorageUpRepo)
+  end
+
   test "supports the 'migration_paths' option" do
     Process.register(self(), StorageUpRepo)
     Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo])

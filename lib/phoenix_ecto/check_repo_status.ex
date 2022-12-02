@@ -9,11 +9,14 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
 
     * `:otp_app` - name of the application which the repos are fetched from
     * `:migration_paths` - a function that accepts a repo and returns a migration directory, or a list of migration directories, that is used to check for pending migrations
+    * `:migration_lock` - the locking strategy used by the Ecto Adapter when checking for pending migrations. Set to `false` to disable migration locks.
   """
 
   @behaviour Plug
 
   alias Plug.Conn
+
+  @migration_opts [:migration_lock]
 
   def init(opts) do
     Keyword.fetch!(opts, :otp_app)
@@ -83,18 +86,28 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
   end
 
   def migrations(repo, migration_directories, opts) do
+    migration_opts = Keyword.take(opts, @migration_opts)
+
     case Keyword.fetch(opts, :mock_migrations_fn) do
       {:ok, migration_fn} ->
-        migrations = migration_fn.(repo, migration_directories)
+        migrations = get_migrations(migration_fn, repo, migration_directories, migration_opts)
         {:ok, migrations}
 
       :error ->
         if Code.ensure_loaded?(Ecto.Migrator) do
-          {:ok, Ecto.Migrator.migrations(repo, migration_directories)}
+          {:ok, Ecto.Migrator.migrations(repo, migration_directories, migration_opts)}
         else
           :error
         end
     end
+  end
+
+  defp get_migrations(fun, repo, directories, _opts) when is_function(fun, 2) do
+    fun.(repo, directories)
+  end
+
+  defp get_migrations(fun, repo, directories, opts) when is_function(fun, 3) do
+    fun.(repo, directories, opts)
   end
 
   defp default_migration_directory(repo, opts) do
