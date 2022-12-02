@@ -17,6 +17,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
   alias Plug.Conn
 
   @migration_opts [:migration_lock]
+  @compile {:no_warn_undefined, Ecto.Migrator}
 
   def init(opts) do
     Keyword.fetch!(opts, :otp_app)
