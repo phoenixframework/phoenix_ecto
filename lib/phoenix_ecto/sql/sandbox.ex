@@ -254,7 +254,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       testing navigates away from a page or aborts a AJAX request
       while the request process is talking to the database, it
       will corrupt the database connection and make the test fail.
-      Therefore, to avoid intermitent tests, we recommend trapping
+      Therefore, to avoid intermittent tests, we recommend trapping
       exits in the request process, so all database connections shut
       down cleanly. You can disable this behaviour by setting the
       option to false.
