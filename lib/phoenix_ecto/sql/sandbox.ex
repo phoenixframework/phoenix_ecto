@@ -1,7 +1,7 @@
 defmodule Phoenix.Ecto.SQL.Sandbox do
   @moduledoc """
   A plug to allow concurrent, transactional acceptance tests with
-  [`Ecto.Adapters.SQL.Sandbox`](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
+  [Ecto.Adapters.SQL.Sandbox](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html).
 
   ## Example
 
