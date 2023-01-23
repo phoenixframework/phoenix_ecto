@@ -104,17 +104,16 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     def input_value(%{changes: changes, data: data}, %{params: params}, field)
         when is_atom(field) do
-      case Map.fetch(changes, field) do
-        {:ok, value} ->
+      case changes do
+        %{^field => value} ->
           value
 
-        :error ->
-          case Map.fetch(params, Atom.to_string(field)) do
-            {:ok, value} ->
-              value
+        %{} ->
+          string = Atom.to_string(field)
 
-            :error ->
-              Map.get(data, field)
+          case params do
+            %{^string => value} -> value
+            %{} -> Map.get(data, field)
           end
       end
     end
