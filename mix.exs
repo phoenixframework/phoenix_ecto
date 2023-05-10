@@ -2,7 +2,7 @@ defmodule PhoenixEcto.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/phoenixframework/phoenix_ecto"
-  @version "4.4.0"
+  @version "4.4.1"
 
   def project do
     [

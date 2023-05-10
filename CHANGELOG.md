@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.4.1
+
+* Enhancements
+  * Allow migration_lock to be specified in check_repo_status
+  * Support multiple repos on sandbox plug API
+  * Support configuring multiple custom migration paths
+
 ## v4.4.0
 
 This release bumps the requirement for Ecto and Phoenix.
