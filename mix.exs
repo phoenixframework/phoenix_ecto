@@ -25,7 +25,7 @@ defmodule PhoenixEcto.Mixfile do
       ],
       xref: [
         exclude: [
-          {Ecto.Migrator, :migrations, 2},
+          {Ecto.Migrator, :migrations, 3},
           {Ecto.Migrator, :migrations_path, 1},
           {Ecto.Migrator, :run, 4}
         ]
