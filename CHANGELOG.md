@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.4.2
+
+* Enhancements
+  * Fix warning on undefined migration function when `ecto_sql` is missing
+  * Support changesets with 3-arity cast function
+
 ## v4.4.1
 
 * Enhancements
