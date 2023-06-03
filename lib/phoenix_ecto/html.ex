@@ -51,7 +51,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
           for changeset <- skip_replaced(changesets) do
             %{data: data, params: params} =
-              changeset = to_changeset(changeset, parent_action, module, cast)
+              changeset = to_changeset(changeset, parent_action, module, cast, nil)
 
             %Phoenix.HTML.Form{
               source: changeset,
@@ -82,7 +82,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
           for {changeset, index} <- Enum.with_index(changesets) do
             %{data: data, params: params} =
-              changeset = to_changeset(changeset, parent_action, module, cast)
+              changeset = to_changeset(changeset, parent_action, module, cast, index)
 
             index_string = Integer.to_string(index)
 
@@ -233,17 +233,20 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       end
     end
 
-    defp to_changeset(%Ecto.Changeset{} = changeset, parent_action, _module, _cast),
+    defp to_changeset(%Ecto.Changeset{} = changeset, parent_action, _module, _cast, _index),
       do: apply_action(changeset, parent_action)
 
-    defp to_changeset(%{} = data, parent_action, _module, cast) when is_function(cast, 2),
+    defp to_changeset(%{} = data, parent_action, _module, cast, _index) when is_function(cast, 2),
       do: apply_action(cast!(cast, data), parent_action)
 
-    defp to_changeset(%{} = data, parent_action, _module, {module, func, arguments} = mfa)
+    defp to_changeset(%{} = data, parent_action, _module, cast, index) when is_function(cast, 3),
+      do: apply_action(cast!(cast, data, index), parent_action)
+
+    defp to_changeset(%{} = data, parent_action, _module, {module, func, arguments} = mfa, _imdex)
          when is_atom(module) and is_atom(func) and is_list(arguments),
          do: apply_action(apply!(mfa, data), parent_action)
 
-    defp to_changeset(%{} = data, parent_action, _module, nil),
+    defp to_changeset(%{} = data, parent_action, _module, nil, _index),
       do: apply_action(Ecto.Changeset.change(data), parent_action)
 
     defp cast!(cast, data) do
@@ -253,6 +256,17 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
         other ->
           raise "expected on_cast/2 callback #{inspect(cast)} to return an Ecto.Changeset, " <>
+                  "got: #{inspect(other)}"
+      end
+    end
+
+    defp cast!(cast, data, index) do
+      case cast.(data, %{}, index) do
+        %Ecto.Changeset{} = changeset ->
+          changeset
+
+        other ->
+          raise "expected on_cast/3 callback #{inspect(cast)} to return an Ecto.Changeset, " <>
                   "got: #{inspect(other)}"
       end
     end

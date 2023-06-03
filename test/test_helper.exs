@@ -20,6 +20,7 @@ defmodule Comment do
 
   schema "comments" do
     field :body
+    field :position, :integer
   end
 
   def changeset(comment, params) do
@@ -37,6 +38,11 @@ defmodule Comment do
     comment
     |> cast(params, ~w(body)a)
     |> validate_length(:body, min: required_length)
+  end
+
+  def changeset_with_position(comment, params, index) do
+    changeset(comment, params)
+    |> Ecto.Changeset.put_change(:position, index)
   end
 end
 
