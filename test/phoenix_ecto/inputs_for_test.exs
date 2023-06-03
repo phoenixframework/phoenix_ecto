@@ -280,6 +280,26 @@ defmodule PhoenixEcto.InputsForTest do
                ~s(<input id="user_comments_1_body" name="user[comments][1][body]" type="text" value="data2">)
   end
 
+  test "has many: inputs/for/4 with custom changeset with arity 3" do
+    changeset =
+      %User{comments: [%Comment{body: "data1"}, %Comment{body: "data2"}]}
+      |> cast(%{}, ~w()a)
+      |> cast_assoc(:comments, with: &Comment.changeset_with_position/3)
+
+    contents =
+      safe_inputs_for(
+        changeset,
+        :comments,
+        fn f ->
+          number_input(f, :position)
+        end
+      )
+
+    assert contents ==
+             ~s(<input id="user_comments_0_position" name="user[comments][0][position]" type="number" value="0">) <>
+               ~s(<input id="user_comments_1_position" name="user[comments][1][position]" type="number" value="1">)
+  end
+
   ## inputs_for embeds one
 
   test "embeds one: inputs_for/4" do
