@@ -242,7 +242,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
     defp to_changeset(%{} = data, parent_action, _module, cast, index) when is_function(cast, 3),
       do: apply_action(cast!(cast, data, index), parent_action)
 
-    defp to_changeset(%{} = data, parent_action, _module, {module, func, arguments} = mfa, _imdex)
+    defp to_changeset(%{} = data, parent_action, _module, {module, func, arguments} = mfa, _index)
          when is_atom(module) and is_atom(func) and is_list(arguments),
          do: apply_action(apply!(mfa, data), parent_action)
 
