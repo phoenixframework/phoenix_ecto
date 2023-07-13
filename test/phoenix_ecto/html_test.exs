@@ -21,52 +21,7 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(d) == {:safe, "2010-04-17"}
 
     {:ok, dt} = NaiveDateTime.new(2010, 4, 17, 0, 0, 0)
-    assert html_escape(dt) == {:safe, "2010-04-17 00:00:00"}
-  end
-
-  test "form_for/3 with new changeset" do
-    changeset = cast(%User{}, %{}, ~w()a)
-
-    form = form_for(changeset, "/", [])
-    assert %Phoenix.HTML.Form{} = form
-
-    contents = form |> html_escape() |> safe_to_string()
-
-    assert contents =~ ~s(<form action="/" method="post">)
-  end
-
-  test "form_for/3 with id prefix the form id in the input id" do
-    changeset = cast(%User{}, %{}, ~w()a)
-
-    form = form_for(changeset, "/", id: "form_id")
-
-    form_content =
-      form
-      |> html_escape()
-      |> safe_to_string()
-
-    input_content =
-      form
-      |> text_input(:name)
-      |> html_escape()
-      |> safe_to_string()
-
-    assert form_content =~ ~s(<form action="/" id="form_id" method="post">)
-    assert input_content =~ ~s(<input id="form_id_name" name="user[name]" type="text">)
-  end
-
-  test "form_for/3 without id prefix the form name in the input id" do
-    changeset = cast(%User{}, %{}, ~w()a)
-
-    form = form_for(changeset, "/")
-
-    contents =
-      form
-      |> text_input(:name)
-      |> html_escape()
-      |> safe_to_string()
-
-    assert contents =~ ~s(<input id="user_name" name="user[name]" type="text">)
+    assert html_escape(dt) == {:safe, "2010-04-17T00:00:00"}
   end
 
   test "form_for/4 with new changeset" do
@@ -103,7 +58,7 @@ defmodule PhoenixEcto.HTMLTest do
       end)
 
     assert form =~ ~s(<form action="/" method="post">)
-    assert form =~ ~s(<input name="_method" type="hidden" value="put">)
+    assert form =~ ~s(<input name="_method" type="hidden" hidden value="put">)
     assert form =~ "FROM FORM"
     refute form =~ ~s(<input id="user_id" name="user[id]" type="hidden" value="13">)
   end
