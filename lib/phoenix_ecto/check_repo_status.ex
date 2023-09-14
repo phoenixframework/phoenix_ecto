@@ -28,7 +28,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
 
     for repo <- repos, Process.whereis(repo) do
-      unless check_pending_migrations!(repo, opts) do
+      unless check_pending_migrations!(repo, opts, Map.new(repo.config)) do
         check_storage_up!(repo)
       end
     end
@@ -51,7 +51,11 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     end
   end
 
-  defp check_pending_migrations!(repo, opts) do
+  defp check_pending_migrations!(_repo, _opts, %{read_only: true}) do
+    false
+  end
+
+  defp check_pending_migrations!(repo, opts, _repo_opts) do
     repo_status =
       with {:ok, migration_directories} <- migration_directories(repo, opts),
            {:ok, migrations} <- migrations(repo, migration_directories, opts) do

@@ -17,6 +17,12 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     def __adapter__, do: Adapter
   end
 
+  defmodule StorageReadOnly do
+    defmodule Adapter, do: def(storage_status(_repo_config), do: :up)
+    def config, do: [read_only: true]
+    def __adapter__, do: Adapter
+  end
+
   defmodule StorageDownRepo do
     defmodule Adapter, do: def(storage_status(_repo_config), do: :down)
     def config, do: []
@@ -94,6 +100,24 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
+  end
+
+  test "does not raise when there are pending migrations for a read only repo" do
+    Process.register(self(), StorageReadOnly)
+    Application.put_env(:check_repo_ready, :ecto_repos, [StorageReadOnly])
+    mock_migrations_fn = fn _repo, _directories -> [{:down, 1, "migration"}] end
+
+    conn = conn(:get, "/")
+
+    assert CheckRepoStatus.call(
+             conn,
+             otp_app: :check_repo_ready,
+             mock_default_migration_directory_fn: &default_mock_migration_directory_fn/1,
+             mock_migrations_fn: mock_migrations_fn
+           )
+  after
+    Application.delete_env(:check_repo_ready, :ecto_repos)
+    Process.unregister(StorageReadOnly)
   end
 
   test "supports the `ecto_migration_lock` option" do
