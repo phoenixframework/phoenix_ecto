@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.4.3
+
+* Enhancements
+  * Support Phoenix.HTML ~> 4.0
+
 ## v4.4.2
 
 * Enhancements
