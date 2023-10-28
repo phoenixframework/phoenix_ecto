@@ -5,8 +5,8 @@ defmodule PhoenixEcto.HTMLTest do
   import Phoenix.HTML
   import Phoenix.HTML.Form
 
-  defp safe_form_for(changeset, opts \\ [], function) do
-    safe_to_string(form_for(changeset, "/", opts, function))
+  defp to_form(changeset, options \\ []) do
+    Phoenix.HTML.FormData.to_form(changeset, options)
   end
 
   test "converts decimal to safe" do
@@ -24,248 +24,174 @@ defmodule PhoenixEcto.HTMLTest do
     assert html_escape(dt) == {:safe, "2010-04-17T00:00:00"}
   end
 
-  test "form_for/4 with new changeset" do
-    changeset =
-      cast(%User{}, %{}, ~w()a)
-      |> validate_length(:name, min: 3)
+  describe "to_form" do
+    test "with changeset" do
+      changeset =
+        cast(%User{}, %{}, ~w()a)
+        |> validate_length(:name, min: 3)
 
-    form =
-      safe_form_for(changeset, fn f ->
-        assert f.id == "user"
-        assert f.name == "user"
-        assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
-        assert f.source == changeset
-        assert f.params == %{}
-        assert f.hidden == []
-        "FROM FORM"
-      end)
-
-    assert form =~ ~s(<form action="/" method="post">)
-    assert form =~ "FROM FORM"
-  end
-
-  test "form_for/4 with loaded changeset" do
-    changeset = cast(%User{__meta__: %{state: :loaded}, id: 13}, %{"foo" => "bar"}, ~w()a)
-
-    form =
-      safe_form_for(changeset, fn f ->
-        assert f.id == "user"
-        assert f.name == "user"
-        assert f.source == changeset
-        assert f.params == %{"foo" => "bar"}
-        assert f.hidden == [id: 13]
-        "FROM FORM"
-      end)
-
-    assert form =~ ~s(<form action="/" method="post">)
-    assert form =~ ~s(<input name="_method" type="hidden" hidden value="put">)
-    assert form =~ "FROM FORM"
-    refute form =~ ~s(<input id="user_id" name="user[id]" type="hidden" value="13">)
-  end
-
-  test "form_for/4 with custom options" do
-    changeset = cast(%User{}, %{}, ~w()a)
-
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        assert f.id == "another"
-        assert f.name == "another"
-        assert f.source == changeset
-        "FROM FORM"
-      end)
-
-    assert form =~
-             ~s(<form action="/" enctype="multipart/form-data" method="post">)
-
-    assert form =~ "FROM FORM"
-  end
-
-  test "form_for/4 with errors" do
-    changeset =
-      %User{}
-      |> cast(%{"name" => "JV"}, ~w(name)a)
-      |> validate_length(:name, min: 3)
-      |> add_error(:score, "must be greater than %{count}", count: Decimal.new(18))
-
-    safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-      assert f.errors == []
-      "FROM FORM"
-    end)
-
-    changeset = %{changeset | action: :ignore}
-
-    safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-      assert f.errors == []
-      "FROM FORM"
-    end)
-
-    changeset = %{changeset | action: :insert}
-
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        assert f.errors == [
-                 score: {"must be greater than %{count}", count: Decimal.new(18)},
-                 name:
-                   {"should be at least %{count} character(s)",
-                    count: 3, validation: :length, kind: :min, type: :string}
-               ]
-
-        "FROM FORM"
-      end)
-
-    assert form =~
-             ~s(<form action="/" enctype="multipart/form-data" method="post">)
-
-    assert form =~ "FROM FORM"
-  end
-
-  test "form_for/4 with inputs" do
-    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
-
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        [text_input(f, :name), text_input(f, :other)]
-      end)
-
-    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
-    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
-  end
-
-  test "form_for/4 with schemaless changeset from a map" do
-    changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
-
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        [text_input(f, :name), text_input(f, :other)]
-      end)
-
-    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
-    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
-  end
-
-  test "form_for/4 with schemaless changeset from a struct" do
-    changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
-
-    form =
-      safe_form_for(changeset, [as: "another", multipart: true], fn f ->
-        [text_input(f, :name), text_input(f, :other)]
-      end)
-
-    assert form =~ ~s(<input id="another_name" name="another[name]" type="text" value="JV">)
-    assert form =~ ~s(<input id="another_other" name="another[other]" type="text">)
-  end
-
-  test "form_for/4 with a map for changeset data" do
-    changeset = cast({%{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
-
-    form =
-      safe_form_for(changeset, [as: "some"], fn f ->
-        [text_input(f, :name)]
-      end)
-
-    assert form =~ ~s(<input id="some_name" name="some[name]" type="text" value="JV">)
-  end
-
-  test "form_for/4 with Decimal type input field" do
-    changeset =
-      cast({%{}, %{price: :decimal}}, %{"price" => Decimal.new("0.000000000")}, ~w(price)a)
-
-    form =
-      safe_form_for(changeset, [as: "some"], fn f ->
-        [number_input(f, :price)]
-      end)
-
-    assert form =~
-             ~s(<input id="some_price" name="some[price]" type="number" value="0.000000000">)
-  end
-
-  test "form_for/4 with id prefix id on inputs id" do
-    changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
-
-    form =
-      safe_form_for(changeset, [id: "form_id"], fn f ->
-        text_input(f, :name)
-      end)
-
-    assert form =~ ~s(<input id="form_id_name" name="user[name]" type="text" value="JV">)
-  end
-
-  defmodule Custom do
-    use Ecto.Schema
-
-    schema "customs" do
-      field :integer, :integer
-      field :float, :float
-      field :decimal, :decimal
-      field :string, :string
-      field :boolean, :boolean
-      field :date, :date
-      field :time, :time
-      field :datetime, :naive_datetime
+      f = to_form(changeset)
+      assert f.id == "user"
+      assert f.name == "user"
+      assert f.impl == Phoenix.HTML.FormData.Ecto.Changeset
+      assert f.source == changeset
+      assert f.params == %{}
+      assert f.hidden == []
+      assert f.options == [method: "post"]
     end
-  end
 
-  test "input value" do
-    changeset =
-      %Custom{string: "string", integer: 321, float: 321}
-      |> cast(%{float: 78.9, integer: 789}, ~w()a)
-      |> put_change(:integer, 123)
+    test "with loaded changeset" do
+      changeset = cast(%User{__meta__: %{state: :loaded}, id: 13}, %{"foo" => "bar"}, ~w()a)
 
-    safe_form_for(changeset, fn f ->
+      f = to_form(changeset)
+      assert f.id == "user"
+      assert f.name == "user"
+      assert f.source == changeset
+      assert f.params == %{"foo" => "bar"}
+      assert f.hidden == [id: 13]
+      assert f.options == [method: "put"]
+    end
+
+    test "with custom options" do
+      changeset = cast(%User{}, %{}, ~w()a)
+
+      f = to_form(changeset, as: "another", multipart: true)
+      assert f.id == "another"
+      assert f.name == "another"
+      assert f.source == changeset
+      assert f.options == [method: "post", multipart: true]
+    end
+
+    test "form_for/4 with errors" do
+      changeset =
+        %User{}
+        |> cast(%{"name" => "JV"}, ~w(name)a)
+        |> validate_length(:name, min: 3)
+        |> add_error(:score, "must be greater than %{count}", count: Decimal.new(18))
+
+      f = to_form(changeset)
+      assert f.errors == []
+
+      changeset = %{changeset | action: :ignore}
+      f = to_form(changeset)
+      assert f.errors == []
+
+      changeset = %{changeset | action: :insert}
+      f = to_form(changeset)
+
+      assert f.errors == [
+               score: {"must be greater than %{count}", count: Decimal.new(18)},
+               name:
+                 {"should be at least %{count} character(s)",
+                  count: 3, validation: :length, kind: :min, type: :string}
+             ]
+    end
+
+    test "with schemaless changeset from a map" do
+      changeset = cast({%{name: nil}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+
+      f = to_form(changeset, as: "another")
+
+      assert %Phoenix.HTML.FormField{
+               id: "another_name",
+               name: "another[name]",
+               errors: [],
+               field: :name,
+               value: "JV"
+             } = f[:name]
+
+      assert %Phoenix.HTML.FormField{
+               id: "another_other",
+               name: "another[other]",
+               errors: [],
+               field: :other,
+               value: nil
+             } = f[:other]
+    end
+
+    test "with schemaless changeset from a struct" do
+      changeset = cast({%SchemalessUser{}, %{name: :string}}, %{"name" => "JV"}, ~w(name)a)
+
+      f = to_form(changeset)
+
+      assert %Phoenix.HTML.FormField{
+               id: "schemaless_user_name",
+               name: "schemaless_user[name]",
+               errors: [],
+               field: :name,
+               value: "JV"
+             } = f[:name]
+    end
+
+    test "form_for/4 with id prefix id on inputs id" do
+      changeset = cast(%User{}, %{"name" => "JV"}, ~w(name)a)
+      f = to_form(changeset, id: "form_id")
+
+      assert %Phoenix.HTML.FormField{
+               id: "form_id_name",
+               name: "user[name]",
+               errors: [],
+               field: :name,
+               value: "JV"
+             } = f[:name]
+    end
+
+    defmodule Custom do
+      use Ecto.Schema
+
+      schema "customs" do
+        field :integer, :integer
+        field :float, :float
+        field :decimal, :decimal
+        field :string, :string
+        field :boolean, :boolean
+        field :date, :date
+        field :time, :time
+        field :datetime, :naive_datetime
+      end
+    end
+
+    test "input value" do
+      changeset =
+        %Custom{string: "string", integer: 321, float: 321}
+        |> cast(%{float: 78.9, integer: 789}, ~w()a)
+        |> put_change(:integer, 123)
+
+      f = to_form(changeset)
+
       assert input_value(f, :integer) == 123
       assert input_value(f, :string) == "string"
       assert input_value(f, :float) == 78.9
-      ""
-    end)
-  end
-
-  test "input value rejects non-atom fields" do
-    changeset =
-      %Custom{string: "string", integer: 321, float: 321}
-      |> cast(%{float: 78.9, integer: 789}, ~w()a)
-      |> put_change(:integer, 123)
-
-    msg = ~s(expected field to be an atom, got: "string")
-
-    assert_raise ArgumentError, msg, fn ->
-      safe_form_for(changeset, fn f ->
-        input_value(f, "string")
-        ""
-      end)
     end
-  end
 
-  test "input types" do
-    changeset = cast(%Custom{}, %{}, ~w()a)
+    test "input value rejects non-atom fields" do
+      changeset =
+        %Custom{string: "string", integer: 321, float: 321}
+        |> cast(%{float: 78.9, integer: 789}, ~w()a)
+        |> put_change(:integer, 123)
 
-    safe_form_for(changeset, fn f ->
-      assert input_type(f, :integer) == :number_input
-      # https://github.com/phoenixframework/phoenix_html/issues/279
-      assert input_type(f, :float) == :text_input
-      assert input_type(f, :decimal) == :text_input
-      assert input_type(f, :string) == :text_input
-      assert input_type(f, :boolean) == :checkbox
-      assert input_type(f, :date) == :date_select
-      assert input_type(f, :time) == :time_select
-      assert input_type(f, :datetime) == :datetime_select
-      ""
-    end)
-  end
+      msg = ~s(expected field to be an atom, got: "string")
+      f = to_form(changeset)
 
-  test "input validations" do
-    changeset =
-      cast(%Custom{}, %{}, ~w(integer string)a)
-      |> validate_required([:integer, :string])
-      |> validate_number(:integer, greater_than: 0, less_than: 100)
-      |> validate_number(:float, greater_than_or_equal_to: 0)
-      |> validate_length(:string, min: 0, max: 100)
+      assert_raise ArgumentError, msg, fn ->
+        input_value(f, "string")
+      end
+    end
 
-    safe_form_for(changeset, fn f ->
+    test "input validations" do
+      changeset =
+        cast(%Custom{}, %{}, ~w(integer string)a)
+        |> validate_required([:integer, :string])
+        |> validate_number(:integer, greater_than: 0, less_than: 100)
+        |> validate_number(:float, greater_than_or_equal_to: 0)
+        |> validate_length(:string, min: 0, max: 100)
+
+      f = to_form(changeset)
+
       assert input_validations(f, :integer) == [required: true, step: 1, min: 1, max: 99]
       assert input_validations(f, :float) == [required: false, step: "any", min: 0]
       assert input_validations(f, :decimal) == [required: false]
       assert input_validations(f, :string) == [required: true, maxlength: 100, minlength: 0]
-      ""
-    end)
+    end
   end
 end
