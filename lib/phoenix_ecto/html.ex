@@ -1,6 +1,12 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
   defimpl Phoenix.HTML.FormData, for: Ecto.Changeset do
     def to_form(changeset, opts) do
+      {action, changeset} =
+        case Keyword.fetch(opts, :action) do
+          {:ok, action} -> {action, Map.put(changeset, :action, action)}
+          :error -> {nil, changeset}
+        end
+
       %{params: params, data: data} = changeset
       {name, opts} = Keyword.pop(opts, :as)
 
@@ -11,6 +17,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         source: changeset,
         impl: __MODULE__,
         id: id,
+        action: action,
         name: name,
         errors: form_for_errors(changeset),
         data: data,
