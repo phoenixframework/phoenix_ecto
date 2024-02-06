@@ -306,8 +306,8 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       raise ArgumentError, "expected #{what} to be a map/struct, got: #{inspect(value)}"
     end
 
-    defp form_for_errors(%Ecto.Changeset{}, nil = _action), do: []
-    defp form_for_errors(%Ecto.Changeset{}, :ignore = _action), do: []
+    defp form_for_errors(_changeset, nil = _action), do: []
+    defp form_for_errors(_changeset, :ignore = _action), do: []
     defp form_for_errors(%Ecto.Changeset{errors: errors}, _action), do: errors
 
     defp form_for_hidden(%{__struct__: module} = data) do
