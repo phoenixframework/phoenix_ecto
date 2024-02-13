@@ -104,7 +104,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         end
       end
       
-  Now, in your `web.ex` file, you can invoke this callback for all of your
+  Now, in your `my_app_web.ex` file, you can invoke this callback for all of your
   LiveViews if the sandbox configuration, defined at the beginning of the
   documentation, is enabled:
 
