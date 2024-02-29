@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.4.4 (2024-02-29)
+
+* Enhancements
+  * Support Phoenix.HTML ~> 4.1
+  * Use `to_form`'s `:action` as changeset action when passed
+
 ## v4.4.3
 
 * Enhancements
