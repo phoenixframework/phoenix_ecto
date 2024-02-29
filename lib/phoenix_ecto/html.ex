@@ -1,6 +1,9 @@
 if Code.ensure_loaded?(Phoenix.HTML) do
   defimpl Phoenix.HTML.FormData, for: Ecto.Changeset do
     def to_form(changeset, opts) do
+      {action, opts} = Keyword.pop_lazy(opts, :action, fn -> changeset.action end)
+      changeset = Map.put(changeset, :action, action)
+
       %{params: params, data: data} = changeset
       {name, opts} = Keyword.pop(opts, :as)
 
@@ -11,8 +14,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
         source: changeset,
         impl: __MODULE__,
         id: id,
+        action: action,
         name: name,
-        errors: form_for_errors(changeset),
+        errors: form_for_errors(changeset, action),
         data: data,
         params: params || %{},
         hidden: form_for_hidden(data),
@@ -20,7 +24,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       }
     end
 
-    def to_form(%{action: parent_action} = source, form, field, opts) do
+    def to_form(source, %{action: parent_action} = form, field, opts) do
       if Keyword.has_key?(opts, :default) do
         raise ArgumentError,
               ":default is not supported on inputs_for with changesets. " <>
@@ -58,7 +62,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
               impl: __MODULE__,
               id: id,
               name: name,
-              errors: form_for_errors(changeset),
+              errors: form_for_errors(changeset, parent_action),
               data: data,
               params: params || %{},
               hidden: form_for_hidden(data),
@@ -92,7 +96,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
               id: id <> "_" <> index_string,
               name: name <> "[" <> index_string <> "]",
               index: index,
-              errors: form_for_errors(changeset),
+              errors: form_for_errors(changeset, parent_action),
               data: data,
               params: params || %{},
               hidden: form_for_hidden(data),
@@ -302,9 +306,9 @@ if Code.ensure_loaded?(Phoenix.HTML) do
       raise ArgumentError, "expected #{what} to be a map/struct, got: #{inspect(value)}"
     end
 
-    defp form_for_errors(%{action: nil}), do: []
-    defp form_for_errors(%{action: :ignore}), do: []
-    defp form_for_errors(%{errors: errors}), do: errors
+    defp form_for_errors(_changeset, nil = _action), do: []
+    defp form_for_errors(_changeset, :ignore = _action), do: []
+    defp form_for_errors(%Ecto.Changeset{errors: errors}, _action), do: errors
 
     defp form_for_hidden(%{__struct__: module} = data) do
       module.__schema__(:primary_key)
