@@ -1,6 +1,6 @@
 # Changelog
 
-## v4.4.4 (2024-02-29)
+## v4.5.0
 
 * Enhancements
   * Support Phoenix.HTML ~> 4.1
