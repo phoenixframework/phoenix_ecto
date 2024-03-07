@@ -1,6 +1,11 @@
 # Changelog
 
-## v4.5.0 (2024-03-01)
+## v4.5.1
+
+* Bug fix
+  * Fix a regression on nested `inputs_for`
+
+## v4.5.0
 
 * Enhancements
   * Support Phoenix.HTML ~> 4.1
