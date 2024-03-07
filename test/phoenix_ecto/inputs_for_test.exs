@@ -3,9 +3,15 @@ defmodule PhoenixEcto.InputsForTest do
 
   import Ecto.Changeset
 
-  defp to_inputs_form(changeset, field, opts \\ []) do
+  defp to_inputs_form(changeset_or_form, field, opts \\ [])
+
+  defp to_inputs_form(%Ecto.Changeset{} = changeset, field, opts) do
     form = Phoenix.HTML.FormData.to_form(changeset, [])
     Phoenix.HTML.FormData.to_form(changeset, form, field, opts)
+  end
+
+  defp to_inputs_form(%Phoenix.HTML.Form{} = form, field, opts) do
+    Phoenix.HTML.FormData.to_form(form.source, form, field, opts)
   end
 
   ## has_one
@@ -618,5 +624,25 @@ defmodule PhoenixEcto.InputsForTest do
       |> cast_embed(:permalinks)
 
     [] = to_inputs_form(changeset, :permalinks)
+  end
+
+  ## Nesting
+
+  test "action tracking with nesting" do
+    changeset =
+      %User{comment: %Comment{body: "data", child_comments: [%Comment{body: "child"}]}}
+      |> cast(%{}, ~w()a)
+      |> cast_assoc(:comment)
+
+    f = Phoenix.HTML.FormData.to_form(changeset, action: :insert)
+    assert f.action == :insert
+
+    [f] = to_inputs_form(f, :comment)
+    assert f.action == :insert
+    assert f.source.data.body == "data"
+
+    [f] = to_inputs_form(f, :child_comments)
+    assert f.action == :insert
+    assert f.source.data.body == "child"
   end
 end

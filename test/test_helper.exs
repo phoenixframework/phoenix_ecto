@@ -21,6 +21,7 @@ defmodule Comment do
   schema "comments" do
     field :body
     field :position, :integer
+    has_many :child_comments, Comment
   end
 
   def changeset(comment, params) do
@@ -30,6 +31,7 @@ defmodule Comment do
     |> cast(params, ~w(body)a)
     |> validate_required(:body)
     |> validate_length(:body, min: 3)
+    |> cast_assoc(:child_comments)
   end
 
   def custom_changeset(comment, params, required_length) do

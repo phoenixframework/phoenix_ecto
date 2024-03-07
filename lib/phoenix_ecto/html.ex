@@ -59,6 +59,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
             %Phoenix.HTML.Form{
               source: changeset,
+              action: parent_action,
               impl: __MODULE__,
               id: id,
               name: name,
@@ -93,6 +94,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
             %Phoenix.HTML.Form{
               source: changeset,
               impl: __MODULE__,
+              action: parent_action,
               id: id <> "_" <> index_string,
               name: name <> "[" <> index_string <> "]",
               index: index,
