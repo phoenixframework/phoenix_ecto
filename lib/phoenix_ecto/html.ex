@@ -50,7 +50,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
                 [validate_map!(map, field)]
 
               _ ->
-                [validate_map!(assoc_from_data(source.data, field), field) || module.__struct__]
+                [validate_map!(assoc_from_data(source.data, field), field) || module.__struct__()]
             end
 
           for changeset <- skip_replaced(changesets) do
