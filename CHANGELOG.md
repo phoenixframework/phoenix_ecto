@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.6.0
+
+* Enhancements
+  * Return 400 for character encoding errors in Postgrex
+  * Bump Elixir requirement to v1.11+
+
 ## v4.5.1
 
 * Bug fix
