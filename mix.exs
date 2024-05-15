@@ -54,6 +54,7 @@ defmodule PhoenixEcto.Mixfile do
       {:phoenix_html, "~> 2.14.2 or ~> 3.0 or ~> 4.1", optional: true},
       {:ecto, "~> 3.5"},
       {:plug, "~> 1.9"},
+      {:postgrex, "~> 0.17", optional: true},
       {:ex_doc, ">= 0.0.0", only: :docs}
     ]
   end

@@ -57,3 +57,14 @@ unless Phoenix.Ecto.StorageNotCreatedError in excluded_exceptions do
     def storage_up(repo), do: repo.__adapter__().storage_up(repo.config())
   end
 end
+
+if Code.ensure_loaded?(Postgrex.Error) do
+  unless Postgrex.Error in excluded_exceptions do
+    defimpl Plug.Exception, for: Postgrex.Error do
+      def status(%{postgres: %{code: :character_not_in_repertoire}}), do: 400
+      def status(_), do: 500
+
+      def actions(_), do: []
+    end
+  end
+end
