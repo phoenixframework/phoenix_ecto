@@ -28,9 +28,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
 
     for repo <- repos, Process.whereis(repo) do
-      unless check_pending_migrations!(repo, opts) do
-        check_storage_up!(repo)
-      end
+      check_pending_migrations!(repo, opts) || check_storage_up!(repo)
     end
 
     conn
@@ -44,84 +42,47 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
         adapter.storage_status(repo.config())
       end
     rescue
-      _ -> :ok
+      _ -> true
     else
       :down -> raise Phoenix.Ecto.StorageNotCreatedError, repo: repo
-      _ -> :ok
+      _ -> true
     end
   end
 
   defp check_pending_migrations!(repo, opts) do
-    repo_status =
-      with {:ok, migration_directories} <- migration_directories(repo, opts),
-           {:ok, migrations} <- migrations(repo, migration_directories, opts) do
-        {:ok, migration_directories, migrations}
-      end
+    dirs = migration_directories(repo, opts)
 
-    case repo_status do
-      {:ok, migration_directories, migrations} ->
-        has_pending =
-          Enum.any?(migrations, fn {status, _version, _migration} -> status == :down end)
+    migrations_fun =
+      Keyword.get_lazy(opts, :mock_migrations_fn, fn ->
+        if Code.ensure_loaded?(Ecto.Migrator),
+          do: &Ecto.Migrator.migrations/3,
+          else: fn _repo, _paths, _opts -> raise "to be rescued" end
+      end)
 
-        if has_pending do
-          raise Phoenix.Ecto.PendingMigrationError, repo: repo, directories: migration_directories
-        else
-          false
-        end
+    true = is_function(migrations_fun, 3)
 
-      :error ->
-        # could not determine migration directories and/or migrations because Ecto.Migrator is not available
-        false
+    try do
+      repo
+      |> migrations_fun.(dirs, Keyword.take(opts, @migration_opts))
+      |> Enum.any?(fn {status, _version, _migration} -> status == :down end)
+    rescue
+      _ -> false
+    else
+      true -> raise Phoenix.Ecto.PendingMigrationError, repo: repo
+      false -> true
     end
   end
 
   defp migration_directories(repo, opts) do
     case Keyword.fetch(opts, :migration_paths) do
       {:ok, migration_directories_fn} ->
-        migration_directories = migration_directories_fn.(repo)
-        {:ok, List.wrap(migration_directories)}
+        List.wrap(migration_directories_fn.(repo))
 
       :error ->
-        default_migration_directory(repo, opts)
-    end
-  end
-
-  def migrations(repo, migration_directories, opts) do
-    migration_opts = Keyword.take(opts, @migration_opts)
-
-    case Keyword.fetch(opts, :mock_migrations_fn) do
-      {:ok, migration_fn} ->
-        migrations = get_migrations(migration_fn, repo, migration_directories, migration_opts)
-        {:ok, migrations}
-
-      :error ->
-        if Code.ensure_loaded?(Ecto.Migrator) do
-          {:ok, Ecto.Migrator.migrations(repo, migration_directories, migration_opts)}
-        else
-          :error
-        end
-    end
-  end
-
-  defp get_migrations(fun, repo, directories, _opts) when is_function(fun, 2) do
-    fun.(repo, directories)
-  end
-
-  defp get_migrations(fun, repo, directories, opts) when is_function(fun, 3) do
-    fun.(repo, directories, opts)
-  end
-
-  defp default_migration_directory(repo, opts) do
-    case Keyword.fetch(opts, :mock_default_migration_directory_fn) do
-      {:ok, migration_directories_fn} ->
-        migration_directories = migration_directories_fn.(repo)
-        {:ok, List.wrap(migration_directories)}
-
-      :error ->
-        if Code.ensure_loaded?(Ecto.Migrator) do
-          {:ok, [Ecto.Migrator.migrations_path(repo)]}
-        else
-          :error
+        try do
+          [Ecto.Migrator.migrations_path(repo)]
+        rescue
+          _ -> []
         end
     end
   end
