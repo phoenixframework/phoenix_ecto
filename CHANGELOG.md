@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.6.1
+
+* Bug fix
+  * Ensure "Create database" action is shown when database is not available
+
 ## v4.6.0
 
 * Enhancements
