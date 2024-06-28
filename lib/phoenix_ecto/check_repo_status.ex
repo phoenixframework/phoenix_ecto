@@ -68,7 +68,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     rescue
       _ -> false
     else
-      true -> raise Phoenix.Ecto.PendingMigrationError, repo: repo
+      true -> raise Phoenix.Ecto.PendingMigrationError, repo: repo, directories: dirs
       false -> true
     end
   end
