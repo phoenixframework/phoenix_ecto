@@ -81,13 +81,16 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
-      CheckRepoStatus.call(
-        conn,
-        otp_app: :check_repo_ready,
-        mock_migrations_fn: mock_migrations_fn
-      )
-    end)
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          mock_migrations_fn: mock_migrations_fn
+        )
+      end)
+
+    assert exception.directories == []
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
@@ -122,26 +125,32 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     # set to a single directory
     mock_migrations_fn = fn _repo, ["foo"], _opts -> [{:down, 1, "migration"}] end
 
-    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
-      CheckRepoStatus.call(
-        conn,
-        otp_app: :check_repo_ready,
-        migration_paths: fn _repo -> "foo" end,
-        mock_migrations_fn: mock_migrations_fn
-      )
-    end)
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          migration_paths: fn _repo -> "foo" end,
+          mock_migrations_fn: mock_migrations_fn
+        )
+      end)
+
+    assert exception.directories == ["foo"]
 
     # set to multiple directories
     mock_migrations_fn = fn _repo, ["foo", "bar"], _opts -> [{:down, 1, "migration"}] end
 
-    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
-      CheckRepoStatus.call(
-        conn,
-        otp_app: :check_repo_ready,
-        migration_paths: fn _repo -> ["foo", "bar"] end,
-        mock_migrations_fn: mock_migrations_fn
-      )
-    end)
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          migration_paths: fn _repo -> ["foo", "bar"] end,
+          mock_migrations_fn: mock_migrations_fn
+        )
+      end)
+
+    assert exception.directories == ["foo", "bar"]
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
@@ -244,13 +253,16 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
-      CheckRepoStatus.call(
-        conn,
-        otp_app: :check_repo_ready,
-        mock_migrations_fn: mock_migrations_fn
-      )
-    end)
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          mock_migrations_fn: mock_migrations_fn
+        )
+      end)
+
+    assert exception.directories == []
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)

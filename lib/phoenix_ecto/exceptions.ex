@@ -8,6 +8,7 @@ defmodule Phoenix.Ecto.StorageNotCreatedError do
 end
 
 defmodule Phoenix.Ecto.PendingMigrationError do
+  @enforce_keys [:repo, :directories]
   defexception [:repo, :directories]
 
   def message(%__MODULE__{repo: repo}) do
