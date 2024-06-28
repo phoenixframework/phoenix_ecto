@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.6.2
+
+* Bug fix
+  * Attach directories to Pending Migrations exception
+
 ## v4.6.1
 
 * Bug fix
