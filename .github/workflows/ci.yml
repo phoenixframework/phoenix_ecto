@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -13,12 +13,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - pair:
-              elixir: 1.11
-              otp: 21
-          - pair:
-              elixir: 1.17
-              otp: 27
+          - elixir: 1.11
+            otp: 21
+          - elixir: 1.17
+            otp: 27
             lint: lint
     steps:
       - uses: actions/checkout@v4
