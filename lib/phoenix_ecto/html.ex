@@ -130,7 +130,7 @@ if Code.ensure_loaded?(Phoenix.HTML) do
 
     def input_type(%{types: types}, _, field) do
       type = Map.get(types, field, :string)
-      type = if Ecto.Type.primitive?(type), do: type, else: type.type
+      type = if Ecto.Type.primitive?(type), do: type, else: type.type()
 
       case type do
         :integer -> :number_input
