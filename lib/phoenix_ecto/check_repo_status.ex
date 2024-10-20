@@ -10,13 +10,14 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     * `:otp_app` - name of the application which the repos are fetched from
     * `:migration_paths` - a function that accepts a repo and returns a migration directory, or a list of migration directories, that is used to check for pending migrations
     * `:migration_lock` - the locking strategy used by the Ecto Adapter when checking for pending migrations. Set to `false` to disable migration locks.
+    * `:prefix` - the prefix used to check for pending migrations.
   """
 
   @behaviour Plug
 
   alias Plug.Conn
 
-  @migration_opts [:migration_lock]
+  @migration_opts [:migration_lock, :prefix]
   @compile {:no_warn_undefined, Ecto.Migrator}
 
   def init(opts) do
@@ -60,16 +61,23 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
       end)
 
     true = is_function(migrations_fun, 3)
+    migration_opts = Keyword.take(opts, @migration_opts)
 
     try do
       repo
-      |> migrations_fun.(dirs, Keyword.take(opts, @migration_opts))
+      |> migrations_fun.(dirs, migration_opts)
       |> Enum.any?(fn {status, _version, _migration} -> status == :down end)
     rescue
       _ -> false
     else
-      true -> raise Phoenix.Ecto.PendingMigrationError, repo: repo, directories: dirs
-      false -> true
+      true ->
+        raise Phoenix.Ecto.PendingMigrationError,
+          repo: repo,
+          directories: dirs,
+          migration_opts: migration_opts
+
+      false ->
+        true
     end
   end
 
