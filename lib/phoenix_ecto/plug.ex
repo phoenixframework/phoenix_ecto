@@ -39,7 +39,7 @@ unless Phoenix.Ecto.PendingMigrationError in excluded_exceptions do
       ]
 
     def migrate(repo, directories, migration_opts) do
-      Ecto.Migrator.run(repo, directories, :up, Keyword.merge(migration_opts, all: true))
+      Ecto.Migrator.run(repo, directories, :up, Keyword.merge(migration_opts || [], all: true))
     end
   end
 end
