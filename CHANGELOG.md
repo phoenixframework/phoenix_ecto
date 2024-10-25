@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.6.3
+
+* Enhancements
+  * Add prefix option to check repo status plug
+
+* Bug fix
+  * Fix map.field notation warning on Elixir 1.17
+
 ## v4.6.2
 
 * Bug fix
