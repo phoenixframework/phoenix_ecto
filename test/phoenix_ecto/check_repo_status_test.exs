@@ -103,14 +103,47 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
-      CheckRepoStatus.call(
-        conn,
-        otp_app: :check_repo_ready,
-        mock_migrations_fn: mock_migrations_fn,
-        migration_lock: false
-      )
-    end)
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          mock_migrations_fn: mock_migrations_fn,
+          migration_lock: false
+        )
+      end)
+
+    assert exception.migration_opts == [migration_lock: false]
+  after
+    Application.delete_env(:check_repo_ready, :ecto_repos)
+    Process.unregister(StorageUpRepo)
+  end
+
+  test "supports Ecto's prefix option" do
+    Process.register(self(), StorageUpRepo)
+    Application.put_env(:check_repo_ready, :ecto_repos, [StorageUpRepo])
+
+    mock_migrations_fn = fn _repo, _directories, opts ->
+      if opts[:prefix] == "tenant_1" do
+        [{:down, 1, "migration"}]
+      else
+        []
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    exception =
+      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+        CheckRepoStatus.call(
+          conn,
+          otp_app: :check_repo_ready,
+          mock_migrations_fn: mock_migrations_fn,
+          prefix: "tenant_1"
+        )
+      end)
+
+    assert exception.migration_opts == [prefix: "tenant_1"]
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
