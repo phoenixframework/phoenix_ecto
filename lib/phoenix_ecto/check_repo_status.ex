@@ -11,13 +11,14 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     * `:migration_paths` - a function that accepts a repo and returns a migration directory, or a list of migration directories, that is used to check for pending migrations
     * `:migration_lock` - the locking strategy used by the Ecto Adapter when checking for pending migrations. Set to `false` to disable migration locks.
     * `:prefix` - the prefix used to check for pending migrations.
+    * `:skip_table_creation` - Ecto will not try to create the `schema_migrations` table automatically.  This is useful if you are connecting as a DB user without create permissions
   """
 
   @behaviour Plug
 
   alias Plug.Conn
 
-  @migration_opts [:migration_lock, :prefix]
+  @migration_opts [:migration_lock, :prefix, :skip_table_creation]
   @compile {:no_warn_undefined, Ecto.Migrator}
 
   def init(opts) do
