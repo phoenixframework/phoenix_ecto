@@ -94,6 +94,9 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Now you can use the `on_mount/4` callback to check the header and assign the sandbox:
 
       defmodule MyApp.LiveAcceptance do
+        import Phoenix.LiveView
+        import Phoenix.Component
+
         def on_mount(:default, _params, _session, socket) do
           %{assigns: %{phoenix_ecto_sandbox: metadata}} =
             assign_new(socket, :phoenix_ecto_sandbox, fn ->
@@ -101,6 +104,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
             end)
 
           Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
+          {:cont, socket}
         end
       end
       
