@@ -94,6 +94,9 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   Now you can use the `on_mount/4` callback to check the header and assign the sandbox:
 
       defmodule MyApp.LiveAcceptance do
+        import Phoenix.LiveView
+        import Phoenix.Component
+
         def on_mount(:default, _params, _session, socket) do
           socket =
             %{assigns: %{phoenix_ecto_sandbox: metadata}} =
@@ -122,6 +125,21 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
           
           # ...
         end
+      end
+
+  If you have `on_mount` hooks in `live_session` defined in your `router.ex`
+  (for example, routes requiring authentication after running `mix phx.gen.auth`
+  to generate your authentication system), make sure the `MyApp.LiveAcceptance`
+  hook runs before, so following hooks have access to the Ecto Sandbox:
+
+      live_session :require_authenticated_user,
+        on_mount:
+          if(Application.compile_env(:your_app, :sql_sandbox),
+            do: [MyAppWeb.AcceptanceHook],
+            else: []
+          ) ++ [{MyAppWeb.UserAuth, :ensure_authenticated}] do
+        live "/users/settings", UserSettingsLive, :edit
+        live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       end
 
   ## Concurrent end-to-end tests with external clients

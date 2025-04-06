@@ -42,17 +42,16 @@ defmodule PhoenixEcto.HTMLTest do
       assert f.source.action == nil
     end
 
-    test "to_form :action option sets changeset action" do
+    test "to_form :action option sets form action" do
       changeset =
         %User{}
         |> cast(%{}, ~w()a)
         |> validate_length(:name, min: 3)
-        |> Map.put(:action, :validate)
+        |> Map.replace!(:action, :validate)
 
       assert changeset.action == :validate
       f = to_form(changeset, action: :insert)
       assert f.action == :insert
-      assert f.source.action == :insert
     end
 
     test "to_form without :action option uses changeset action" do
