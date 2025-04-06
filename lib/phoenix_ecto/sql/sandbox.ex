@@ -105,7 +105,6 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
               end)
 
           Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
-
           {:cont, socket}
         end
       end
