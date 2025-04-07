@@ -103,7 +103,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
               if connected?(socket), do: get_connect_info(socket, :user_agent)
             end)
 
-          metadata = socket.assigns.phoenix_ecto_sandbox.metadata
+          metadata = socket.assigns.phoenix_ecto_sandbox
           Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
           {:cont, socket}
         end
