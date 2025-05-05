@@ -4,6 +4,14 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
   alias Phoenix.Ecto.CheckRepoStatus
 
+  defmacro assert_wrapped(kind, func) do
+    quote do
+      wrapper_error = assert_raise(Plug.Conn.WrapperError, unquote(func))
+      assert %unquote(kind){} = wrapper_error.reason
+      wrapper_error.reason
+    end
+  end
+
   defmodule LongLivedProcess do
     def run do
       Process.sleep(1_000)
@@ -62,7 +70,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    assert_raise(Phoenix.Ecto.StorageNotCreatedError, fn ->
+    assert_wrapped(Phoenix.Ecto.StorageNotCreatedError, fn ->
       CheckRepoStatus.call(
         conn,
         otp_app: :check_repo_ready,
@@ -82,7 +90,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     conn = conn(:get, "/")
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
@@ -104,7 +112,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     conn = conn(:get, "/")
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
@@ -134,7 +142,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     conn = conn(:get, "/")
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
@@ -159,7 +167,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     mock_migrations_fn = fn _repo, ["foo"], _opts -> [{:down, 1, "migration"}] end
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
@@ -174,7 +182,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     mock_migrations_fn = fn _repo, ["foo", "bar"], _opts -> [{:down, 1, "migration"}] end
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
@@ -261,7 +269,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    assert_raise(Phoenix.Ecto.StorageNotCreatedError, fn ->
+    assert_wrapped(Phoenix.Ecto.StorageNotCreatedError, fn ->
       CheckRepoStatus.call(
         conn,
         otp_app: :check_repo_ready,
@@ -287,7 +295,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
     conn = conn(:get, "/")
 
     exception =
-      assert_raise(Phoenix.Ecto.PendingMigrationError, fn ->
+      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,

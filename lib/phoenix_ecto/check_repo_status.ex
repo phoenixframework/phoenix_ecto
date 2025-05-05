@@ -31,7 +31,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
       repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
 
       for repo <- repos, Process.whereis(repo) do
-        check_pending_migrations!(conn, repo, opts) || check_storage_up!(conn, repo)
+        check_pending_migrations!(repo, opts) || check_storage_up!(repo)
       end
 
       conn
@@ -41,7 +41,7 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     end
   end
 
-  defp check_storage_up!(conn, repo) do
+  defp check_storage_up!(repo) do
     try do
       adapter = repo.__adapter__()
 
@@ -51,12 +51,12 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     rescue
       _ -> true
     else
-      :down -> raise Phoenix.Ecto.StorageNotCreatedError, repo: repo, conn: conn
+      :down -> raise Phoenix.Ecto.StorageNotCreatedError, repo: repo
       _ -> true
     end
   end
 
-  defp check_pending_migrations!(conn, repo, opts) do
+  defp check_pending_migrations!(repo, opts) do
     dirs = migration_directories(repo, opts)
 
     migrations_fun =
@@ -78,7 +78,6 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
     else
       true ->
         raise Phoenix.Ecto.PendingMigrationError,
-          conn: conn,
           repo: repo,
           directories: dirs,
           migration_opts: migration_opts
