@@ -27,13 +27,18 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
   end
 
   def call(%Conn{} = conn, opts) do
-    repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
+    try do
+      repos = Application.get_env(opts[:otp_app], :ecto_repos, [])
 
-    for repo <- repos, Process.whereis(repo) do
-      check_pending_migrations!(conn, repo, opts) || check_storage_up!(conn, repo)
+      for repo <- repos, Process.whereis(repo) do
+        check_pending_migrations!(conn, repo, opts) || check_storage_up!(conn, repo)
+      end
+
+      conn
+    rescue
+      err in [Phoenix.Ecto.StorageNotCreatedError, Phoenix.Ecto.PendingMigrationError] ->
+        Plug.Conn.WrapperError.reraise(conn, :error, err, __STACKTRACE__)
     end
-
-    conn
   end
 
   defp check_storage_up!(conn, repo) do
