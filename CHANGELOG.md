@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.6.4
+
+* Enhancements
+  * Wrap raised Ecto exceptions so context is not lost
+  * Do not override changeset actions
+
 ## v4.6.3
 
 * Enhancements
