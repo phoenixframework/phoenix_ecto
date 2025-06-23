@@ -15,7 +15,7 @@ defmodule PhoenixEcto.SQL.SandboxTest do
       :ok
     end
 
-    def allow(repo, owner, _allowed) do
+    def allow(repo, owner, _allowed, _opts \\ []) do
       send(owner, {:allowed, repo})
     end
   end
