@@ -339,7 +339,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def allow(%{repo: repo, owner: owner}, sandbox),
-    do: Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self()))
+    do: Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self(), unallow_existing: true))
 
   def allow(%{}, _sandbox), do: :ok
   def allow(nil, _sandbox), do: :ok
