@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.6.5
+
+* Bug fixes
+  * Unallow existing allowances when attempting to allow a Plug to access a connection
+
 ## v4.6.4
 
 * Enhancements
