@@ -67,7 +67,11 @@ defmodule Phoenix.Ecto.CheckRepoStatus do
       end)
 
     true = is_function(migrations_fun, 3)
-    migration_opts = Keyword.take(opts, @migration_opts)
+
+    migration_opts =
+      opts
+      |> Keyword.take(@migration_opts)
+      |> Keyword.put_new(:migration_lock, false)
 
     try do
       repo
