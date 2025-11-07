@@ -111,30 +111,17 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
 
     conn = conn(:get, "/")
 
-    # default is false
-    exception =
-      assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
-        CheckRepoStatus.call(
-          conn,
-          otp_app: :check_repo_ready,
-          mock_migrations_fn: mock_migrations_fn
-        )
-      end)
-
-    assert exception.migration_opts == [migration_lock: false]
-
-    # can be overridden to true
     exception =
       assert_wrapped(Phoenix.Ecto.PendingMigrationError, fn ->
         CheckRepoStatus.call(
           conn,
           otp_app: :check_repo_ready,
           mock_migrations_fn: mock_migrations_fn,
-          migration_lock: true
+          migration_lock: false
         )
       end)
 
-    assert exception.migration_opts == [migration_lock: true]
+    assert exception.migration_opts == [migration_lock: false]
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
@@ -164,7 +151,7 @@ defmodule Phoenix.Ecto.CheckRepoStatusTest do
         )
       end)
 
-    assert Keyword.get(exception.migration_opts, :prefix) == "tenant_1"
+    assert exception.migration_opts == [prefix: "tenant_1"]
   after
     Application.delete_env(:check_repo_ready, :ecto_repos)
     Process.unregister(StorageUpRepo)
