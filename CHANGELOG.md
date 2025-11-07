@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.7.0
+
+* Bug fixes
+  * Disable migration lock when checking for pending migrations to avoid slow downs
+
 ## v4.6.6
 
 * Bug fixes
