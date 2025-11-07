@@ -108,7 +108,7 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
           {:cont, socket}
         end
       end
-      
+
   Now, in your `my_app_web.ex` file, you can invoke this callback for all of your
   LiveViews if the sandbox configuration, defined at the beginning of the
   documentation, is enabled:
@@ -117,11 +117,11 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
         quote do
           use Phoenix.LiveView
           # ...
-          
+
           if Application.compile_env(:your_app, :sql_sandbox) do
             on_mount MyApp.LiveAcceptance
           end
-          
+
           # ...
         end
       end
@@ -215,7 +215,8 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
       header: Keyword.get(opts, :header, "user-agent"),
       path: get_path_info(opts[:at]),
       repos: List.wrap(opts[:repo]),
-      sandbox: session_opts[:sandbox] || Ecto.Adapters.SQL.Sandbox,
+      sandbox:
+        session_opts[:sandbox] || {Ecto.Adapters.SQL.Sandbox, :allow, [[unallow_existing: true]]},
       session_opts: session_opts
     }
   end
@@ -339,8 +340,14 @@ defmodule Phoenix.Ecto.SQL.Sandbox do
   end
 
   def allow(%{repo: repo, owner: owner}, sandbox),
-    do: Enum.each(List.wrap(repo), &sandbox.allow(&1, owner, self(), unallow_existing: true))
+    do: Enum.each(List.wrap(repo), &allow_sandbox(sandbox, &1, owner, self()))
 
   def allow(%{}, _sandbox), do: :ok
   def allow(nil, _sandbox), do: :ok
+
+  defp allow_sandbox({m, f, args}, repo, owner, pid),
+    do: apply(m, f, [repo, owner, pid | args])
+
+  defp allow_sandbox(sandbox, repo, owner, pid) when is_atom(sandbox),
+    do: sandbox.allow(repo, owner, pid)
 end
