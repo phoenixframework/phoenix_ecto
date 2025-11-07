@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.6.6
+
+* Bug fixes
+  * Keep backwards compatibility on sandbox API
+
 ## v4.6.5
 
 * Bug fixes
