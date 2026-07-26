@@ -23,8 +23,8 @@ defmodule PhoenixEcto.Mixfile do
         source_ref: "v#{@version}",
         source_url: @source_url
       ],
-      xref: [
-        exclude: [
+      elixirc_options: [
+        no_warn_undefined: [
           {Ecto.Migrator, :migrations, 3},
           {Ecto.Migrator, :migrations_path, 1},
           {Ecto.Migrator, :run, 4}
