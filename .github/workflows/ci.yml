@@ -19,14 +19,14 @@ jobs:
             otp: "28"
             lint: lint
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v6
         with:
           path: deps
           key: mix-deps-${{ hashFiles('**/mix.lock') }}
