@@ -15,18 +15,18 @@ jobs:
         include:
           - elixir: "1.14"
             otp: "24"
-          - elixir: "1.19"
-            otp: "28"
+          - elixir: "1.20"
+            otp: "29"
             lint: lint
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: erlef/setup-beam@v1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: deps
           key: mix-deps-${{ hashFiles('**/mix.lock') }}
